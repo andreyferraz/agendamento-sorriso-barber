@@ -25,6 +25,15 @@ CREATE TABLE IF NOT EXISTS transacao_financeira (
     descricao TEXT,
     FOREIGN KEY (agendamento_id) REFERENCES agendamento(id)
 );
+CREATE TABLE IF NOT EXISTS produto (
+    id TEXT PRIMARY KEY,
+    nome TEXT NOT NULL,
+    descricao TEXT,
+    preco NUMERIC NOT NULL,
+    url_imagem TEXT,
+    estoque INTEGER NOT NULL,
+    ativo INTEGER NOT NULL DEFAULT 1 CHECK (ativo IN (0,1))
+);
 CREATE TABLE IF NOT EXISTS usuario_admin (
     id TEXT PRIMARY KEY,
     username TEXT NOT NULL UNIQUE,
