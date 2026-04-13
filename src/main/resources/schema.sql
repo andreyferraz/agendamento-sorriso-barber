@@ -12,7 +12,16 @@ CREATE TABLE IF NOT EXISTS agendamento (
     telefone_cliente VARCHAR(20) NOT NULL,
     data_hora_inicio TIMESTAMP NOT NULL,
     data_hora_fim TIMESTAMP NOT NULL,
-    status VARCHAR(20) NOT NULL,
+    status TEXT NOT NULL,
     google_event_id VARCHAR(255),
     FOREIGN KEY (servico_id) REFERENCES servico(id)
+);
+CREATE TABLE IF NOT EXISTS transacao_financeira (
+    id TEXT PRIMARY KEY,
+    tipo TEXT NOT NULL,
+    agendamento_id TEXT NOT NULL,
+    valor NUMERIC NOT NULL,
+    data TEXT NOT NULL,
+    descricao TEXT,
+    FOREIGN KEY (agendamento_id) REFERENCES agendamento(id)
 );
