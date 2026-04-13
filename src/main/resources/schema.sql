@@ -25,3 +25,8 @@ CREATE TABLE IF NOT EXISTS transacao_financeira (
     descricao TEXT,
     FOREIGN KEY (agendamento_id) REFERENCES agendamento(id)
 );
+CREATE TABLE IF NOT EXISTS usuario_admin (
+    id TEXT PRIMARY KEY,
+    username TEXT NOT NULL UNIQUE,
+    senha_hash TEXT NOT NULL
+);
