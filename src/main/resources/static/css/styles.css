@@ -204,6 +204,32 @@ a {
   box-shadow: 0 14px 24px rgba(197, 157, 95, 0.24);
 }
 
+/* CTA específico do menu de navegação */
+
+.nav-cta {
+  color: #111111;
+}
+
+.nav-cta i {
+  color: inherit;
+}
+
+/* evita que o hover global do menu altere a cor */
+.nav-links .nav-cta:hover,
+.nav-links .nav-cta:focus,
+.nav-links .nav-cta:focus-visible,
+.nav-links .nav-cta:active {
+  color: #111111;
+  outline: none;
+}
+
+/* foco acessível */
+.nav-cta:focus-visible {
+  box-shadow:
+    0 0 0 3px rgba(197, 157, 95, 0.25),
+    0 14px 24px rgba(197, 157, 95, 0.24);
+}
+
 main {
   flex: 1 0 auto;
   display: block;
