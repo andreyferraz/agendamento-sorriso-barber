@@ -1,11 +1,14 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR" xml:lang="pt-BR" th:fragment="layout(title, content)">
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR" xml:lang="pt-BR"
+  th:fragment="layout(title, content)">
 
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title th:text="${title}">Sorriso Barber</title>
   <link rel="stylesheet" th:href="@{/css/styles.css}" />
+  <!-- Font Awesome 5 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 
 <body>
@@ -25,19 +28,19 @@
           <a th:href="@{/sobre}">Sobre</a>
           <a th:href="@{/services}">Serviços</a>
           <a th:href="@{/products}">Produtos</a>
-          <a href="#" class="btn-cta">Agende Agora</a>
+          <a href="#" class="btn-cta"><i class="fas fa-calendar-alt" aria-hidden="true"></i> Agende Agora</a>
         </div>
       </nav>
     </div>
   </header>
 
   <main>
-    <div th:replace="${content}"></div>
+    <th:block th:replace="${content}"></th:block>
   </main>
 
   <footer class="site-footer">
     <div class="container">
-      © Sorriso Barber — Todos os direitos reservados
+      © Sorriso Barber - Todos os direitos reservados
     </div>
   </footer>
 
