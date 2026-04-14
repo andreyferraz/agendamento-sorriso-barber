@@ -132,6 +132,17 @@ main {
   background-repeat: no-repeat;
 }
 
+/* Extra spacing between hero and the next section to increase visual separation */
+.hero + .section {
+  padding-top: 96px;
+}
+
+@media (max-width: 768px) {
+  .hero + .section {
+    padding-top: 64px;
+  }
+}
+
 .hero h2 {
   font-size: clamp(2rem, 4vw, 3.2rem);
   margin-bottom: 16px;
@@ -148,8 +159,63 @@ main {
   margin-top: 24px;
 }
 
+/* Align hero CTA to the right on larger screens, center on mobile */
+.hero .hero-action {
+  display: flex;
+  justify-content: flex-start;
+}
+
+@media (max-width: 768px) {
+  .hero .hero-action {
+    justify-content: center;
+  }
+}
+
+/* keep container positioned for layout tweaks */
+.hero .container {
+  position: relative;
+}
+
 .section {
   padding: 56px 0;
+  position: relative;
+  overflow: visible;
+}
+
+/* Decorative divider between sections: a subtle slanted band with an accent line */
+
+.section + .section::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -28px;
+  height: 28px;
+  /* slanted band using transform */
+  background: linear-gradient(135deg, rgba(26,26,26,0.95), rgba(31,31,31,0.95));
+  transform: skewY(-4deg);
+  transform-origin: 0 0;
+  z-index: 0;
+}
+
+.section > .container {
+  position: relative; /* bring content above the divider */
+  z-index: 1;
+}
+
+/* thin accent line that sits above the slanted band */
+.section + .section::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: -8px;
+  width: 120px;
+  height: 4px;
+  border-radius: 8px;
+  background: linear-gradient(90deg, var(--accent-dark), var(--accent));
+  box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+  z-index: 2;
 }
 
 .section-title {
