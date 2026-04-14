@@ -27,4 +27,9 @@ public class HomeController {
         return "produtos";
     }
 
+    @GetMapping("/login")
+    public String login(Model model) {
+        return "login";
+    }
+
 }

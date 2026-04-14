@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+
+<head>
+  <title>Login — Sorriso Barber</title>
+</head>
+
+<body th:replace="~{layout :: layout('Login — Sorriso Barber', ~{::content})}">
+
+  <div th:fragment="content">
+    <section class="login-page">
+      <div class="container">
+        <div class="login-wrapper">
+          <div class="login-card">
+            <div class="login-badge">Acesso exclusivo</div>
+
+            <h1 class="login-title">Bem-vindo de volta</h1>
+            <p class="login-subtitle">
+              Entre na sua conta para gerenciar agendamentos, visualizar informações
+              e acessar a área administrativa.
+            </p>
+
+            <form class="login-form" action="#" method="post">
+              <div class="form-group">
+                <label for="email">E-mail</label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  placeholder="seuemail@exemplo.com"
+                  required
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="password">Senha</label>
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  placeholder="Digite sua senha"
+                  required
+                />
+              </div>
+
+              <div class="login-options">
+                <label class="remember-me">
+                  <input type="checkbox" name="remember" />
+                  <span>Lembrar de mim</span>
+                </label>
+
+                <a href="#" class="forgot-password">Esqueci minha senha</a>
+              </div>
+
+              <button type="submit" class="btn-login-submit">
+                <i class="fas fa-sign-in-alt" aria-hidden="true"></i>
+                Entrar
+              </button>
+            </form>
+
+            <div class="login-footer-note">
+              Ainda não possui acesso?
+              <a th:href="@{/}" class="login-back-link">Voltar para a página inicial</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+</body>
+</html>

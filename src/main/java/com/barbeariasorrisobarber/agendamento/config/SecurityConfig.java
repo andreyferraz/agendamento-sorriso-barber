@@ -32,11 +32,14 @@ public class SecurityConfig {
                     "/css/**",
                     "/js/**",
                     "/img/**",
+                    "/login",
+                    "/login/**",
                     "/favicon.ico"
                 ).permitAll()
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form
+                .loginPage("/login")
                 .defaultSuccessUrl("/", true)
                 .permitAll()
             )
