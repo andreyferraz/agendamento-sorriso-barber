@@ -6,6 +6,21 @@ document.addEventListener("DOMContentLoaded", function () {
     toggler.addEventListener("click", function () {
       const isOpen = links.classList.toggle("open");
       toggler.setAttribute("aria-expanded", String(isOpen));
+      // toggle hamburger icon to X when open
+      toggler.textContent = isOpen ? '✕' : '☰';
+      toggler.setAttribute('aria-label', isOpen ? 'Fechar menu' : 'Abrir menu');
+    });
+
+    // close menu when a nav link is clicked (mobile behavior)
+    links.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        if (links.classList.contains('open')) {
+          links.classList.remove('open');
+          toggler.setAttribute('aria-expanded', 'false');
+          toggler.textContent = '☰';
+          toggler.setAttribute('aria-label', 'Abrir menu');
+        }
+      });
     });
   }
   // Header scroll behavior: toggle 'scrolled' class when page is scrolled
