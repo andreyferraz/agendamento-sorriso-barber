@@ -6,32 +6,40 @@ document.addEventListener("DOMContentLoaded", function () {
     toggler.addEventListener("click", function () {
       const isOpen = links.classList.toggle("open");
       toggler.setAttribute("aria-expanded", String(isOpen));
-      // toggle hamburger icon to X when open
-      toggler.textContent = isOpen ? '✕' : '☰';
-      toggler.setAttribute('aria-label', isOpen ? 'Fechar menu' : 'Abrir menu');
+      toggler.textContent = isOpen ? "✕" : "☰";
+      toggler.setAttribute("aria-label", isOpen ? "Fechar menu" : "Abrir menu");
     });
 
-    // close menu when a nav link is clicked (mobile behavior)
-    links.querySelectorAll('a').forEach(link => {
-      link.addEventListener('click', () => {
-        if (links.classList.contains('open')) {
-          links.classList.remove('open');
-          toggler.setAttribute('aria-expanded', 'false');
-          toggler.textContent = '☰';
-          toggler.setAttribute('aria-label', 'Abrir menu');
+    links.querySelectorAll("a").forEach((link) => {
+      link.addEventListener("click", () => {
+        if (links.classList.contains("open")) {
+          links.classList.remove("open");
+          toggler.setAttribute("aria-expanded", "false");
+          toggler.textContent = "☰";
+          toggler.setAttribute("aria-label", "Abrir menu");
         }
       });
     });
   }
-  // Header scroll behavior: toggle 'scrolled' class when page is scrolled
-  const header = document.querySelector('.site-header');
+
+  const header = document.querySelector(".site-header");
   const scrollHandler = () => {
     if (!header) return;
-    if (window.scrollY > 20) header.classList.add('scrolled');
-    else header.classList.remove('scrolled');
+    if (window.scrollY > 20) header.classList.add("scrolled");
+    else header.classList.remove("scrolled");
   };
+
   scrollHandler();
-  window.addEventListener('scroll', scrollHandler, { passive: true });
+  window.addEventListener("scroll", scrollHandler, { passive: true });
+
+  const currentPath = window.location.pathname.replace(/\/$/, "") || "/";
+  document.querySelectorAll(".nav-links a:not(.nav-cta)").forEach((link) => {
+    const linkPath =
+      new URL(link.href, window.location.origin).pathname.replace(/\/$/, "") || "/";
+    if (linkPath === currentPath) {
+      link.classList.add("active");
+    }
+  });
 });
 
 function sendWhatsApp(productName, price) {

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+
+<head>
+  <title>Produtos — Sorriso Barber</title>
+</head>
+
+<body th:replace="~{layout :: layout('Produtos — Sorriso Barber', ~{::content})}">
+  <div th:fragment="content">
+    <section class="page-hero" style="--hero-position: center 22%;">
+      <div class="container narrow-container">
+        <span class="eyebrow">Produtos</span>
+        <h1 class="display-title">Itens selecionados para manter o seu visual alinhado todos os dias.</h1>
+        <p class="muted page-intro-text">Conheça os produtos da Sorriso Barber e escolha o que combina com a sua rotina.</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="grid grid-3">
+          <div class="product-card product-card-rich">
+            <div class="product-card-body">
+              <span class="product-category">Modelagem</span>
+              <h3>Pomada Modeladora</h3>
+              <p class="muted">Fixação equilibrada e acabamento natural para penteados versáteis.</p>
+              <ul class="card-list muted">
+                <li>Boa definição</li>
+                <li>Aplicação prática</li>
+                <li>Uso diário</li>
+              </ul>
+            </div>
+            <div class="product-card-footer">
+              <div class="price">R$ 65,00</div>
+              <button class="btn-wap" onclick="sendWhatsApp('Pomada Modeladora', '65,00')">Pedir no WhatsApp</button>
+            </div>
+          </div>
+
+          <div class="product-card product-card-rich">
+            <div class="product-card-body">
+              <span class="product-category">Barba</span>
+              <h3>Óleo para Barba</h3>
+              <p class="muted">Hidrata, perfuma e ajuda a manter os fios mais alinhados e macios.</p>
+              <ul class="card-list muted">
+                <li>Toque suave</li>
+                <li>Mais brilho</li>
+                <li>Fácil aplicação</li>
+              </ul>
+            </div>
+            <div class="product-card-footer">
+              <div class="price">R$ 45,00</div>
+              <button class="btn-wap" onclick="sendWhatsApp('Óleo para Barba', '45,00')">Pedir no WhatsApp</button>
+            </div>
+          </div>
+
+          <div class="product-card product-card-rich">
+            <div class="product-card-body">
+              <span class="product-category">Higiene</span>
+              <h3>Shampoo Premium</h3>
+              <p class="muted">Limpeza equilibrada para cabelos e couro cabeludo, sem ressecar os fios.</p>
+              <ul class="card-list muted">
+                <li>Uso frequente</li>
+                <li>Fórmula suave</li>
+                <li>Sensação de frescor</li>
+              </ul>
+            </div>
+            <div class="product-card-footer">
+              <div class="price">R$ 39,00</div>
+              <button class="btn-wap" onclick="sendWhatsApp('Shampoo Premium', '39,00')">Pedir no WhatsApp</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</body>
+
+</html>

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+
+<head>
+  <title>Sobre — Sorriso Barber</title>
+</head>
+
+<body th:replace="~{layout :: layout('Sobre — Sorriso Barber', ~{::content})}">
+  <div th:fragment="content">
+    <section class="page-hero" style="--hero-position: center 24%;">
+      <div class="container narrow-container">
+        <span class="eyebrow">Sobre nós</span>
+        <h1 class="display-title">Uma barbearia feita para quem leva estilo a sério.</h1>
+        <p class="muted page-intro-text">
+          A Sorriso Barber nasceu com a proposta de oferecer uma experiência diferenciada,
+          unindo atendimento próximo, acabamento refinado e um ambiente agradável para cada cliente.
+        </p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container section-split">
+        <div>
+          <span class="section-kicker">Nossa essência</span>
+          <h2 class="section-title">Excelência no atendimento e cuidado com cada detalhe.</h2>
+          <p class="section-text muted">
+            Mais do que executar um corte, nosso foco é entender o perfil de cada cliente e entregar um resultado coerente com sua identidade.
+          </p>
+          <p class="section-text muted">
+            Da recepção ao acabamento final, buscamos proporcionar uma experiência confortável, elegante e marcante.
+          </p>
+        </div>
+
+        <div class="timeline-card">
+          <div class="timeline-item">
+            <strong>Atendimento personalizado</strong>
+            <span class="muted">Escuta, orientação e cuidado com o estilo desejado.</span>
+          </div>
+          <div class="timeline-item">
+            <strong>Execução com precisão</strong>
+            <span class="muted">Cortes, barba e finalizações com atenção técnica.</span>
+          </div>
+          <div class="timeline-item">
+            <strong>Experiência premium</strong>
+            <span class="muted">Ambiente confortável e foco total na satisfação do cliente.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="section-heading-row">
+          <div>
+            <span class="section-kicker">Por que escolher a Sorriso Barber</span>
+            <h2 class="section-title">O que torna a experiência diferente.</h2>
+          </div>
+        </div>
+
+        <div class="grid grid-3">
+          <div class="card info-panel">
+            <i class="fas fa-cut" aria-hidden="true"></i>
+            <h3>Estilo com identidade</h3>
+            <p class="muted">Cada atendimento é conduzido de acordo com o seu perfil, formato e objetivo visual.</p>
+          </div>
+          <div class="card info-panel">
+            <i class="fas fa-user-tie" aria-hidden="true"></i>
+            <h3>Postura profissional</h3>
+            <p class="muted">Pontualidade, atenção e uma experiência que transmite confiança do início ao fim.</p>
+          </div>
+          <div class="card info-panel">
+            <i class="fas fa-gem" aria-hidden="true"></i>
+            <h3>Acabamento premium</h3>
+            <p class="muted">Detalhamento e finalização para entregar um resultado mais elegante e duradouro.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</body>
+
+</html>

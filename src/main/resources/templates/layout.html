@@ -7,18 +7,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title th:text="${title}">Sorriso Barber</title>
   <link rel="stylesheet" th:href="@{/css/styles.css}" />
-  <!-- Font Awesome 5 -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
 </head>
 
 <body>
   <header class="site-header">
     <div class="container header-inner">
-      <div class="brand">
+      <a class="brand" th:href="@{/}" aria-label="Ir para a página inicial da Sorriso Barber">
         <img th:src="@{/img/logo.png}" alt="Logo da Sorriso Barber" />
-      </div>
+        <div class="brand-copy">
+          <strong>Sorriso Barber</strong>
+          <span>Barbearia premium</span>
+        </div>
+      </a>
 
-      <nav class="site-nav">
+      <nav class="site-nav" aria-label="Menu principal">
         <button class="nav-toggle" type="button" aria-label="Abrir menu" aria-expanded="false">
           ☰
         </button>
@@ -26,9 +29,12 @@
         <div class="nav-links" id="navLinks">
           <a th:href="@{/}">Início</a>
           <a th:href="@{/sobre}">Sobre</a>
-          <a th:href="@{/services}">Serviços</a>
-          <a th:href="@{/products}">Produtos</a>
-          <a href="#" class="btn-cta nav-cta"><i class="fas fa-calendar-alt" aria-hidden="true"></i> Agende Agora</a>
+          <a th:href="@{/servicos}">Serviços</a>
+          <a th:href="@{/produtos}">Produtos</a>
+          <a href="/#contato" class="btn-cta nav-cta">
+            <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+            Agende Agora
+          </a>
         </div>
       </nav>
     </div>
@@ -39,7 +45,30 @@
   </main>
 
   <footer class="site-footer">
-    <div class="container">
+    <div class="container footer-grid">
+      <div>
+        <h3>Sorriso Barber</h3>
+        <p class="muted">Estilo, cuidado e acabamento premium para valorizar sua presença.</p>
+      </div>
+
+      <div>
+        <h4>Navegação</h4>
+        <div class="footer-links">
+          <a th:href="@{/}">Início</a>
+          <a th:href="@{/sobre}">Sobre</a>
+          <a th:href="@{/servicos}">Serviços</a>
+          <a th:href="@{/produtos}">Produtos</a>
+        </div>
+      </div>
+
+      <div>
+        <h4>Atendimento</h4>
+        <p class="muted">Segunda a sábado</p>
+        <p class="muted">Horários sob agendamento</p>
+      </div>
+    </div>
+
+    <div class="container footer-bottom">
       © Sorriso Barber - Todos os direitos reservados
     </div>
   </footer>

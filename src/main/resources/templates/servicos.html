@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+
+<head>
+  <title>Serviços — Sorriso Barber</title>
+</head>
+
+<body th:replace="~{layout :: layout('Serviços — Sorriso Barber', ~{::content})}">
+  <div th:fragment="content">
+    <section class="page-hero" style="--hero-position: center 18%;">
+      <div class="container narrow-container">
+        <span class="eyebrow">Serviços</span>
+        <h1 class="display-title">Atendimentos pensados para valorizar seu visual do jeito certo.</h1>
+        <p class="muted page-intro-text">Escolha o serviço ideal para manter seu estilo alinhado, moderno e bem cuidado.</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="grid grid-3">
+          <div class="card service-card">
+            <div class="icon">✂️</div>
+            <h3>Corte Masculino</h3>
+            <p class="muted">Corte clássico ou atual com acabamento técnico e finalização profissional.</p>
+            <ul class="card-list muted">
+              <li>Consultoria de estilo</li>
+              <li>Acabamento preciso</li>
+              <li>Finalização com produto</li>
+            </ul>
+            <div class="price">R$ 60,00</div>
+          </div>
+
+          <div class="card service-card featured-card">
+            <span class="badge-soft">Destaque</span>
+            <div class="icon">🪒</div>
+            <h3>Barba Premium</h3>
+            <p class="muted">Desenho, alinhamento e definição para uma barba mais elegante e bem cuidada.</p>
+            <ul class="card-list muted">
+              <li>Modelagem personalizada</li>
+              <li>Navalha e detalhamento</li>
+              <li>Acabamento com óleo ou balm</li>
+            </ul>
+            <div class="price">R$ 40,00</div>
+          </div>
+
+          <div class="card service-card">
+            <div class="icon">💈</div>
+            <h3>Corte + Barba</h3>
+            <p class="muted">Pacote completo para quem quer sair com um visual renovado e harmônico.</p>
+            <ul class="card-list muted">
+              <li>Visual completo</li>
+              <li>Melhor custo-benefício</li>
+              <li>Resultado mais marcante</li>
+            </ul>
+            <div class="price">R$ 90,00</div>
+          </div>
+
+          <div class="card service-card">
+            <div class="icon">🧴</div>
+            <h3>Hidratação Capilar</h3>
+            <p class="muted">Tratamento para revitalizar os fios, melhorar o toque e reforçar o cuidado diário.</p>
+            <ul class="card-list muted">
+              <li>Aplicação profissional</li>
+              <li>Mais maciez e brilho</li>
+              <li>Ideal para manutenção</li>
+            </ul>
+            <div class="price">R$ 50,00</div>
+          </div>
+
+          <div class="card service-card">
+            <div class="icon">🔥</div>
+            <h3>Acabamento Premium</h3>
+            <p class="muted">Detalhes extras para elevar o visual com ainda mais presença e definição.</p>
+            <ul class="card-list muted">
+              <li>Contornos refinados</li>
+              <li>Reforço na finalização</li>
+              <li>Mais sofisticação no resultado</li>
+            </ul>
+            <div class="price">R$ 30,00</div>
+          </div>
+
+          <div class="card service-card">
+            <div class="icon">⭐</div>
+            <h3>Consultoria de Visual</h3>
+            <p class="muted">Orientação rápida para definir o corte, barba e rotina de produtos ideal para você.</p>
+            <ul class="card-list muted">
+              <li>Indicação de estilo</li>
+              <li>Sugestão de manutenção</li>
+              <li>Experiência mais personalizada</li>
+            </ul>
+            <div class="price">Sob consulta</div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</body>
+
+</html>

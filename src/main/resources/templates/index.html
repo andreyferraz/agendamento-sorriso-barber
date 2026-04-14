@@ -8,49 +8,191 @@
 <body th:replace="~{layout :: layout('Início — Sorriso Barber', ~{::content})}">
 
   <div th:fragment="content">
-    <section class="hero" style="--hero-position: center 20%;">
-      <div class="container">
-        <h2>Barbearia Sorriso - Estilo e Precisão</h2>
-        <p>
-          Agende seu horário com os melhores barbeiros da cidade.
-          Experiência, cuidado e um ambiente acolhedor para você sair com um
-          sorriso.
-        </p>
-          <p class="hero-action">
-            <a class="btn-cta" href="#"><i class="fas fa-calendar-alt" aria-hidden="true"></i> Agende Agora</a>
+    <section class="hero hero-home" style="--hero-position: center 18%;">
+      <div class="container hero-grid">
+        <div class="hero-copy">
+          <span class="eyebrow">Barbearia premium • estilo, presença e precisão</span>
+          <h1 class="display-title">Seu visual em outro nível, com experiência completa do corte ao acabamento.</h1>
+          <p>
+            Na Sorriso Barber, cada atendimento é pensado para unir técnica, cuidado e personalidade.
+            Um ambiente confortável, atendimento de alto padrão e resultados que valorizam seu estilo.
           </p>
+
+          <div class="hero-action hero-actions-row">
+            <a class="btn-cta" href="/#contato">
+              <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+              Agendar horário
+            </a>
+            <a class="btn-secondary" th:href="@{/services}">
+              <i class="fas fa-cut" aria-hidden="true"></i>
+              Ver serviços
+            </a>
+          </div>
+
+          <div class="hero-highlights">
+            <div class="highlight-pill"><i class="fas fa-star" aria-hidden="true"></i> Atendimento premium</div>
+            <div class="highlight-pill"><i class="fas fa-clock" aria-hidden="true"></i> Agilidade com qualidade</div>
+            <div class="highlight-pill"><i class="fas fa-user-check" aria-hidden="true"></i> Estilo personalizado</div>
+          </div>
+        </div>
+
+        <!-- hero panel removed: 'Destaques da casa' not required -->
       </div>
     </section>
 
-    <section class="section">
+    <section class="section section-tabs-wrap">
       <div class="container">
-        <h3 class="section-title">Serviços</h3>
+        <div class="section-tabs" aria-label="Atalhos de navegação da página inicial">
+          <a class="section-tab" href="#sobre-home"><i class="fas fa-user-circle" aria-hidden="true"></i> Sobre</a>
+          <a class="section-tab" href="#servicos-home"><i class="fas fa-cut" aria-hidden="true"></i> Serviços</a>
+          <a class="section-tab" href="#produtos-home"><i class="fas fa-box-open" aria-hidden="true"></i> Produtos</a>
+        </div>
+      </div>
+    </section>
 
-        <div class="grid">
-          <div class="card">
-            <div class="icon">✂️</div>
-            <h3>Corte Masculino</h3>
-            <p class="muted">Corte clássico, navalha e acabamento.</p>
-            <div class="price">R$ 60,00</div>
+    <section class="section" id="sobre-home">
+      <div class="container section-split">
+        <div>
+          <span class="section-kicker">Sobre a Sorriso Barber</span>
+          <h2 class="section-title">Mais do que um corte: uma experiência pensada nos detalhes.</h2>
+          <p class="section-text muted">
+            A Sorriso Barber foi criada para homens que valorizam presença, cuidado pessoal e um atendimento diferenciado.
+            Aqui, cada cliente encontra um ambiente elegante, barbeiros atentos ao estilo desejado e um serviço que vai além do básico.
+          </p>
+          <p class="section-text muted">
+            Nosso objetivo é entregar confiança em cada atendimento, respeitando o seu perfil e oferecendo um resultado de alto nível.
+          </p>
+        </div>
+
+        <div class="info-panel-grid">
+          <div class="info-panel">
+            <i class="fas fa-award" aria-hidden="true"></i>
+            <h3>Qualidade no acabamento</h3>
+            <p class="muted">Precisão no corte, definição na barba e atenção em cada etapa do atendimento.</p>
           </div>
-
-          <div class="card">
-            <div class="icon">🪒</div>
-            <h3>Barba</h3>
-            <p class="muted">Modelagem e alinhamento com navalha.</p>
-            <div class="price">R$ 40,00</div>
+          <div class="info-panel">
+            <i class="fas fa-couch" aria-hidden="true"></i>
+            <h3>Ambiente confortável</h3>
+            <p class="muted">Um espaço pensado para oferecer bem-estar, estilo e uma experiência agradável.</p>
+          </div>
+          <div class="info-panel">
+            <i class="fas fa-handshake" aria-hidden="true"></i>
+            <h3>Atendimento próximo</h3>
+            <p class="muted">Cada cliente é atendido de forma personalizada, com escuta e orientação.</p>
+          </div>
+          <div class="info-panel">
+            <i class="fas fa-spray-can" aria-hidden="true"></i>
+            <h3>Produtos selecionados</h3>
+            <p class="muted">Finalização e cuidados com itens de qualidade para manter seu visual alinhado.</p>
           </div>
         </div>
       </div>
     </section>
 
-    <section class="section">
+    <section class="section" id="servicos-home">
       <div class="container">
-        <h3 class="section-title">Produtos</h3>
-        <p class="muted">Conheça nossos produtos exclusivos</p>
-        <p class="hero-action">
-          <a class="btn-cta" th:href="@{/products}"><i class="fas fa-box" aria-hidden="true"></i> Ver Todos os Produtos</a>
-        </p>
+        <div class="section-heading-row">
+          <div>
+            <span class="section-kicker">Nossos serviços</span>
+            <h2 class="section-title">Soluções para quem quer se cuidar com estilo.</h2>
+          </div>
+          <a class="text-link" th:href="@{/services}">Ver página completa <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
+        </div>
+
+        <div class="grid grid-3">
+          <div class="card service-card">
+            <div class="icon">✂️</div>
+            <h3>Corte Masculino</h3>
+            <p class="muted">Corte clássico ou moderno com acabamento preciso e atenção ao seu estilo.</p>
+            <ul class="card-list muted">
+              <li>Consultoria rápida de visual</li>
+              <li>Acabamento com máquina e tesoura</li>
+              <li>Finalização profissional</li>
+            </ul>
+            <div class="price">R$ 60,00</div>
+          </div>
+
+          <div class="card service-card featured-card">
+            <span class="badge-soft">Mais pedido</span>
+            <div class="icon">🪒</div>
+            <h3>Barba Premium</h3>
+            <p class="muted">Modelagem completa, alinhamento e acabamento para destacar sua presença.</p>
+            <ul class="card-list muted">
+              <li>Desenho e simetria</li>
+              <li>Navalha e detalhamento</li>
+              <li>Toque final com produto específico</li>
+            </ul>
+            <div class="price">R$ 40,00</div>
+          </div>
+
+          <div class="card service-card">
+            <div class="icon">💈</div>
+            <h3>Corte + Barba</h3>
+            <p class="muted">Pacote ideal para sair com o visual completo, limpo e muito mais marcante.</p>
+            <ul class="card-list muted">
+              <li>Atendimento completo</li>
+              <li>Harmonia entre corte e barba</li>
+              <li>Excelente custo-benefício</li>
+            </ul>
+            <div class="price">R$ 90,00</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="produtos-home">
+      <div class="container">
+        <div class="section-heading-row">
+          <div>
+            <span class="section-kicker">Produtos em destaque</span>
+            <h2 class="section-title">Leve o cuidado da barbearia para sua rotina.</h2>
+          </div>
+          <a class="text-link" th:href="@{/products}">Ver catálogo <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
+        </div>
+
+        <div class="grid grid-3">
+          <article class="card product-preview-card">
+            <span class="product-category">Modelagem</span>
+            <h3>Pomada Modeladora</h3>
+            <p class="muted">Fixação equilibrada, acabamento natural e praticidade no dia a dia.</p>
+            <div class="price">R$ 65,00</div>
+          </article>
+
+          <article class="card product-preview-card">
+            <span class="product-category">Cuidados com barba</span>
+            <h3>Óleo para Barba</h3>
+            <p class="muted">Mais brilho, maciez e hidratação para manter a barba alinhada e saudável.</p>
+            <div class="price">R$ 45,00</div>
+          </article>
+
+          <article class="card product-preview-card">
+            <span class="product-category">Higiene premium</span>
+            <h3>Shampoo Premium</h3>
+            <p class="muted">Limpeza eficiente sem agredir os fios, ideal para uso frequente.</p>
+            <div class="price">R$ 39,00</div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-cta" id="contato">
+      <div class="container cta-banner">
+        <div>
+          <span class="section-kicker">Pronto para renovar o visual?</span>
+          <h2 class="section-title">Agende seu atendimento e viva a experiência Sorriso Barber.</h2>
+          <p class="muted">Corte, barba e produtos de qualidade em um só lugar.</p>
+        </div>
+
+        <div class="cta-actions">
+          <a class="btn-cta" th:href="@{/services}">
+            <i class="fas fa-calendar-check" aria-hidden="true"></i>
+            Escolher serviço
+          </a>
+          <a class="btn-secondary" th:href="@{/sobre}">
+            <i class="fas fa-info-circle" aria-hidden="true"></i>
+            Conhecer a barbearia
+          </a>
+        </div>
       </div>
     </section>
   </div>

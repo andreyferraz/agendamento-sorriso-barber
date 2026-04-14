@@ -12,4 +12,19 @@ public class HomeController {
 		return "index";
 	}
 
+	@GetMapping("/sobre")
+    public String sobre(Model model) {
+        return "sobre";
+    }
+
+    @GetMapping("/servicos")
+    public String services(Model model) {
+        return "servicos";
+    }
+
+    @GetMapping("/produtos")
+    public String products(Model model) {
+        return "produtos";
+    }
+
 }
