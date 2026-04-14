@@ -8,6 +8,15 @@ document.addEventListener("DOMContentLoaded", function () {
       toggler.setAttribute("aria-expanded", String(isOpen));
     });
   }
+  // Header scroll behavior: toggle 'scrolled' class when page is scrolled
+  const header = document.querySelector('.site-header');
+  const scrollHandler = () => {
+    if (!header) return;
+    if (window.scrollY > 20) header.classList.add('scrolled');
+    else header.classList.remove('scrolled');
+  };
+  scrollHandler();
+  window.addEventListener('scroll', scrollHandler, { passive: true });
 });
 
 function sendWhatsApp(productName, price) {
