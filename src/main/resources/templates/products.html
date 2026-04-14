@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+  <head>
+    <title>Produtos — Sorriso Barber</title>
+  </head>
+  <body th:replace="layout :: layout('Produtos Exclusivos', ~{::body})">
+    <h2 style="font-family:'Playfair Display',serif">Produtos Exclusivos</h2>
+    <p class="muted">Selecione um produto para pedir pelo WhatsApp.</p>
+
+    <div class="products-grid" style="margin-top:18px">
+      <div class="product-card">
+        <img src="/images/product-1.jpg" alt="Produto 1"/>
+        <h4>Pomada Modeladora</h4>
+        <div class="meta"><div class="muted">R$ 65,00</div><button class="btn-wap" onclick="sendWhatsApp('Pomada Modeladora', '65,00')">Pedir no Zap</button></div>
+      </div>
+
+      <div class="product-card">
+        <img src="/images/product-2.jpg" alt="Produto 2"/>
+        <h4>Óleo para Barba</h4>
+        <div class="meta"><div class="muted">R$ 45,00</div><button class="btn-wap" onclick="sendWhatsApp('Óleo para Barba', '45,00')">Pedir no Zap</button></div>
+      </div>
+
+      <div class="product-card">
+        <img src="/images/product-3.jpg" alt="Produto 3"/>
+        <h4>Shampoo Premium</h4>
+        <div class="meta"><div class="muted">R$ 39,00</div><button class="btn-wap" onclick="sendWhatsApp('Shampoo Premium', '39,00')">Pedir no Zap</button></div>
+      </div>
+    </div>
+  </body>
+</html>

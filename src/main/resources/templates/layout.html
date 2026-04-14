@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR" xml:lang="pt-BR" th:fragment="layout(title, content)">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title th:text="${title}">Sorriso Barber</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}" />
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <div class="brand">
+        <img th:src="@{/img/logo.png}" alt="Logo da Sorriso Barber" />
+      </div>
+
+      <nav class="site-nav">
+        <button class="nav-toggle" type="button" aria-label="Abrir menu" aria-expanded="false">
+          ☰
+        </button>
+
+        <div class="nav-links" id="navLinks">
+          <a th:href="@{/}">Início</a>
+          <a th:href="@{/sobre}">Sobre</a>
+          <a th:href="@{/services}">Serviços</a>
+          <a th:href="@{/products}">Produtos</a>
+          <a href="#" class="btn-cta">Agende Agora</a>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div th:replace="${content}"></div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      © Sorriso Barber — Todos os direitos reservados
+    </div>
+  </footer>
+
+  <script th:src="@{/js/app.js}"></script>
+</body>
+
+</html>

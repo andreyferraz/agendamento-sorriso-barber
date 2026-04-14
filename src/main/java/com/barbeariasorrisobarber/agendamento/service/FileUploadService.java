@@ -24,8 +24,10 @@ import java.awt.image.BufferedImage;
 
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+@Service
 public class FileUploadService {
 
     @Value("${upload.dir:uploads}")

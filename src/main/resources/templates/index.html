@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+  <body th:replace="layout :: layout('Início — Sorriso Barber', ~{::content})">
+    <div th:fragment="content">
+      <section class="hero">
+        <div class="container">
+          <h2>Barbearia Sorriso — Estilo e Precisão</h2>
+          <p>
+            Agende seu horário com os melhores barbeiros da cidade.
+            Experiência, cuidado e um ambiente acolhedor para você sair com um
+            sorriso.
+          </p>
+          <p class="hero-action">
+            <a class="btn-cta" href="#">Agende Agora</a>
+          </p>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="container">
+          <h3 class="section-title">Serviços</h3>
+
+          <div class="grid">
+            <div class="card">
+              <div class="icon">✂️</div>
+              <h3>Corte Masculino</h3>
+              <p class="muted">Corte clássico, navalha e acabamento.</p>
+              <div class="price">R$ 60,00</div>
+            </div>
+
+            <div class="card">
+              <div class="icon">🪒</div>
+              <h3>Barba</h3>
+              <p class="muted">Modelagem e alinhamento com navalha.</p>
+              <div class="price">R$ 40,00</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="container">
+          <h3 class="section-title">Produtos</h3>
+          <p class="muted">Conheça nossos produtos exclusivos</p>
+          <p class="hero-action">
+            <a class="btn-cta" th:href="@{/products}">Ver Produtos</a>
+          </p>
+        </div>
+      </section>
+    </div>
+  </body>
+</html>

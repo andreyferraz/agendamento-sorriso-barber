@@ -16,6 +16,7 @@ public class UsuarioAdminService {
 
     private final UsuarioAdminRepository repository;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private static final String USERNAME_FIELD = "username";
 
     public UsuarioAdminService(UsuarioAdminRepository repository) {
         this.repository = repository;
@@ -27,13 +28,13 @@ public class UsuarioAdminService {
     }
 
     public Optional<UsuarioAdmin> buscarPorUsername(String username) {
-        ValidationUtils.validarCampoStringObrigatorio(username, "username");
+        ValidationUtils.validarCampoStringObrigatorio(username, USERNAME_FIELD);
         return repository.findByUsername(username);
     }
 
     @Transactional
     public UsuarioAdmin criarAdmin(String username, String rawPassword) {
-        ValidationUtils.validarCampoStringObrigatorio(username, "username");
+        ValidationUtils.validarCampoStringObrigatorio(username, USERNAME_FIELD);
         ValidationUtils.validarCampoStringObrigatorio(rawPassword, "password");
 
         repository.findByUsername(username).ifPresent(u -> {
@@ -47,7 +48,7 @@ public class UsuarioAdminService {
     }
 
     public boolean autenticar(String username, String rawPassword) {
-        ValidationUtils.validarCampoStringObrigatorio(username, "username");
+        ValidationUtils.validarCampoStringObrigatorio(username, USERNAME_FIELD);
         ValidationUtils.validarCampoStringObrigatorio(rawPassword, "password");
 
         Optional<UsuarioAdmin> opt = repository.findByUsername(username);
