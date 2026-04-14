@@ -8,4 +8,6 @@ import com.barbeariasorrisobarber.agendamento.model.UsuarioAdmin;
 
 public interface UsuarioAdminRepository extends CrudRepository<UsuarioAdmin, UUID> {
 
+	java.util.Optional<UsuarioAdmin> findByUsername(String username);
+
 }
