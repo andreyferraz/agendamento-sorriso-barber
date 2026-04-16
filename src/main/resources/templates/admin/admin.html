@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+
+<head>
+  <title>Painel Admin — Sorriso Barber</title>
+</head>
+
+<body th:replace="~{layout :: layout('Painel Admin — Sorriso Barber', ~{::content})}">
+
+  <div th:fragment="content">
+    <section class="admin-page">
+      <div class="container admin-container">
+        <div class="admin-shell">
+          <aside class="admin-sidebar">
+            <div class="admin-sidebar-brand">
+              <span class="admin-sidebar-label">Área administrativa</span>
+              <h1>Painel Admin</h1>
+              <p>Financeiro, serviços e gestão geral da barbearia.</p>
+            </div>
+
+            <nav class="admin-menu" aria-label="Menu do painel administrativo">
+              <button type="button" class="admin-nav-link active" data-tab-target="dashboard">
+                <i class="fas fa-chart-line" aria-hidden="true"></i>
+                <span>Dashboard</span>
+              </button>
+
+              <button type="button" class="admin-nav-link" data-tab-target="financeiro">
+                <i class="fas fa-wallet" aria-hidden="true"></i>
+                <span>Financeiro</span>
+              </button>
+
+              <button type="button" class="admin-nav-link" data-tab-target="servicos">
+                <i class="fas fa-concierge-bell" aria-hidden="true"></i>
+                <span>Serviços</span>
+              </button>
+
+              <button type="button" class="admin-nav-link" data-tab-target="senha">
+                <i class="fas fa-key" aria-hidden="true"></i>
+                <span>Mudar Senha</span>
+              </button>
+            </nav>
+
+            <div class="admin-sidebar-footer">
+              <a th:href="@{/}" class="admin-sidebar-action">
+                <i class="fas fa-arrow-left" aria-hidden="true"></i>
+                Voltar ao site
+              </a>
+              <a th:href="@{/login}" class="admin-sidebar-action secondary">
+                <i class="fas fa-sign-out-alt" aria-hidden="true"></i>
+                Sair
+              </a>
+            </div>
+          </aside>
+
+          <div class="admin-main">
+            <header class="admin-topbar">
+              <div>
+                <span class="admin-topbar-kicker">Gestão interna</span>
+                <h2>Controle geral da operação</h2>
+              </div>
+
+              <div class="admin-topbar-status">
+                <span class="admin-dot"></span>
+                Sistema em modo estático
+              </div>
+            </header>
+
+            <section class="admin-tab active" data-tab-panel="dashboard">
+              <div class="admin-section-heading">
+                <div>
+                  <span class="section-kicker">Dashboard principal</span>
+                  <h3 class="section-title">Visão rápida do dia</h3>
+                </div>
+                <div class="admin-actions-row">
+                  <button type="button" class="admin-action-btn">
+                    <i class="fas fa-sync-alt" aria-hidden="true"></i>
+                    Atualizar visão
+                  </button>
+                </div>
+              </div>
+
+              <div class="admin-stats-grid">
+                <article class="admin-stat-card highlight">
+                  <div class="admin-stat-icon"><i class="fas fa-coins" aria-hidden="true"></i></div>
+                  <div>
+                    <span>Receita do Dia</span>
+                    <strong>R$ 1.850,00</strong>
+                    <small>+12% em relação a ontem</small>
+                  </div>
+                </article>
+
+                <article class="admin-stat-card">
+                  <div class="admin-stat-icon"><i class="fas fa-calendar-check" aria-hidden="true"></i></div>
+                  <div>
+                    <span>Agendamentos</span>
+                    <strong>18</strong>
+                    <small>06 confirmados para a tarde</small>
+                  </div>
+                </article>
+
+                <article class="admin-stat-card">
+                  <div class="admin-stat-icon"><i class="fas fa-cut" aria-hidden="true"></i></div>
+                  <div>
+                    <span>Serviços Ativos</span>
+                    <strong>09</strong>
+                    <small>catálogo atualizado</small>
+                  </div>
+                </article>
+
+                <article class="admin-stat-card">
+                  <div class="admin-stat-icon"><i class="fas fa-cash-register" aria-hidden="true"></i></div>
+                  <div>
+                    <span>Caixa do Dia</span>
+                    <strong>R$ 1.320,00</strong>
+                    <small>após despesas operacionais</small>
+                  </div>
+                </article>
+              </div>
+
+              <div class="admin-dashboard-grid">
+                <article class="admin-panel-card">
+                  <div class="admin-panel-head">
+                    <div>
+                      <span class="panel-label">Resumo financeiro</span>
+                      <h4>Movimentação recente</h4>
+                    </div>
+                    <button type="button" class="admin-link-btn">Ver aba Financeiro</button>
+                  </div>
+
+                  <div class="admin-mini-list">
+                    <div class="admin-mini-item income">
+                      <div>
+                        <strong>Cortes e barbas</strong>
+                        <span>Entradas do turno da manhã</span>
+                      </div>
+                      <b>+ R$ 980,00</b>
+                    </div>
+
+                    <div class="admin-mini-item outcome">
+                      <div>
+                        <strong>Reposição de produtos</strong>
+                        <span>Compra de pomadas e loções</span>
+                      </div>
+                      <b>- R$ 210,00</b>
+                    </div>
+
+                    <div class="admin-mini-item income">
+                      <div>
+                        <strong>Pacotes premium</strong>
+                        <span>Serviços combinados</span>
+                      </div>
+                      <b>+ R$ 640,00</b>
+                    </div>
+                  </div>
+                </article>
+
+                <article class="admin-panel-card">
+                  <div class="admin-panel-head">
+                    <div>
+                      <span class="panel-label">Agenda</span>
+                      <h4>Próximos horários</h4>
+                    </div>
+                    <button type="button" class="admin-link-btn">Ver detalhes</button>
+                  </div>
+
+                  <div class="admin-schedule-list">
+                    <div class="admin-schedule-item">
+                      <span class="time">14:00</span>
+                      <div>
+                        <strong>João Pedro</strong>
+                        <small>Corte masculino + barba</small>
+                      </div>
+                    </div>
+
+                    <div class="admin-schedule-item">
+                      <span class="time">15:30</span>
+                      <div>
+                        <strong>Matheus Lima</strong>
+                        <small>Barba premium</small>
+                      </div>
+                    </div>
+
+                    <div class="admin-schedule-item">
+                      <span class="time">17:00</span>
+                      <div>
+                        <strong>Carlos Henrique</strong>
+                        <small>Corte degradê</small>
+                      </div>
+                    </div>
+                  </div>
+                </article>
+              </div>
+            </section>
+
+            <section class="admin-tab" data-tab-panel="financeiro">
+              <div class="admin-section-heading">
+                <div>
+                  <span class="section-kicker">Aba Financeiro</span>
+                  <h3 class="section-title">Entradas, saídas e relatórios</h3>
+                </div>
+                <div class="admin-actions-row">
+                  <button type="button" class="admin-action-btn primary">
+                    <i class="fas fa-file-pdf" aria-hidden="true"></i>
+                    Gerar relatório PDF
+                  </button>
+                  <button type="button" class="admin-action-btn">
+                    <i class="fas fa-download" aria-hidden="true"></i>
+                    Exportar resumo
+                  </button>
+                </div>
+              </div>
+
+              <div class="admin-summary-grid">
+                <div class="admin-summary-chip income">
+                  <span>Total de entradas</span>
+                  <strong>R$ 5.420,00</strong>
+                </div>
+                <div class="admin-summary-chip outcome">
+                  <span>Total de saídas</span>
+                  <strong>R$ 1.740,00</strong>
+                </div>
+                <div class="admin-summary-chip neutral">
+                  <span>Saldo parcial</span>
+                  <strong>R$ 3.680,00</strong>
+                </div>
+              </div>
+
+              <div class="admin-table-card">
+                <div class="admin-table-wrap">
+                  <table class="admin-table">
+                    <thead>
+                      <tr>
+                        <th>Data</th>
+                        <th>Descrição</th>
+                        <th>Categoria</th>
+                        <th>Tipo</th>
+                        <th>Valor</th>
+                        <th>Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>16/04/2026</td>
+                        <td>Corte + barba</td>
+                        <td>Atendimento</td>
+                        <td><span class="table-tag income">Entrada</span></td>
+                        <td class="value-income">R$ 90,00</td>
+                        <td><span class="table-status">Pago</span></td>
+                      </tr>
+                      <tr>
+                        <td>16/04/2026</td>
+                        <td>Compra de toalhas</td>
+                        <td>Operacional</td>
+                        <td><span class="table-tag outcome">Saída</span></td>
+                        <td class="value-outcome">R$ 180,00</td>
+                        <td><span class="table-status">Baixado</span></td>
+                      </tr>
+                      <tr>
+                        <td>15/04/2026</td>
+                        <td>Pacote mensal VIP</td>
+                        <td>Assinatura</td>
+                        <td><span class="table-tag income">Entrada</span></td>
+                        <td class="value-income">R$ 450,00</td>
+                        <td><span class="table-status">Pago</span></td>
+                      </tr>
+                      <tr>
+                        <td>15/04/2026</td>
+                        <td>Reposição de pomadas</td>
+                        <td>Estoque</td>
+                        <td><span class="table-tag outcome">Saída</span></td>
+                        <td class="value-outcome">R$ 320,00</td>
+                        <td><span class="table-status">Baixado</span></td>
+                      </tr>
+                      <tr>
+                        <td>14/04/2026</td>
+                        <td>Corte premium</td>
+                        <td>Atendimento</td>
+                        <td><span class="table-tag income">Entrada</span></td>
+                        <td class="value-income">R$ 75,00</td>
+                        <td><span class="table-status">Pago</span></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </section>
+
+            <section class="admin-tab" data-tab-panel="servicos">
+              <div class="admin-section-heading">
+                <div>
+                  <span class="section-kicker">Aba Serviços</span>
+                  <h3 class="section-title">Cadastro e gerenciamento de serviços</h3>
+                </div>
+                <div class="admin-actions-row">
+                  <button type="button" class="admin-action-btn primary">
+                    <i class="fas fa-plus" aria-hidden="true"></i>
+                    Novo serviço
+                  </button>
+                </div>
+              </div>
+
+              <div class="admin-crud-grid">
+                <article class="admin-panel-card">
+                  <div class="admin-panel-head">
+                    <div>
+                      <span class="panel-label">Cadastrar serviço</span>
+                      <h4>Novo item do catálogo</h4>
+                    </div>
+                  </div>
+
+                  <form class="admin-form">
+                    <div class="admin-form-grid">
+                      <div class="form-group">
+                        <label for="service-name">Nome do serviço</label>
+                        <input type="text" id="service-name" placeholder="Ex.: Corte Social" />
+                      </div>
+
+                      <div class="form-group">
+                        <label for="service-price">Valor</label>
+                        <input type="text" id="service-price" placeholder="R$ 65,00" />
+                      </div>
+
+                      <div class="form-group">
+                        <label for="service-duration">Duração</label>
+                        <input type="text" id="service-duration" placeholder="45 min" />
+                      </div>
+
+                      <div class="form-group">
+                        <label for="service-status">Status</label>
+                        <input type="text" id="service-status" placeholder="Ativo" />
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label for="service-description">Descrição</label>
+                      <input type="text" id="service-description" placeholder="Descreva rapidamente o serviço" />
+                    </div>
+
+                    <div class="admin-form-actions">
+                      <button type="button" class="admin-action-btn primary">Salvar serviço</button>
+                      <button type="reset" class="admin-action-btn">Limpar</button>
+                    </div>
+                  </form>
+                </article>
+
+                <article class="admin-panel-card">
+                  <div class="admin-panel-head">
+                    <div>
+                      <span class="panel-label">Lista atual</span>
+                      <h4>Serviços cadastrados</h4>
+                    </div>
+                  </div>
+
+                  <div class="admin-services-list">
+                    <div class="admin-service-item">
+                      <div>
+                        <strong>Corte Masculino</strong>
+                        <span>45 min • R$ 60,00</span>
+                      </div>
+                      <div class="admin-item-actions">
+                        <button type="button">Editar</button>
+                        <button type="button" class="danger">Excluir</button>
+                      </div>
+                    </div>
+
+                    <div class="admin-service-item">
+                      <div>
+                        <strong>Barba Premium</strong>
+                        <span>30 min • R$ 40,00</span>
+                      </div>
+                      <div class="admin-item-actions">
+                        <button type="button">Editar</button>
+                        <button type="button" class="danger">Excluir</button>
+                      </div>
+                    </div>
+
+                    <div class="admin-service-item">
+                      <div>
+                        <strong>Corte + Barba</strong>
+                        <span>60 min • R$ 90,00</span>
+                      </div>
+                      <div class="admin-item-actions">
+                        <button type="button">Editar</button>
+                        <button type="button" class="danger">Excluir</button>
+                      </div>
+                    </div>
+                  </div>
+                </article>
+              </div>
+            </section>
+
+            <section class="admin-tab" data-tab-panel="senha">
+              <div class="admin-section-heading">
+                <div>
+                  <span class="section-kicker">Mudar senha</span>
+                  <h3 class="section-title">Atualização de acesso</h3>
+                </div>
+              </div>
+
+              <article class="admin-panel-card admin-password-card">
+                <div class="admin-panel-head">
+                  <div>
+                    <span class="panel-label">Segurança</span>
+                    <h4>Altere sua senha de acesso</h4>
+                  </div>
+                </div>
+
+                <form class="admin-form admin-password-form">
+                  <div class="form-group">
+                    <label for="current-password">Senha atual</label>
+                    <input type="password" id="current-password" placeholder="Digite sua senha atual" />
+                  </div>
+
+                  <div class="form-group">
+                    <label for="new-password">Nova senha</label>
+                    <input type="password" id="new-password" placeholder="Digite a nova senha" />
+                  </div>
+
+                  <div class="form-group">
+                    <label for="confirm-password">Confirmar nova senha</label>
+                    <input type="password" id="confirm-password" placeholder="Repita a nova senha" />
+                  </div>
+
+                  <div class="admin-form-actions">
+                    <button type="button" class="admin-action-btn primary gold-save">Salvar</button>
+                  </div>
+                </form>
+              </article>
+            </section>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+</body>
+</html>

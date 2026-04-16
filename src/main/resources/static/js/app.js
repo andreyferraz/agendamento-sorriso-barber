@@ -50,3 +50,33 @@ function sendWhatsApp(productName, price) {
 }
 
 window.sendWhatsApp = sendWhatsApp;
+
+document.addEventListener("DOMContentLoaded", function () {
+  const loginForm = document.querySelector("#adminLoginForm");
+
+  if (loginForm) {
+    loginForm.addEventListener("submit", function (event) {
+      event.preventDefault();
+      const redirectUrl = loginForm.getAttribute("data-redirect-url") || "/admin";
+      window.location.href = redirectUrl;
+    });
+  }
+
+  const adminNavLinks = document.querySelectorAll(".admin-nav-link[data-tab-target]");
+  const adminPanels = document.querySelectorAll(".admin-tab[data-tab-panel]");
+
+  if (adminNavLinks.length && adminPanels.length) {
+    adminNavLinks.forEach((button) => {
+      button.addEventListener("click", function () {
+        const target = button.getAttribute("data-tab-target");
+
+        adminNavLinks.forEach((item) => item.classList.remove("active"));
+        adminPanels.forEach((panel) => panel.classList.remove("active"));
+
+        button.classList.add("active");
+        const targetPanel = document.querySelector(`.admin-tab[data-tab-panel="${target}"]`);
+        if (targetPanel) targetPanel.classList.add("active");
+      });
+    });
+  }
+});

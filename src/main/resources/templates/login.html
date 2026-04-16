@@ -20,14 +20,14 @@
               e acessar a área administrativa.
             </p>
 
-            <form class="login-form" action="#" method="post">
+            <form class="login-form" id="adminLoginForm" action="#" method="post" data-redirect-url="/admin">
               <div class="form-group">
-                <label for="email">E-mail</label>
+                <label for="username">Usuário</label>
                 <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  placeholder="seuemail@exemplo.com"
+                  type="text"
+                  id="username"
+                  name="username"
+                  placeholder="seu usuário"
                   required
                 />
               </div>
@@ -54,7 +54,7 @@
 
               <button type="submit" class="btn-login-submit">
                 <i class="fas fa-sign-in-alt" aria-hidden="true"></i>
-                Entrar
+                Entrar no painel
               </button>
             </form>
 

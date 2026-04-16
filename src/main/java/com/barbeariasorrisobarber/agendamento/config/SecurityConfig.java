@@ -40,7 +40,7 @@ public class SecurityConfig {
             )
             .formLogin(form -> form
                 .loginPage("/login")
-                .defaultSuccessUrl("/", true)
+                .defaultSuccessUrl("/admin", true)
                 .permitAll()
             )
             .logout(LogoutConfigurer::permitAll);
