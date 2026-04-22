@@ -20,16 +20,28 @@
               e acessar a área administrativa.
             </p>
 
-            <form class="login-form" id="adminLoginForm" action="#" method="post" data-redirect-url="/admin">
+            <div th:if="${param.error}" class="login-error-message">
+              Usuário ou senha inválidos.
+            </div>
+
+            <div th:if="${param.logout}" class="login-success-message">
+              Logout realizado com sucesso.
+            </div>
+
+            <form class="login-form" th:action="@{/login}" method="post">
+              <input
+                type="hidden"
+                th:name="${_csrf.parameterName}"
+                th:value="${_csrf.token}" />
+
               <div class="form-group">
                 <label for="username">Usuário</label>
                 <input
                   type="text"
                   id="username"
                   name="username"
-                  placeholder="seu usuário"
-                  required
-                />
+                  placeholder="Seu usuário"
+                  required />
               </div>
 
               <div class="form-group">
@@ -39,17 +51,16 @@
                   id="password"
                   name="password"
                   placeholder="Digite sua senha"
-                  required
-                />
+                  required />
               </div>
 
               <div class="login-options">
                 <label class="remember-me">
-                  <input type="checkbox" name="remember" />
+                  <input type="checkbox" name="remember-me" />
                   <span>Lembrar de mim</span>
                 </label>
 
-                <a href="#" class="forgot-password">Esqueci minha senha</a>
+                <a th:href="@{/}" class="forgot-password">Fale com o administrador</a>
               </div>
 
               <button type="submit" class="btn-login-submit">

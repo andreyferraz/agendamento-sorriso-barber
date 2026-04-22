@@ -32,6 +32,34 @@ jobs:
           sleep 12
           if grep -q "Started" app.log; then echo "App started"; else tail -n 200 app.log; exit 1; fi
 
+      - name: Test admin login
+        shell: bash
+        run: |
+          set -euo pipefail
+          # wait for HTTP server
+          for i in {1..20}; do
+            if curl -sSf http://localhost:8080/ >/dev/null 2>&1; then
+              break
+            fi
+            sleep 1
+          done
+
+          curl -c cookies.txt -s http://localhost:8080/login -o login.html
+          TOKEN=$(sed -n 's/.*name="_csrf" value="\([^"]*\)".*/\1/p' login.html || true)
+          echo "CSRF token: ${TOKEN}"
+
+          HTTP=$(curl -b cookies.txt -c cookies.txt -s -o /dev/null -w "%{http_code}" -X POST http://localhost:8080/login -d "username=${ADMIN_USERNAME}&password=${ADMIN_PASSWORD}&_csrf=${TOKEN}")
+          echo "POST /login status: ${HTTP}"
+          if [ "${HTTP}" -ne 302 ]; then
+            echo "Login POST failed. Dumping app.log for diagnosis:"; tail -n 200 app.log; exit 1
+          fi
+
+          ADMIN_STATUS=$(curl -b cookies.txt -s -o /dev/null -w "%{http_code}" http://localhost:8080/admin)
+          echo "/admin status: ${ADMIN_STATUS}"
+          if [ "${ADMIN_STATUS}" -ne 200 ]; then
+            echo "Authenticated request to /admin failed"; tail -n 200 app.log; exit 1
+          fi
+
       - name: Stop app
         run: |
           kill $(cat app.pid) || true

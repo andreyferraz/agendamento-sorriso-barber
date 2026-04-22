@@ -3,7 +3,7 @@ package com.barbeariasorrisobarber.agendamento.service;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,11 +15,12 @@ import com.barbeariasorrisobarber.agendamento.utils.ValidationUtils;
 public class UsuarioAdminService {
 
     private final UsuarioAdminRepository repository;
-    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private final PasswordEncoder passwordEncoder;
     private static final String USERNAME_FIELD = "username";
 
-    public UsuarioAdminService(UsuarioAdminRepository repository) {
+    public UsuarioAdminService(UsuarioAdminRepository repository, PasswordEncoder passwordEncoder) {
         this.repository = repository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public Optional<UsuarioAdmin> buscarPorId(UUID id) {
@@ -55,6 +56,7 @@ public class UsuarioAdminService {
         if (opt.isEmpty()) {
             return false;
         }
+
         return passwordEncoder.matches(rawPassword, opt.get().getSenhaHash());
     }
 
@@ -75,6 +77,4 @@ public class UsuarioAdminService {
         ValidationUtils.validarCampoObrigatorio(id, "id");
         repository.deleteById(id);
     }
-
 }
-

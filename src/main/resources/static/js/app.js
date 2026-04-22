@@ -40,27 +40,6 @@ document.addEventListener("DOMContentLoaded", function () {
       link.classList.add("active");
     }
   });
-});
-
-function sendWhatsApp(productName, price) {
-  const phone = "5511999999999";
-  const text = `Olá, gostaria de pedir ${productName} por R$ ${price}`;
-  const url = `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
-  window.open(url, "_blank");
-}
-
-window.sendWhatsApp = sendWhatsApp;
-
-document.addEventListener("DOMContentLoaded", function () {
-  const loginForm = document.querySelector("#adminLoginForm");
-
-  if (loginForm) {
-    loginForm.addEventListener("submit", function (event) {
-      event.preventDefault();
-      const redirectUrl = loginForm.getAttribute("data-redirect-url") || "/admin";
-      window.location.href = redirectUrl;
-    });
-  }
 
   const adminNavLinks = document.querySelectorAll(".admin-nav-link[data-tab-target]");
   const adminPanels = document.querySelectorAll(".admin-tab[data-tab-panel]");
@@ -80,3 +59,12 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 });
+
+function sendWhatsApp(productName, price) {
+  const phone = "5511999999999";
+  const text = `Olá, gostaria de pedir ${productName} por R$ ${price}`;
+  const url = `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
+  window.open(url, "_blank");
+}
+
+window.sendWhatsApp = sendWhatsApp;
