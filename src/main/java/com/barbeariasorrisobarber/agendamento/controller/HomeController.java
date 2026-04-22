@@ -4,15 +4,23 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.ui.Model;
 
+import com.barbeariasorrisobarber.agendamento.repository.UsuarioAdminRepository;
+
 @Controller
 public class HomeController {
 
-	@GetMapping({"/", "/index"})
-	public String index(Model model) {
-		return "index";
-	}
+    private final UsuarioAdminRepository usuarioAdminRepository;
 
-	@GetMapping("/sobre")
+    public HomeController(UsuarioAdminRepository usuarioAdminRepository) {
+        this.usuarioAdminRepository = usuarioAdminRepository;
+    }
+
+    @GetMapping({"/", "/index"})
+    public String index(Model model) {
+        return "index";
+    }
+
+    @GetMapping("/sobre")
     public String sobre(Model model) {
         return "sobre";
     }
@@ -34,6 +42,7 @@ public class HomeController {
 
     @GetMapping("/admin")
     public String admin(Model model) {
+        model.addAttribute("usuarios", usuarioAdminRepository.findAll());
         return "admin/admin";
     }
 
