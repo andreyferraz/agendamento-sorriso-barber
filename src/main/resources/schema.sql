@@ -39,3 +39,11 @@ CREATE TABLE IF NOT EXISTS usuario_admin (
     username TEXT NOT NULL UNIQUE,
     senha_hash TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS barbeiro (
+    id TEXT PRIMARY KEY,
+    nome VARCHAR(255) NOT NULL,
+    telefone VARCHAR(20),
+    email VARCHAR(255),
+    senha_hash TEXT NOT NULL,
+    comissao_percentual DECIMAL(10, 2) NOT NULL
+);
