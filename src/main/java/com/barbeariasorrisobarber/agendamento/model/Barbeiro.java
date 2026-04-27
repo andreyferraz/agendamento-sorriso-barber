@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
 import lombok.AllArgsConstructor;
@@ -25,8 +26,10 @@ public class Barbeiro {
 
     private String email;
 
+    @Column("senha_hash")
     private String senhaHash;
 
+    @Column("comissao_percentual")
     private BigDecimal comissaoPercentual;
 
 }
