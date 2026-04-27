@@ -31,6 +31,9 @@ public class Agendamento {
     @Column("servico_id")
     private UUID servicoId;
 
+    @Column("barbeiro_id")
+    private UUID barbeiroId;
+
     @Column("data_hora_inicio")
     private LocalDateTime dataHoraInicio;
 

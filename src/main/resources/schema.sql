@@ -8,13 +8,15 @@ CREATE TABLE IF NOT EXISTS servico (
 CREATE TABLE IF NOT EXISTS agendamento (
     id TEXT PRIMARY KEY,
     servico_id TEXT NOT NULL,
+    barbeiro_id TEXT NOT NULL,
     nome_cliente VARCHAR(255) NOT NULL,
     telefone_cliente VARCHAR(20) NOT NULL,
     data_hora_inicio TIMESTAMP NOT NULL,
     data_hora_fim TIMESTAMP NOT NULL,
     status TEXT NOT NULL,
     google_event_id VARCHAR(255),
-    FOREIGN KEY (servico_id) REFERENCES servico(id)
+    FOREIGN KEY (servico_id) REFERENCES servico(id),
+    FOREIGN KEY (barbeiro_id) REFERENCES barbeiro(id)
 );
 CREATE TABLE IF NOT EXISTS transacao_financeira (
     id TEXT PRIMARY KEY,
