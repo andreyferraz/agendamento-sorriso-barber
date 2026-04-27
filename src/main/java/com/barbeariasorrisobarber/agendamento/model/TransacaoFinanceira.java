@@ -33,5 +33,8 @@ public class TransacaoFinanceira {
 
     @Column("agendamento_id")
     private UUID agendamentoId;
-    
+
+    @Column("barbeiro_id")
+    private UUID barbeiroId;
+
 }

@@ -35,7 +35,7 @@ class TransacaoFinanceiraServiceTest {
     @Test
     void listarTodos_deveRetornarLista() {
         TransacaoFinanceira t = new TransacaoFinanceira(UUID.randomUUID(), TipoEntrada.ENTRADA,
-                BigDecimal.valueOf(100), LocalDateTime.now(), "desc", null);
+            BigDecimal.valueOf(100), LocalDateTime.now(), "desc", null, null);
         when(repository.findAll()).thenReturn(List.of(t));
 
         var lista = service.listarTodos();
@@ -49,7 +49,7 @@ class TransacaoFinanceiraServiceTest {
     void buscarPorId_deveRetornarOptionalQuandoExistir() {
         UUID id = UUID.randomUUID();
         TransacaoFinanceira t = new TransacaoFinanceira(id, TipoEntrada.SAIDA, BigDecimal.valueOf(50),
-                LocalDateTime.now(), "x", null);
+            LocalDateTime.now(), "x", null, null);
         when(repository.findById(id)).thenReturn(Optional.of(t));
 
         var opt = service.buscarPorId(id);
@@ -66,7 +66,7 @@ class TransacaoFinanceiraServiceTest {
     @Test
     void criarTransacao_devePreencherDataEIdQuandoAusente() {
         TransacaoFinanceira t = new TransacaoFinanceira(null, TipoEntrada.ENTRADA, BigDecimal.valueOf(20), null,
-                "d", null);
+            "d", null, null);
         when(repository.save(any())).thenAnswer(i -> i.getArgument(0));
 
         TransacaoFinanceira salvo = service.criarTransacao(t);
@@ -85,9 +85,9 @@ class TransacaoFinanceiraServiceTest {
     @Test
     void criarTransacao_valorZeroOuNegativo_deveLancar() {
         TransacaoFinanceira zero = new TransacaoFinanceira(null, TipoEntrada.ENTRADA, BigDecimal.ZERO, null, null,
-                null);
+            null, null);
         TransacaoFinanceira neg = new TransacaoFinanceira(null, TipoEntrada.ENTRADA, BigDecimal.valueOf(-1), null,
-                null, null);
+            null, null, null);
 
         assertThrows(IllegalArgumentException.class, () -> service.criarTransacao(zero));
         assertThrows(IllegalArgumentException.class, () -> service.criarTransacao(neg));
@@ -97,9 +97,9 @@ class TransacaoFinanceiraServiceTest {
     void atualizarTransacao_deveAtualizarCampos() {
         UUID id = UUID.randomUUID();
         TransacaoFinanceira existente = new TransacaoFinanceira(id, TipoEntrada.ENTRADA, BigDecimal.valueOf(10),
-                LocalDateTime.now(), "old", null);
+            LocalDateTime.now(), "old", null, null);
         TransacaoFinanceira dados = new TransacaoFinanceira(null, TipoEntrada.SAIDA, BigDecimal.valueOf(30),
-                LocalDateTime.of(2026, 4, 13, 12, 0), "new", UUID.randomUUID());
+            LocalDateTime.of(2026, 4, 13, 12, 0), "new", UUID.randomUUID(), null);
 
         when(repository.findById(id)).thenReturn(Optional.of(existente));
         when(repository.save(any())).thenAnswer(i -> i.getArgument(0));
@@ -117,8 +117,8 @@ class TransacaoFinanceiraServiceTest {
     void atualizarTransacao_valorInvalido_deveLancar() {
         UUID id = UUID.randomUUID();
         TransacaoFinanceira existente = new TransacaoFinanceira(id, TipoEntrada.ENTRADA, BigDecimal.valueOf(10),
-                LocalDateTime.now(), null, null);
-        TransacaoFinanceira dados = new TransacaoFinanceira(null, null, BigDecimal.ZERO, null, null, null);
+            LocalDateTime.now(), null, null, null);
+        TransacaoFinanceira dados = new TransacaoFinanceira(null, null, BigDecimal.ZERO, null, null, null, null);
 
         when(repository.findById(id)).thenReturn(Optional.of(existente));
 

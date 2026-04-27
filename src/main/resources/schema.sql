@@ -22,10 +22,12 @@ CREATE TABLE IF NOT EXISTS transacao_financeira (
     id TEXT PRIMARY KEY,
     tipo TEXT NOT NULL,
     agendamento_id TEXT NOT NULL,
+    barbeiro_id TEXT NOT NULL,
     valor NUMERIC NOT NULL,
     data TEXT NOT NULL,
     descricao TEXT,
-    FOREIGN KEY (agendamento_id) REFERENCES agendamento(id)
+    FOREIGN KEY (agendamento_id) REFERENCES agendamento(id),
+    FOREIGN KEY (barbeiro_id) REFERENCES barbeiro(id)
 );
 CREATE TABLE IF NOT EXISTS produto (
     id TEXT PRIMARY KEY,

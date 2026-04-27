@@ -81,6 +81,9 @@ public class TransacaoFinanceiraService {
 		if (dados.getAgendamentoId() != null) {
 			existente.setAgendamentoId(dados.getAgendamentoId());
 		}
+		if (dados.getBarbeiroId() != null) {
+			existente.setBarbeiroId(dados.getBarbeiroId());
+		}
 
 		return repository.save(existente);
 	}
