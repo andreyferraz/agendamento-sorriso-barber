@@ -84,8 +84,16 @@ public class AgendamentoService {
 			LocalDateTime s2 = e.getDataHoraInicio();
 			LocalDateTime e2 = e.getDataHoraFim();
 
-			boolean deveIgnorar = e.getServicoId() == null
-					|| !e.getServicoId().equals(agendamento.getServicoId())
+			// determina se devemos comparar por barbeiro (preferível) ou por serviço
+			boolean sameResource;
+			if (agendamento.getBarbeiroId() != null && e.getBarbeiroId() != null) {
+				sameResource = e.getBarbeiroId().equals(agendamento.getBarbeiroId());
+			} else {
+				sameResource = e.getServicoId() != null && agendamento.getServicoId() != null
+					&& e.getServicoId().equals(agendamento.getServicoId());
+			}
+
+			boolean deveIgnorar = !sameResource
 					|| e.getStatus() == StatusAgendamento.RECUSADO
 					|| s1 == null || e1 == null || s2 == null || e2 == null;
 

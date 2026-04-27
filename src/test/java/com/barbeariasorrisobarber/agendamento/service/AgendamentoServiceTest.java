@@ -38,8 +38,8 @@ class AgendamentoServiceTest {
 
     @Test
     void listarTodos_deveRetornarLista() {
-        Agendamento a = new Agendamento(UUID.randomUUID(), "Joao", "9999", UUID.randomUUID(),
-                LocalDateTime.now(), LocalDateTime.now().plusMinutes(30), StatusAgendamento.PENDENTE, null);
+        Agendamento a = new Agendamento(UUID.randomUUID(), "Joao", "9999", UUID.randomUUID(), null,
+            LocalDateTime.now(), LocalDateTime.now().plusMinutes(30), StatusAgendamento.PENDENTE, null);
         when(agendamentoRepository.findAll()).thenReturn(List.of(a));
 
         var lista = agendamentoService.listarTodos();
@@ -52,8 +52,8 @@ class AgendamentoServiceTest {
     @Test
     void buscarPorId_deveRetornarOptionalQuandoExistir() {
         UUID id = UUID.randomUUID();
-        Agendamento a = new Agendamento(id, "Maria", "8888", UUID.randomUUID(),
-                LocalDateTime.now(), LocalDateTime.now().plusMinutes(45), StatusAgendamento.PENDENTE, null);
+        Agendamento a = new Agendamento(id, "Maria", "8888", UUID.randomUUID(), null,
+            LocalDateTime.now(), LocalDateTime.now().plusMinutes(45), StatusAgendamento.PENDENTE, null);
         when(agendamentoRepository.findById(id)).thenReturn(Optional.of(a));
 
         var opt = agendamentoService.buscarPorId(id);
@@ -68,7 +68,7 @@ class AgendamentoServiceTest {
         Servico servico = new Servico(servicoId, "Corte", "Corte de cabelo", null, 30);
 
         LocalDateTime inicio = LocalDateTime.of(2026, 4, 13, 10, 0);
-        Agendamento ag = new Agendamento(null, "Cliente", "7777", servicoId, inicio, null, null, null);
+        Agendamento ag = new Agendamento(null, "Cliente", "7777", servicoId, null, inicio, null, null, null);
 
         when(servicoRepository.findById(servicoId)).thenReturn(Optional.of(servico));
         when(agendamentoRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
@@ -85,12 +85,12 @@ class AgendamentoServiceTest {
     void criarAgendamento_deveLancarQuandoConflitoHorario() {
         UUID servicoId = UUID.randomUUID();
         LocalDateTime inicio = LocalDateTime.of(2026, 4, 13, 10, 0);
-        Agendamento novo = new Agendamento(null, "Cli", "1111", servicoId, inicio,
-                inicio.plusMinutes(30), null, null);
+        Agendamento novo = new Agendamento(null, "Cli", "1111", servicoId, null, inicio,
+            inicio.plusMinutes(30), null, null);
 
         // existente que conflita
-        Agendamento existente = new Agendamento(UUID.randomUUID(), "Out", "2222", servicoId,
-                inicio.plusMinutes(15), inicio.plusMinutes(45), StatusAgendamento.ACEITO, null);
+        Agendamento existente = new Agendamento(UUID.randomUUID(), "Out", "2222", servicoId, null,
+            inicio.plusMinutes(15), inicio.plusMinutes(45), StatusAgendamento.ACEITO, null);
 
         when(agendamentoRepository.findAll()).thenReturn(List.of(existente));
 
@@ -103,8 +103,8 @@ class AgendamentoServiceTest {
     @Test
     void atualizarStatus_deveAtualizar() {
         UUID id = UUID.randomUUID();
-        Agendamento a = new Agendamento(id, "Nome", "3333", UUID.randomUUID(),
-                LocalDateTime.now(), LocalDateTime.now().plusMinutes(20), StatusAgendamento.PENDENTE, null);
+        Agendamento a = new Agendamento(id, "Nome", "3333", UUID.randomUUID(), null,
+            LocalDateTime.now(), LocalDateTime.now().plusMinutes(20), StatusAgendamento.PENDENTE, null);
 
         when(agendamentoRepository.findById(id)).thenReturn(Optional.of(a));
         when(agendamentoRepository.save(any())).thenAnswer(i -> i.getArgument(0));
