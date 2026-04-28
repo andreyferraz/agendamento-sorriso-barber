@@ -237,6 +237,28 @@ a {
   color: var(--accent);
 }
 
+/* Highlight admin link in main nav */
+.nav-admin-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, rgba(197,157,95,0.12), rgba(197,157,95,0.06));
+  color: var(--accent);
+  font-weight: 600;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.14);
+}
+.nav-admin-link i { margin-right: 6px; font-size: 0.95em; }
+.nav-admin-badge {
+  background: var(--accent);
+  color: #111;
+  font-size: 11px;
+  padding: 3px 6px;
+  border-radius: 999px;
+  margin-left: 6px;
+}
+
 .btn-cta,
 .btn-secondary,
 .btn-wap {

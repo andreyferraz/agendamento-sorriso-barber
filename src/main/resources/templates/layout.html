@@ -32,7 +32,11 @@
           <a th:href="@{/sobre}">Sobre</a>
           <a th:href="@{/servicos}">Serviços</a>
           <a th:href="@{/produtos}">Produtos</a>
-          <a th:href="@{/admin}" sec:authorize="isAuthenticated()">Painel Admin</a>
+          <a th:href="@{/admin}" sec:authorize="isAuthenticated()" class="nav-admin-link">
+            <i class="fas fa-tools" aria-hidden="true"></i>
+            <span>Painel Admin</span>
+            <small class="nav-admin-badge">Admin</small>
+          </a>
           <span class="nav-user" sec:authorize="isAuthenticated()" style="margin-left:8px;color:var(--muted);">Olá, <strong th:text="${#authentication.name}">Usuário</strong></span>
           <a href="/#contato" class="btn-cta nav-cta">
             <i class="fas fa-calendar-alt" aria-hidden="true"></i>
