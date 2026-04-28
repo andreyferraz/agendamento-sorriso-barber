@@ -106,6 +106,22 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+    // Auto-dismiss flash messages after 4s (unless data-autodismiss="false")
+    (function setupFlashAutoDismiss() {
+      const container = document.querySelector('.flash-messages');
+      if (!container) return;
+      const flashes = Array.from(container.querySelectorAll('.flash'));
+      flashes.forEach((el) => {
+        const autodismiss = el.getAttribute('data-autodismiss');
+        if (autodismiss === 'false') return;
+        const timeout = parseInt(el.getAttribute('data-timeout') || '4000', 10);
+        setTimeout(() => {
+          el.classList.add('flash-out');
+          el.addEventListener('animationend', () => { try { el.remove(); } catch (e) {} });
+        }, timeout);
+      });
+    })();
+
   // Produtos admin - frontend CRUD usando localStorage
   const productForm = document.getElementById('product-form');
   const productIdInput = document.getElementById('product-id');
