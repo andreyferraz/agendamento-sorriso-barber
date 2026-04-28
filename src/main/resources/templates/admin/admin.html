@@ -8,6 +8,10 @@
 <body th:replace="~{layout :: layout('Painel Admin — Sorriso Barber', ~{::content})}">
 
   <div th:fragment="content">
+    <div class="flash-messages">
+      <div th:if="${success}" class="flash flash-success" th:text="${success}"></div>
+      <div th:if="${error}" class="flash flash-error" th:text="${error}"></div>
+    </div>
     <section class="admin-page">
       <div class="container admin-container">
         <div class="admin-shell">
@@ -266,13 +270,16 @@
                           </tr>
                         </thead>
                         <tbody>
-                          <tr th:each="u : ${usuarios}">
+                          <tr th:each="u : ${usuarios}" th:if="${u.username} != 'admin'">
                             <td colspan="2">
                               <div class="admin-form admin-user-row">
                                 <div class="admin-form-grid">
                                   <div class="form-group">
                                     <label>Usuário</label>
-                                    <span class="user-name" th:text="${u.username}">admin</span>
+                                    <div style="display:flex;align-items:center;gap:12px;">
+                                      <img th:if="${u.fotoUrl}" th:src="@{|/uploads/${u.fotoUrl}|}" alt="Foto" style="width:48px;height:48px;object-fit:cover;border-radius:6px;" />
+                                      <span class="user-name" th:text="${u.username}">admin</span>
+                                    </div>
                                   </div>
 
                                   <div class="form-group">

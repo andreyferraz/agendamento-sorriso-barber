@@ -8,6 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+
 import com.barbeariasorrisobarber.agendamento.model.UsuarioAdmin;
 import com.barbeariasorrisobarber.agendamento.repository.UsuarioAdminRepository;
 import com.barbeariasorrisobarber.agendamento.utils.ValidationUtils;
@@ -49,7 +50,8 @@ public class UsuarioAdminService {
         String hash = passwordEncoder.encode(rawPassword);
 
         UsuarioAdmin novo = new UsuarioAdmin(UUID.randomUUID(), username, hash, null);
-        return repository.save(novo);
+        UsuarioAdmin saved = repository.save(novo);
+        return saved;
     }
 
     @Transactional
@@ -70,7 +72,8 @@ public class UsuarioAdminService {
             novo.setFotoUrl(savedName);
         }
 
-        return repository.save(novo);
+        UsuarioAdmin saved = repository.save(novo);
+        return saved;
     }
 
     public boolean autenticar(String username, String rawPassword) {
@@ -82,7 +85,9 @@ public class UsuarioAdminService {
             return false;
         }
 
-        return passwordEncoder.matches(rawPassword, opt.get().getSenhaHash());
+        String stored = opt.get().getSenhaHash();
+        boolean matches = passwordEncoder.matches(rawPassword, stored);
+        return matches;
     }
 
     @Transactional

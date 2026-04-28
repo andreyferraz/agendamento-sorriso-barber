@@ -66,8 +66,11 @@ public class FileUploadService {
 
         } catch (IOException e) {
             throw new FileUploadException("Não foi possível salvar a imagem. Erro: " + e.getMessage(), e);
+        } catch (FileUploadException e) {
+            // Preserve our domain exception so caller sees the detailed cause
+            throw e;
         } catch (RuntimeException e) {
-            throw new FileUploadException("Falha ao processar imagem para WebP. Verifique se o arquivo enviado eh uma imagem suportada.", e);
+            throw new FileUploadException("Falha ao processar imagem para WebP: " + e.getMessage(), e);
         }
     }
 
@@ -132,13 +135,20 @@ public class FileUploadService {
         }
 
         if (bufferedImage == null) {
-            throw new FileUploadException("Arquivo enviado nao eh uma imagem valida");
+            // Alguns JPEGs (CMYK/progressivos) podem não ser lidos pelo ImageIO.
+            // Tentar fallback usando o utilitário cwebp via CLI, que suporta mais formatos.
+            converterESalvarWebpViaCli(imagemFile, caminhoArquivo, new RuntimeException("ImageIO failed to read image, using CLI fallback"));
+            return;
         }
 
-        ImageWriter writer = obterWriterWebp()
-                .orElseThrow(() -> new FileUploadException(
-                "Encoder WebP nao encontrado. Verifique se a dependencia de WebP esta instalada e compativel com o ambiente. "
-                    + "Writers detectados: " + listarWritersDisponiveis()));
+        var optWriter = obterWriterWebp();
+        if (optWriter.isEmpty()) {
+            // If no ImageIO WebP writer, try CLI fallback (cwebp)
+            converterESalvarWebpViaCli(imagemFile, caminhoArquivo,
+                new RuntimeException("No ImageIO WebP writer available. Writers detected: " + listarWritersDisponiveis()));
+            return;
+        }
+        ImageWriter writer = optWriter.get();
 
         ImageWriteParam writeParam = writer.getDefaultWriteParam();
         if (writeParam.canWriteCompressed()) {
@@ -169,7 +179,14 @@ public class FileUploadService {
 
     private void converterESalvarWebpViaCli(MultipartFile imagemFile, Path caminhoArquivo, Throwable causaOriginal)
             throws IOException {
-        Path arquivoTemporarioEntrada = Files.createTempFile("upload-webp-in-", ".img");
+        // Preserve original file extension for cwebp detection when creating temp file
+        String originalName = imagemFile.getOriginalFilename();
+        String suffix = ".img";
+        if (originalName != null && originalName.contains(".")) {
+            suffix = originalName.substring(originalName.lastIndexOf('.'));
+        }
+
+        Path arquivoTemporarioEntrada = Files.createTempFile("upload-webp-in-", suffix);
         try {
             imagemFile.transferTo(arquivoTemporarioEntrada);
 
@@ -203,7 +220,7 @@ public class FileUploadService {
             }
             throw ioEx;
         } finally {
-            Files.deleteIfExists(arquivoTemporarioEntrada);
+            try { Files.deleteIfExists(arquivoTemporarioEntrada); } catch (Exception e) { /* ignore */ }
         }
     }
 

@@ -9,12 +9,13 @@ import org.springframework.data.relational.core.mapping.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.domain.Persistable;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Table("usuario_admin")
-public class UsuarioAdmin {
+public class UsuarioAdmin implements Persistable<UUID> {
 
     @Id
     private UUID id;
@@ -27,4 +28,13 @@ public class UsuarioAdmin {
     @Column("foto_url")
     private String fotoUrl;
 
+    @Override
+    public UUID getId() {
+        return id;
+    }
+
+    @Override
+    public boolean isNew() {
+        return id != null && (username != null && !username.isEmpty());
+    }
 }
