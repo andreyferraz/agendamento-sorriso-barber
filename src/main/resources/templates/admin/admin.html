@@ -34,6 +34,11 @@
                 <span>Serviços</span>
               </button>
 
+              <button type="button" class="admin-nav-link" data-tab-target="produtos">
+                <i class="fas fa-box" aria-hidden="true"></i>
+                <span>Produtos</span>
+              </button>
+
               <button type="button" class="admin-nav-link" data-tab-target="usuarios">
                 <i class="fas fa-users" aria-hidden="true"></i>
                 <span>Usuários</span>
@@ -210,7 +215,7 @@
                   <div class="admin-panel-head">
                     <div>
                       <span class="panel-label">Novo usuário</span>
-                      <h4>Cadastrar Novo Usuário</h4>
+                      <h4>Cadastrar novo Usuário</h4>
                     </div>
                   </div>
 
@@ -254,20 +259,26 @@
                         <tbody>
                           <tr th:each="u : ${usuarios}">
                             <td colspan="2">
-                              <div class="user-row">
-                                <div class="user-top">
-                                  <span class="user-name" th:text="${u.username}">admin</span>
+                              <div class="admin-form admin-user-row">
+                                <div class="admin-form-grid">
+                                  <div class="form-group">
+                                    <label>Usuário</label>
+                                    <span class="user-name" th:text="${u.username}">admin</span>
+                                  </div>
 
-                                  <form th:id="${'pw-form-' + u.id}" th:action="@{|/admin/users/${u.id}/password|}" method="post" class="admin-password-form">
-                                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                                    <input type="password" name="novaSenha" placeholder="Nova senha" required class="user-password-input" />
-                                  </form>
+                                  <div class="form-group">
+                                    <label th:for="${'novaSenha-' + u.id}">Nova senha</label>
+                                    <form th:id="${'pw-form-' + u.id}" th:action="@{|/admin/users/${u.id}/password|}" method="post" class="admin-password-form" style="margin:0;">
+                                      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                      <input th:id="${'novaSenha-' + u.id}" type="password" name="novaSenha" placeholder="Nova senha" required />
+                                    </form>
+                                  </div>
                                 </div>
 
-                                <div class="user-actions">
-                                  <button type="submit" class="admin-action-btn" th:attr="form=${'pw-form-' + u.id}">Alterar</button>
+                                <div class="admin-form-actions">
+                                  <button type="submit" class="admin-action-btn primary" th:attr="form=${'pw-form-' + u.id}">Alterar</button>
 
-                                  <form th:action="@{|/admin/users/${u.id}/delete|}" method="post" class="inline-delete-form">
+                                  <form th:action="@{|/admin/users/${u.id}/delete|}" method="post" class="inline-delete-form" style="margin:0;">
                                     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                                     <button type="submit" class="admin-action-btn danger" onclick="return confirm('Remover usuário?');">Remover</button>
                                   </form>
@@ -474,6 +485,84 @@
                         <button type="button">Editar</button>
                         <button type="button" class="danger">Excluir</button>
                       </div>
+                    </div>
+                  </div>
+                </article>
+              </div>
+            </section>
+
+            <section class="admin-tab" data-tab-panel="produtos">
+              <div class="admin-section-heading">
+                <div>
+                  <span class="section-kicker">Produtos</span>
+                  <h3 class="section-title">Criar e gerenciar produtos</h3>
+                </div>
+                <div class="admin-actions-row">
+                  <button type="button" class="admin-action-btn primary" id="refresh-products">Atualizar</button>
+                </div>
+              </div>
+
+              <div class="admin-crud-grid">
+                <article class="admin-panel-card">
+                  <div class="admin-panel-head">
+                    <div>
+                      <span class="panel-label">Novo produto</span>
+                      <h4>Criar / Editar produto</h4>
+                    </div>
+                  </div>
+
+                  <form id="product-form" class="admin-form">
+                    <input type="hidden" id="product-id" />
+                    <div class="admin-form-grid">
+                      <div class="form-group">
+                        <label for="product-name">Nome</label>
+                        <input type="text" id="product-name" placeholder="Nome do produto" required />
+                      </div>
+
+                      <div class="form-group">
+                        <label for="product-price">Preço</label>
+                        <input type="text" id="product-price" placeholder="R$ 0,00" required />
+                      </div>
+                      
+                      <div class="form-group">
+                        <label for="product-image">Imagem</label>
+                        <input type="file" id="product-image" accept="image/*" />
+                        <img id="product-preview" src="" alt="preview" style="display:none;margin-top:8px;max-width:120px;border-radius:8px;" />
+                      </div>
+                    </div>
+
+                    <div class="admin-form-actions">
+                      <button type="submit" class="admin-action-btn primary" id="product-save">Salvar produto</button>
+                      <button type="button" class="admin-action-btn" id="product-clear">Limpar</button>
+                    </div>
+                  </form>
+                </article>
+
+                <article class="admin-panel-card">
+                  <div class="admin-panel-head">
+                    <div>
+                      <span class="panel-label">Lista de produtos</span>
+                      <h4>Produtos cadastrados</h4>
+                    </div>
+                  </div>
+
+                  <div class="admin-table-card">
+                    <div class="admin-table-wrap">
+                      <table class="admin-table users-table" id="products-table">
+                        <thead>
+                          <tr>
+                            <th>Nome</th>
+                            <th>Descrição</th>
+                            <th>Imagem</th>
+                            <th>Preço</th>
+                            <th>Estoque</th>
+                            <th>Ações</th>
+                          </tr>
+                        </thead>
+                        <tbody id="products-tbody">
+                          <!-- produtos serão renderizados via JS -->
+                        </tbody>
+                      </table>
                     </div>
                   </div>
                 </article>

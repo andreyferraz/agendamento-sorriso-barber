@@ -1496,6 +1496,26 @@ main {
   max-width: 380px;
 }
 
+/* Force a sane fixed width for password input inside users table to avoid huge stretch */
+.users-table td .user-password-input {
+  box-sizing: border-box;
+  width: 220px;
+  max-width: 100%;
+}
+
+.product-thumb {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 8px;
+  display: inline-block;
+}
+
+.product-thumb-preview {
+  max-width: 120px;
+  border-radius: 8px;
+}
+
 .users-table .user-password-input:focus {
   border-color: rgba(197, 157, 95, 0.55);
   box-shadow: 0 0 0 4px rgba(197, 157, 95, 0.12);
