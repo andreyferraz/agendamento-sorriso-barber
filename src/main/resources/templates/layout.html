@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR" xml:lang="pt-BR"
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="pt-BR" xml:lang="pt-BR"
   th:fragment="layout(title, content)">
 
 <head>
@@ -32,6 +32,8 @@
           <a th:href="@{/sobre}">Sobre</a>
           <a th:href="@{/servicos}">Serviços</a>
           <a th:href="@{/produtos}">Produtos</a>
+          <a th:href="@{/admin}" sec:authorize="isAuthenticated()">Painel Admin</a>
+          <span class="nav-user" sec:authorize="isAuthenticated()" style="margin-left:8px;color:var(--muted);">Olá, <strong th:text="${#authentication.name}">Usuário</strong></span>
           <a href="/#contato" class="btn-cta nav-cta">
             <i class="fas fa-calendar-alt" aria-hidden="true"></i>
             Agende Agora
