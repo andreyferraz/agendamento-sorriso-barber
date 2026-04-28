@@ -210,7 +210,7 @@
                   <div class="admin-panel-head">
                     <div>
                       <span class="panel-label">Novo usuário</span>
-                      <h4>Criar usuário administrativo</h4>
+                      <h4>Cadastrar Novo Usuário</h4>
                     </div>
                   </div>
 
@@ -244,7 +244,7 @@
 
                   <div class="admin-table-card">
                     <div class="admin-table-wrap">
-                      <table class="admin-table">
+                      <table class="admin-table users-table">
                         <thead>
                           <tr>
                             <th>Usuário</th>
@@ -253,18 +253,26 @@
                         </thead>
                         <tbody>
                           <tr th:each="u : ${usuarios}">
-                            <td th:text="${u.username}">admin</td>
-                            <td>
-                              <form th:action="@{|/admin/users/${u.id}/password|}" method="post" style="display:inline-block;">
-                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                                <input type="password" name="novaSenha" placeholder="Nova senha" required />
-                                <button type="submit" class="admin-action-btn">Alterar</button>
-                              </form>
+                            <td colspan="2">
+                              <div class="user-row">
+                                <div class="user-top">
+                                  <span class="user-name" th:text="${u.username}">admin</span>
 
-                              <form th:action="@{|/admin/users/${u.id}/delete|}" method="post" style="display:inline-block;margin-left:8px;">
-                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                                <button type="submit" class="admin-action-btn danger" onclick="return confirm('Remover usuário?');">Remover</button>
-                              </form>
+                                  <form th:id="${'pw-form-' + u.id}" th:action="@{|/admin/users/${u.id}/password|}" method="post" class="admin-password-form">
+                                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                    <input type="password" name="novaSenha" placeholder="Nova senha" required class="user-password-input" />
+                                  </form>
+                                </div>
+
+                                <div class="user-actions">
+                                  <button type="submit" class="admin-action-btn" th:attr="form=${'pw-form-' + u.id}">Alterar</button>
+
+                                  <form th:action="@{|/admin/users/${u.id}/delete|}" method="post" class="inline-delete-form">
+                                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                    <button type="submit" class="admin-action-btn danger" onclick="return confirm('Remover usuário?');">Remover</button>
+                                  </form>
+                                </div>
+                              </div>
                             </td>
                           </tr>
                         </tbody>

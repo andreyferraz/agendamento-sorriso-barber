@@ -1417,6 +1417,104 @@ main {
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
+/* Garantir que os formulários dentro da célula de Ações fiquem em linha e alinhados */
+.admin-table tbody td .admin-password-form,
+.admin-table tbody td .admin-item-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+
+.admin-table tbody td .admin-password-form {
+  vertical-align: middle;
+}
+
+/* Users table: prevent forcing horizontal scroll and keep action controls compact */
+.users-table {
+  min-width: 0 !important;
+  table-layout: auto;
+}
+
+.admin-actions-row-inline {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap; /* allow wrap on very small screens to avoid horizontal scrollbar */
+}
+
+.admin-actions-row-inline .admin-password-form {
+  margin: 0;
+}
+
+.user-password-input {
+  flex: 0 1 160px; /* can shrink to avoid overflow */
+  min-width: 120px;
+  max-width: 220px;
+}
+
+.admin-actions-row-inline .admin-item-actions .admin-action-btn {
+  white-space: nowrap;
+}
+
+/* User row card style inside users table */
+.users-table .user-row {
+  display: block;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.users-table .user-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.users-table .user-name {
+  font-weight: 700;
+  color: var(--text);
+  margin-right: 12px;
+}
+
+.users-table .user-actions {
+  margin-top: 10px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.users-table .inline-delete-form {
+  display: inline-block;
+  margin: 0;
+}
+
+/* Make the password input flexible but allow shrinking to avoid horizontal scroll */
+.users-table .user-password-input {
+  flex: 0 1 220px;
+  min-width: 120px;
+  max-width: 380px;
+}
+
+.users-table .user-password-input:focus {
+  border-color: rgba(197, 157, 95, 0.55);
+  box-shadow: 0 0 0 4px rgba(197, 157, 95, 0.12);
+  background: rgba(255,255,255,0.05);
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+@media (max-width: 540px) {
+  .users-table .user-top {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  .users-table .user-actions {
+    justify-content: flex-start;
+  }
+}
+
 .table-tag,
 .table-status {
   display: inline-flex;
@@ -1554,5 +1652,34 @@ main {
     width: 100%;
     text-align: center;
     justify-content: center;
+  }
+}
+
+/* Layout específico para campo de alteração de senha na lista de usuários */
+.admin-password-form .user-password-group {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.user-password-input {
+  min-width: 160px;
+  max-width: 320px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.03);
+  color: var(--text);
+  outline: none;
+}
+
+@media (max-width: 820px) {
+  .admin-password-form .user-password-group {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .user-password-input {
+    width: 100%;
+    max-width: none;
   }
 }
