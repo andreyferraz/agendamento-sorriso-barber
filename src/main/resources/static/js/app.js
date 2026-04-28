@@ -79,6 +79,14 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     });
   }
+
+  // clear persisted admin tab when the user clicks logout
+  const logoutLink = document.getElementById('admin-logout');
+  if (logoutLink) {
+    logoutLink.addEventListener('click', function () {
+      try { localStorage.removeItem('adminActiveTab'); } catch (e) { /* ignore */ }
+    });
+  }
 });
 
 function sendWhatsApp(productName, price) {
