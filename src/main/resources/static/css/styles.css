@@ -259,6 +259,63 @@ a {
   margin-left: 6px;
 }
 
+/* Cart drawer styles */
+#cart-drawer {
+  position: fixed;
+  right: 20px;
+  top: 90px;
+  width: 360px;
+  max-width: calc(100% - 40px);
+  background: var(--card);
+  border-radius: 12px;
+  box-shadow: 0 18px 48px rgba(0,0,0,0.5);
+  padding: 12px;
+  z-index: 1200;
+  transform: translateY(-10px) scale(0.98);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .18s ease, transform .18s ease;
+}
+#cart-drawer.open { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
+#cart-drawer .cart-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+#cart-drawer .cart-items { max-height: 320px; overflow:auto; padding:6px 0; }
+.cart-empty { color: var(--muted); padding: 18px 6px; text-align:center; }
+.cart-item { display:flex; justify-content:space-between; align-items:center; gap:8px; padding:8px 6px; border-bottom:1px solid var(--border); }
+.cart-item-main { flex:1 1 auto; }
+.cart-item-right { display:flex; flex-direction:column; align-items:flex-end; gap:6px; }
+.cart-item-controls { display:flex; gap:6px; align-items:center; margin-top:6px; }
+.cart-item-controls button { padding:4px 8px; }
+.cart-item-controls input { width:56px; padding:4px; text-align:center; border-radius:6px; }
+.cart-total-row { font-weight:700; margin-top:8px; }
+.cart-actions { display:flex; gap:8px; margin-top:10px; justify-content:flex-end; }
+
+/* Cart buttons: Remover e Fechar */
+#cart-drawer .cart-remove {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.06);
+  color: var(--muted);
+  padding: 6px 8px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+#cart-drawer .cart-remove:hover {
+  color: var(--accent);
+  border-color: rgba(197,157,95,0.35);
+}
+
+#cart-drawer #close-cart {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  padding: 6px 10px;
+  cursor: pointer;
+  border-radius: 6px;
+}
+#cart-drawer #close-cart:hover {
+  color: var(--accent);
+  background: rgba(197,157,95,0.04);
+}
+
 .btn-cta,
 .btn-secondary,
 .btn-wap {

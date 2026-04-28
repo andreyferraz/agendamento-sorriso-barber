@@ -237,3 +237,124 @@ function sendWhatsApp(productName, price) {
 }
 
 window.sendWhatsApp = sendWhatsApp;
+
+/* --- Simple client-side cart (localStorage) --- */
+const CART_KEY = 'siteCart_v1';
+const WHATSAPP_PHONE = '5511999999999';
+
+function getCart() {
+  try { return JSON.parse(localStorage.getItem(CART_KEY) || '[]'); } catch (e) { return []; }
+}
+
+function saveCart(cart) { try { localStorage.setItem(CART_KEY, JSON.stringify(cart)); updateCartCount(); } catch (e) { console.warn(e); } }
+
+function updateCartCount() {
+  const countEl = document.getElementById('cart-count');
+  const cart = getCart();
+  const qty = cart.reduce((s, i) => s + (i.qty || 0), 0);
+  if (countEl) countEl.textContent = String(qty);
+}
+
+function addToCart(item) {
+  const cart = getCart();
+  const idx = cart.findIndex(c => c.id === item.id);
+  if (idx > -1) { cart[idx].qty += item.qty; }
+  else { cart.push(item); }
+  saveCart(cart);
+  renderCart();
+}
+
+function removeFromCart(id) { const cart = getCart().filter(i => i.id !== id); saveCart(cart); renderCart(); }
+
+function changeQty(id, qty) { const cart = getCart(); const idx = cart.findIndex(i => i.id===id); if (idx>-1) { cart[idx].qty = Math.max(0, qty); if (cart[idx].qty===0) cart.splice(idx,1); saveCart(cart); renderCart(); } }
+
+function clearCart() { saveCart([]); renderCart(); }
+
+function renderCart() {
+  const cartDrawer = document.getElementById('cart-drawer');
+  if (!cartDrawer) return;
+  const list = cartDrawer.querySelector('.cart-items');
+  const totalEl = cartDrawer.querySelector('.cart-total');
+  const cart = getCart();
+  list.innerHTML = '';
+  if (!cart.length) {
+    list.innerHTML = '<div class="cart-empty">Seu carrinho está vazio</div>';
+    if (totalEl) totalEl.textContent = 'R$ 0,00';
+    updateCartCount();
+    return;
+  }
+  let total = 0;
+  cart.forEach(i => {
+    const row = document.createElement('div'); row.className='cart-item';
+    row.innerHTML = `
+      <div class="cart-item-main">
+        <strong class="cart-item-name">${escapeHtml(i.name)}</strong>
+        <div class="cart-item-controls">
+          <button class="cart-decr" data-id="${i.id}">-</button>
+          <input class="cart-qty" data-id="${i.id}" value="${i.qty}" type="number" min="0" />
+          <button class="cart-incr" data-id="${i.id}">+</button>
+        </div>
+      </div>
+      <div class="cart-item-right">
+        <div class="cart-item-price">R$ ${formatPrice(i.price * i.qty)}</div>
+        <button class="cart-remove" data-id="${i.id}">Remover</button>
+      </div>
+    `;
+    list.appendChild(row);
+    total += (i.price * i.qty);
+  });
+  if (totalEl) totalEl.textContent = 'R$ ' + formatPrice(total);
+  updateCartCount();
+
+  // attach controls
+  cartDrawer.querySelectorAll('.cart-incr').forEach(b => b.addEventListener('click', e => { const id=e.target.dataset.id; const cart=getCart(); const it=cart.find(x=>x.id===id); if(it){ changeQty(id, it.qty+1); } }));
+  cartDrawer.querySelectorAll('.cart-decr').forEach(b => b.addEventListener('click', e => { const id=e.target.dataset.id; const cart=getCart(); const it=cart.find(x=>x.id===id); if(it){ changeQty(id, it.qty-1); } }));
+  cartDrawer.querySelectorAll('.cart-qty').forEach(inp => inp.addEventListener('change', e => { const id=e.target.dataset.id; const v=parseInt(e.target.value||0,10); changeQty(id, isNaN(v)?0:v); }));
+  cartDrawer.querySelectorAll('.cart-remove').forEach(b => b.addEventListener('click', e => { removeFromCart(e.target.dataset.id); }));
+}
+
+function formatPrice(n) { return Number(n).toFixed(2).replace('.', ','); }
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c=>'&#'+c.charCodeAt(0)+';'); }
+
+// open/close cart drawer
+document.addEventListener('DOMContentLoaded', function(){
+  updateCartCount();
+  renderCart();
+  document.querySelectorAll('.btn-buy').forEach(b => b.addEventListener('click', function(){
+    const name = this.dataset.name;
+    const price = parseFloat(this.dataset.price||'0');
+    const id = (this.dataset.id) ? this.dataset.id : name.toLowerCase().replace(/\s+/g,'-');
+    addToCart({ id, name, price, qty: 1 });
+  }));
+
+  const openCartBtn = document.getElementById('open-cart-btn');
+  const cartDrawer = document.createElement('div');
+  cartDrawer.id = 'cart-drawer';
+  cartDrawer.innerHTML = `
+    <div class="cart-header">
+      <h4>Seu Carrinho</h4>
+      <button id="close-cart">Fechar</button>
+    </div>
+    <div class="cart-items"></div>
+    <div class="cart-footer">
+      <div class="cart-total-row">Total: <span class="cart-total">R$ 0,00</span></div>
+      <div class="cart-actions">
+        <button id="cart-clear" class="admin-action-btn">Limpar</button>
+        <button id="cart-checkout-whatsapp" class="admin-action-btn primary">Finalizar via WhatsApp</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(cartDrawer);
+  document.getElementById('close-cart').addEventListener('click', ()=>{ cartDrawer.classList.remove('open'); });
+  if (openCartBtn) openCartBtn.addEventListener('click', ()=>{ cartDrawer.classList.toggle('open'); renderCart(); });
+  const clearBtn = document.getElementById('cart-clear'); if (clearBtn) clearBtn.addEventListener('click', ()=> clearCart());
+  const checkoutBtn = document.getElementById('cart-checkout-whatsapp'); if (checkoutBtn) checkoutBtn.addEventListener('click', ()=> {
+    const cart = getCart(); if (!cart.length) return alert('Carrinho vazio');
+    let message = 'Olá, gostaria de finalizar a compra:%0A';
+    let total = 0;
+    cart.forEach(i => { message += `- ${i.name} x${i.qty} = R$ ${formatPrice(i.price * i.qty)}%0A`; total += i.price * i.qty; });
+    message += `%0ATotal: R$ ${formatPrice(total)}%0A`; 
+    const url = `https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(message)}`;
+    window.open(url, '_blank');
+  });
+});
