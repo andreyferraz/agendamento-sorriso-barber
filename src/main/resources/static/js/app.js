@@ -88,6 +88,24 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  // preview for admin new-user photo input
+  const userFotoInput = document.getElementById('foto');
+  const userFotoPreview = document.getElementById('user-photo-preview');
+  if (userFotoInput) {
+    userFotoInput.addEventListener('change', function () {
+      const f = this.files && this.files[0];
+      if (!f) {
+        if (userFotoPreview) { userFotoPreview.src = ''; userFotoPreview.style.display = 'none'; }
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = function (ev) {
+        if (userFotoPreview) { userFotoPreview.src = ev.target.result; userFotoPreview.style.display = 'block'; }
+      };
+      reader.readAsDataURL(f);
+    });
+  }
+
   // Produtos admin - frontend CRUD usando localStorage
   const productForm = document.getElementById('product-form');
   const productIdInput = document.getElementById('product-id');
