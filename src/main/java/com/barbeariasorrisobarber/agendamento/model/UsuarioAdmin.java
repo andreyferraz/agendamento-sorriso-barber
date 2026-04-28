@@ -23,4 +23,8 @@ public class UsuarioAdmin {
 
     @Column("senha_hash")
     private String senhaHash;
+
+    @Column("foto_url")
+    private String fotoUrl;
+
 }

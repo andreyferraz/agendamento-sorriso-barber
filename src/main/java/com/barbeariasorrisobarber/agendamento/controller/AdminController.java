@@ -7,6 +7,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.barbeariasorrisobarber.agendamento.repository.UsuarioAdminRepository;
@@ -26,9 +27,13 @@ public class AdminController {
 
     @PostMapping("/admin/users")
     public String criarUsuario(@RequestParam String username, @RequestParam String password,
-            RedirectAttributes redirectAttrs) {
+            @RequestParam(name = "foto", required = false) MultipartFile foto, RedirectAttributes redirectAttrs) {
         try {
-            usuarioAdminService.criarAdmin(username, password);
+            if (foto != null && !foto.isEmpty()) {
+                usuarioAdminService.criarAdmin(username, password, foto);
+            } else {
+                usuarioAdminService.criarAdmin(username, password);
+            }
             redirectAttrs.addFlashAttribute("success", "Usuário criado com sucesso.");
         } catch (Exception e) {
             redirectAttrs.addFlashAttribute("error", e.getMessage());

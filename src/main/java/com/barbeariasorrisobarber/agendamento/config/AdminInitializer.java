@@ -5,6 +5,8 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
 import com.barbeariasorrisobarber.agendamento.service.UsuarioAdminService;
+import java.util.Optional;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,8 +29,11 @@ public class AdminInitializer implements ApplicationRunner {
     @Value("${admin.bootstrap.password:}")
     private String bootstrapPassword;
 
-    public AdminInitializer(UsuarioAdminService usuarioAdminService) {
+    private final JdbcTemplate jdbcTemplate;
+
+    public AdminInitializer(UsuarioAdminService usuarioAdminService, JdbcTemplate jdbcTemplate) {
         this.usuarioAdminService = usuarioAdminService;
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     @Override
@@ -44,8 +49,25 @@ public class AdminInitializer implements ApplicationRunner {
         }
 
         if (username != null && !username.isBlank() && password != null && !password.isBlank()) {
-            var exists = usuarioAdminService.buscarPorUsername(username);
-            if (exists.isEmpty()) {
+            var exists = Optional.<com.barbeariasorrisobarber.agendamento.model.UsuarioAdmin>empty();
+            try {
+                exists = usuarioAdminService.buscarPorUsername(username);
+            } catch (Exception ex) {
+                String msg = ex.getMessage() != null ? ex.getMessage() : "";
+                if (msg.contains("no such column") || msg.contains("foto_url")) {
+                    try {
+                        jdbcTemplate.execute("ALTER TABLE usuario_admin ADD COLUMN foto_url TEXT;");
+                        logger.info("Applied migration: added foto_url column to usuario_admin");
+                        exists = usuarioAdminService.buscarPorUsername(username);
+                    } catch (Exception migEx) {
+                        logger.warn("Failed to apply migration for foto_url: {}", migEx.getMessage());
+                    }
+                } else {
+                    throw ex;
+                }
+            }
+
+            if (exists == null || exists.isEmpty()) {
                 usuarioAdminService.criarAdmin(username, password);
                 logger.info("Admin user created: {}", username);
             } else {

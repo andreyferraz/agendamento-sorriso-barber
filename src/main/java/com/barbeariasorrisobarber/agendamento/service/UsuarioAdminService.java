@@ -4,6 +4,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,11 +17,14 @@ public class UsuarioAdminService {
 
     private final UsuarioAdminRepository repository;
     private final PasswordEncoder passwordEncoder;
+    private final FileUploadService fileUploadService;
     private static final String USERNAME_FIELD = "username";
 
-    public UsuarioAdminService(UsuarioAdminRepository repository, PasswordEncoder passwordEncoder) {
+    public UsuarioAdminService(UsuarioAdminRepository repository, PasswordEncoder passwordEncoder,
+            FileUploadService fileUploadService) {
         this.repository = repository;
         this.passwordEncoder = passwordEncoder;
+        this.fileUploadService = fileUploadService;
     }
 
     public Optional<UsuarioAdmin> buscarPorId(UUID id) {
@@ -44,7 +48,28 @@ public class UsuarioAdminService {
 
         String hash = passwordEncoder.encode(rawPassword);
 
-        UsuarioAdmin novo = new UsuarioAdmin(UUID.randomUUID(), username, hash);
+        UsuarioAdmin novo = new UsuarioAdmin(UUID.randomUUID(), username, hash, null);
+        return repository.save(novo);
+    }
+
+    @Transactional
+    public UsuarioAdmin criarAdmin(String username, String rawPassword, MultipartFile foto) {
+        ValidationUtils.validarCampoStringObrigatorio(username, USERNAME_FIELD);
+        ValidationUtils.validarCampoStringObrigatorio(rawPassword, "password");
+
+        repository.findByUsername(username).ifPresent(u -> {
+            throw new IllegalArgumentException("Usuario já existe: " + username);
+        });
+
+        String hash = passwordEncoder.encode(rawPassword);
+
+        UsuarioAdmin novo = new UsuarioAdmin(UUID.randomUUID(), username, hash, null);
+
+        if (foto != null && !foto.isEmpty()) {
+            String savedName = fileUploadService.salvarImagem(foto);
+            novo.setFotoUrl(savedName);
+        }
+
         return repository.save(novo);
     }
 
@@ -75,6 +100,13 @@ public class UsuarioAdminService {
     @Transactional
     public void deletar(UUID id) {
         ValidationUtils.validarCampoObrigatorio(id, "id");
+        var opt = repository.findById(id);
+        if (opt.isPresent()) {
+            var u = opt.get();
+            if (u.getFotoUrl() != null && !u.getFotoUrl().isEmpty()) {
+                try { fileUploadService.removerImagem(u.getFotoUrl()); } catch (Exception e) { /* ignore */ }
+            }
+        }
         repository.deleteById(id);
     }
 }

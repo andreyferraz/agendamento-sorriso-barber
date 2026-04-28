@@ -41,7 +41,8 @@ CREATE TABLE IF NOT EXISTS produto (
 CREATE TABLE IF NOT EXISTS usuario_admin (
     id TEXT PRIMARY KEY,
     username TEXT NOT NULL UNIQUE,
-    senha_hash TEXT NOT NULL
+    senha_hash TEXT NOT NULL,
+    foto_url TEXT
 );
 CREATE TABLE IF NOT EXISTS barbeiro (
     id TEXT PRIMARY KEY,
