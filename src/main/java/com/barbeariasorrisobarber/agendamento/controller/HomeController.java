@@ -1,19 +1,11 @@
 package com.barbeariasorrisobarber.agendamento.controller;
 
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.ui.Model;
-
-import com.barbeariasorrisobarber.agendamento.repository.UsuarioAdminRepository;
+import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
 public class HomeController {
-
-    private final UsuarioAdminRepository usuarioAdminRepository;
-
-    public HomeController(UsuarioAdminRepository usuarioAdminRepository) {
-        this.usuarioAdminRepository = usuarioAdminRepository;
-    }
 
     @GetMapping({"/", "/index"})
     public String index(Model model) {
@@ -38,12 +30,6 @@ public class HomeController {
     @GetMapping("/login")
     public String login(Model model) {
         return "login";
-    }
-
-    @GetMapping("/admin")
-    public String admin(Model model) {
-        model.addAttribute("usuarios", usuarioAdminRepository.findAll());
-        return "admin/admin";
     }
 
 }
