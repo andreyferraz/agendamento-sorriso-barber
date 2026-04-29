@@ -55,9 +55,8 @@ public class ProdutoService {
 			produto.setId(UUID.randomUUID());
 		}
 
-		if (produto.getAtivo() == null) {
-			produto.setAtivo(Boolean.TRUE);
-		}
+		// marcar como nova entidade para que Spring Data faça INSERT
+		produto.setNew(true);
 
 		if (produto.getEstoque() == null) {
 			produto.setEstoque(0);
@@ -99,8 +98,42 @@ public class ProdutoService {
 		if (dados.getEstoque() != null) {
 			existente.setEstoque(dados.getEstoque());
 		}
-		if (dados.getAtivo() != null) {
-			existente.setAtivo(dados.getAtivo());
+
+		return produtoRepository.save(existente);
+	}
+
+	@Transactional
+	public Produto atualizarProdutoComImagem(UUID id, Produto dados, MultipartFile imagemFile) {
+		ValidationUtils.validarCampoObrigatorio(id, "id");
+		ValidationUtils.validarCampoObrigatorio(dados, "dados");
+
+		Produto existente = produtoRepository.findById(id)
+				.orElseThrow(() -> new IllegalArgumentException("Produto nao encontrado."));
+
+		if (dados.getNome() != null) {
+			ValidationUtils.validarCampoStringObrigatorio(dados.getNome(), "nome");
+			existente.setNome(dados.getNome());
+		}
+		if (dados.getDescricao() != null) {
+			existente.setDescricao(dados.getDescricao());
+		}
+		if (dados.getPreco() != null) {
+			if (dados.getPreco().signum() < 0) {
+				throw new IllegalArgumentException("Preco do produto nao pode ser negativo.");
+			}
+			existente.setPreco(dados.getPreco());
+		}
+		if (dados.getEstoque() != null) {
+			existente.setEstoque(dados.getEstoque());
+		}
+
+		if (imagemFile != null && !imagemFile.isEmpty()) {
+			String saved = fileUploadService.salvarImagem(imagemFile);
+			// remove antiga imagem se existir
+			if (existente.getUrlImagem() != null && !existente.getUrlImagem().isBlank()) {
+				try { fileUploadService.removerImagem(existente.getUrlImagem()); } catch (Exception ex) { /* ignore */ }
+			}
+			existente.setUrlImagem(saved);
 		}
 
 		return produtoRepository.save(existente);

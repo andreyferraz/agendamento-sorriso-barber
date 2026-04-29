@@ -14,23 +14,92 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.barbeariasorrisobarber.agendamento.repository.UsuarioAdminRepository;
 import com.barbeariasorrisobarber.agendamento.service.UsuarioAdminService;
+import com.barbeariasorrisobarber.agendamento.service.ProdutoService;
+import com.barbeariasorrisobarber.agendamento.model.Produto;
+import java.math.BigDecimal;
+import java.util.Optional;
 
 @Controller
 public class AdminController {
 
     private final UsuarioAdminService usuarioAdminService;
     private final UsuarioAdminRepository usuarioAdminRepository;
+    private final ProdutoService produtoService;
 
     public AdminController(UsuarioAdminService usuarioAdminService,
-            UsuarioAdminRepository usuarioAdminRepository) {
+            UsuarioAdminRepository usuarioAdminRepository, ProdutoService produtoService) {
         this.usuarioAdminService = usuarioAdminService;
         this.usuarioAdminRepository = usuarioAdminRepository;
+        this.produtoService = produtoService;
     }
 
     @GetMapping("/admin")
     public String admin(Model model) {
         model.addAttribute("usuarios", usuarioAdminRepository.findByUsernameNot("admin"));
+        model.addAttribute("produtos", produtoService.listarTodos());
         return "admin/admin";
+    }
+
+    @GetMapping("/admin/produtos/{id}/edit")
+    public String editarProduto(@PathVariable String id, Model model) {
+        model.addAttribute("usuarios", usuarioAdminRepository.findByUsernameNot("admin"));
+        model.addAttribute("produtos", produtoService.listarTodos());
+        try {
+            var uuid = UUID.fromString(id);
+            Optional<Produto> p = produtoService.buscarPorId(uuid);
+            p.ifPresent(prod -> model.addAttribute("produtoToEdit", prod));
+        } catch (Exception e) {
+            // ignore invalid id — view will simply not prefill
+        }
+        return "admin/admin";
+    }
+
+    @PostMapping("/admin/produtos")
+    public String criarOuAtualizarProduto(@RequestParam(name = "id", required = false) String id,
+            @RequestParam("nome") String nome, @RequestParam("preco") String preco,
+            @RequestParam(name = "descricao", required = false) String descricao,
+            @RequestParam(name = "estoque", required = false) Integer estoque,
+            @RequestParam(name = "imagem", required = false) MultipartFile imagem,
+            RedirectAttributes redirectAttrs) {
+        try {
+            // normalizar preco (aceita vírgula)
+            String cleaned = preco == null ? "" : preco.replaceAll("[^0-9,\\.]", "").replace(',', '.');
+            BigDecimal precoVal = new BigDecimal(cleaned);
+
+            Produto dados = new Produto();
+            dados.setNome(nome);
+            dados.setDescricao(descricao);
+            dados.setPreco(precoVal);
+            dados.setEstoque(estoque != null ? estoque : 0);
+
+            if (id != null && !id.isBlank()) {
+                UUID uuid = UUID.fromString(id);
+                if (imagem != null && !imagem.isEmpty()) {
+                    produtoService.atualizarProdutoComImagem(uuid, dados, imagem);
+                } else {
+                    produtoService.atualizarProduto(uuid, dados);
+                }
+                redirectAttrs.addFlashAttribute("success", "Produto atualizado com sucesso.");
+            } else {
+                produtoService.criarProdutoComImagem(dados, imagem);
+                redirectAttrs.addFlashAttribute("success", "Produto criado com sucesso.");
+            }
+        } catch (Exception e) {
+            redirectAttrs.addFlashAttribute("error", e.getMessage());
+        }
+        return "redirect:/admin";
+    }
+
+    @PostMapping("/admin/produtos/{id}/delete")
+    public String deletarProduto(@PathVariable String id, RedirectAttributes redirectAttrs) {
+        try {
+            UUID uuid = UUID.fromString(id);
+            produtoService.deletar(uuid);
+            redirectAttrs.addFlashAttribute("success", "Produto removido.");
+        } catch (Exception e) {
+            redirectAttrs.addFlashAttribute("error", e.getMessage());
+        }
+        return "redirect:/admin";
     }
 
     @PostMapping("/admin/users")

@@ -35,8 +35,7 @@ CREATE TABLE IF NOT EXISTS produto (
     descricao TEXT,
     preco NUMERIC NOT NULL,
     url_imagem TEXT,
-    estoque INTEGER NOT NULL,
-    ativo INTEGER NOT NULL DEFAULT 1 CHECK (ativo IN (0,1))
+    estoque INTEGER NOT NULL
 );
 CREATE TABLE IF NOT EXISTS usuario_admin (
     id TEXT PRIMARY KEY,

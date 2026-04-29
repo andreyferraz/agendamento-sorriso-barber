@@ -37,7 +37,7 @@ class ProdutoServiceTest {
 
     @Test
     void listarTodos_deveRetornarLista() {
-        Produto p = new Produto(UUID.randomUUID(), "Prod", "Desc", BigDecimal.valueOf(10), "img.webp", 5, true);
+        Produto p = new Produto(UUID.randomUUID(), "Prod", "Desc", BigDecimal.valueOf(10), "img.webp", 5, false);
         when(produtoRepository.findAll()).thenReturn(List.of(p));
 
         var lista = produtoService.listarTodos();
@@ -50,7 +50,7 @@ class ProdutoServiceTest {
     @Test
     void buscarPorId_deveRetornarOptionalQuandoExistir() {
         UUID id = UUID.randomUUID();
-        Produto p = new Produto(id, "X", "D", BigDecimal.valueOf(20), null, 0, true);
+        Produto p = new Produto(id, "X", "D", BigDecimal.valueOf(20), null, 0, false);
         when(produtoRepository.findById(id)).thenReturn(Optional.of(p));
 
         var opt = produtoService.buscarPorId(id);
@@ -61,20 +61,19 @@ class ProdutoServiceTest {
 
     @Test
     void criarProduto_semImagem_deveSalvarComDefaults() {
-        Produto p = new Produto(null, "Novo", "Desc", BigDecimal.valueOf(15), null, null, null);
+        Produto p = new Produto(null, "Novo", "Desc", BigDecimal.valueOf(15), null, null, true);
         when(produtoRepository.save(any())).thenAnswer(i -> i.getArgument(0));
 
         Produto salvo = produtoService.criarProduto(p);
 
         assertNotNull(salvo.getId());
-        assertTrue(salvo.getAtivo());
         assertEquals(0, salvo.getEstoque());
         verify(produtoRepository).save(any(Produto.class));
     }
 
     @Test
     void criarProduto_comImagem_deveChamarFileUploadESalvarUrl() {
-        Produto p = new Produto(null, "ComImg", "Desc", BigDecimal.valueOf(25), null, null, null);
+        Produto p = new Produto(null, "ComImg", "Desc", BigDecimal.valueOf(25), null, null, true);
         MultipartFile mockFile = mock(MultipartFile.class);
         when(mockFile.isEmpty()).thenReturn(false);
         when(fileUploadService.salvarImagem(mockFile)).thenReturn("imagem123.webp");
@@ -89,7 +88,7 @@ class ProdutoServiceTest {
 
     @Test
     void criarProduto_precoNegativo_deveLancar() {
-        Produto p = new Produto(null, "Bad", "Desc", BigDecimal.valueOf(-5), null, null, null);
+        Produto p = new Produto(null, "Bad", "Desc", BigDecimal.valueOf(-5), null, null, true);
 
         assertThrows(IllegalArgumentException.class, () -> produtoService.criarProduto(p));
     }
@@ -97,7 +96,7 @@ class ProdutoServiceTest {
     @Test
     void atualizarProduto_deveAtualizarCampos() {
         UUID id = UUID.randomUUID();
-        Produto existente = new Produto(id, "A", "D", BigDecimal.valueOf(10), null, 1, true);
+        Produto existente = new Produto(id, "A", "D", BigDecimal.valueOf(10), null, 1, false);
         Produto dados = new Produto(null, "B", "D2", BigDecimal.valueOf(12), "u.jpg", 2, false);
 
         when(produtoRepository.findById(id)).thenReturn(Optional.of(existente));
@@ -110,13 +109,12 @@ class ProdutoServiceTest {
         assertEquals(BigDecimal.valueOf(12), atualizado.getPreco());
         assertEquals("u.jpg", atualizado.getUrlImagem());
         assertEquals(2, atualizado.getEstoque());
-        assertFalse(atualizado.getAtivo());
     }
 
     @Test
     void deletar_deveRemoverEChamarFileUpload() {
         UUID id = UUID.randomUUID();
-        Produto existente = new Produto(id, "ToDel", "D", BigDecimal.valueOf(5), "file.webp", 1, true);
+        Produto existente = new Produto(id, "ToDel", "D", BigDecimal.valueOf(5), "file.webp", 1, false);
         when(produtoRepository.findById(id)).thenReturn(Optional.of(existente));
         doNothing().when(produtoRepository).deleteById(id);
         doNothing().when(fileUploadService).removerImagem("file.webp");
@@ -130,7 +128,7 @@ class ProdutoServiceTest {
     @Test
     void deletar_deveSuportarFalhaNaRemocaoDaImagemENaoPropagar() {
         UUID id = UUID.randomUUID();
-        Produto existente = new Produto(id, "ToDel", "D", BigDecimal.valueOf(5), "file.webp", 1, true);
+        Produto existente = new Produto(id, "ToDel", "D", BigDecimal.valueOf(5), "file.webp", 1, false);
         when(produtoRepository.findById(id)).thenReturn(Optional.of(existente));
         doNothing().when(produtoRepository).deleteById(id);
         doThrow(new RuntimeException("io error")).when(fileUploadService).removerImagem("file.webp");
