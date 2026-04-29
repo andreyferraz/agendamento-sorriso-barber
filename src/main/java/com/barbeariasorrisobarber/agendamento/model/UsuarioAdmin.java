@@ -35,6 +35,6 @@ public class UsuarioAdmin implements Persistable<UUID> {
 
     @Override
     public boolean isNew() {
-        return id != null && (username != null && !username.isEmpty());
+        return id == null;
     }
 }
