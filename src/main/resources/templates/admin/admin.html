@@ -3,17 +3,6 @@
 
 <head>
   <title>Painel Admin — Sorriso Barber</title>
-  <style>
-    /* Compact product list styles (bem menor) */
-    .products-compact-table td, .products-compact-table th {
-      padding: 4px 6px; font-size: 0.78rem; vertical-align: middle;
-    }
-    .products-compact-table img { width:32px; height:32px; border-radius:6px; object-fit:cover; }
-    .products-compact-desc { max-width:180px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:#666; font-size:0.75rem; }
-    .admin-action-btn { padding:4px 6px; font-size:0.78rem; }
-    .admin-action-btn.danger { padding:4px 6px; }
-    .products-compact-price { text-align:right; font-weight:600; }
-  </style>
 </head>
 
 <body th:replace="~{layout :: layout('Painel Admin — Sorriso Barber', ~{::content})}">
