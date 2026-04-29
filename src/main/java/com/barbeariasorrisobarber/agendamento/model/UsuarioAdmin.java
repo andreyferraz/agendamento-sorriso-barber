@@ -29,7 +29,7 @@ public class UsuarioAdmin implements Persistable<UUID> {
     @Column("foto_url")
     private String fotoUrl;
 
-    @Transient  // <-- adicione isso
+    @Transient
     private boolean isNew = false;
 
     @Override
