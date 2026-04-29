@@ -29,7 +29,7 @@ public class AdminController {
 
     @GetMapping("/admin")
     public String admin(Model model) {
-        model.addAttribute("usuarios", usuarioAdminRepository.findAll());
+        model.addAttribute("usuarios", usuarioAdminRepository.findByUsernameNot("admin"));
         return "admin/admin";
     }
 

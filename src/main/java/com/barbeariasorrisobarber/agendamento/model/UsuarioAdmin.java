@@ -3,6 +3,7 @@ package com.barbeariasorrisobarber.agendamento.model;
 import java.util.UUID;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
@@ -28,13 +29,12 @@ public class UsuarioAdmin implements Persistable<UUID> {
     @Column("foto_url")
     private String fotoUrl;
 
-    @Override
-    public UUID getId() {
-        return id;
-    }
+    @Transient  // <-- adicione isso
+    private boolean isNew = false;
 
     @Override
-    public boolean isNew() {
-        return id == null;
-    }
+    public UUID getId() { return id; }
+
+    @Override
+    public boolean isNew() { return isNew; }
 }

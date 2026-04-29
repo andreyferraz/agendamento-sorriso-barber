@@ -49,7 +49,7 @@ public class UsuarioAdminService {
 
         String hash = passwordEncoder.encode(rawPassword);
 
-        UsuarioAdmin novo = new UsuarioAdmin(UUID.randomUUID(), username, hash, null);
+        UsuarioAdmin novo = new UsuarioAdmin(UUID.randomUUID(), username, hash, null, true);
         UsuarioAdmin saved = repository.save(novo);
         return saved;
     }
@@ -65,7 +65,7 @@ public class UsuarioAdminService {
 
         String hash = passwordEncoder.encode(rawPassword);
 
-        UsuarioAdmin novo = new UsuarioAdmin(UUID.randomUUID(), username, hash, null);
+        UsuarioAdmin novo = new UsuarioAdmin(UUID.randomUUID(), username, hash, null, true);
 
         if (foto != null && !foto.isEmpty()) {
             String savedName = fileUploadService.salvarImagem(foto);

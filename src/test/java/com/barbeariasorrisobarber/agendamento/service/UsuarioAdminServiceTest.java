@@ -11,7 +11,6 @@ import com.barbeariasorrisobarber.agendamento.repository.UsuarioAdminRepository;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -50,7 +49,7 @@ class UsuarioAdminServiceTest {
 
     @Test
     void criarAdmin_usuarioExistente_deveLancar() {
-        UsuarioAdmin existent = new UsuarioAdmin(UUID.randomUUID(), "admin", "hash", null);
+        UsuarioAdmin existent = new UsuarioAdmin(UUID.randomUUID(), "admin", "hash", null, true);
         when(repository.findByUsername("admin")).thenReturn(Optional.of(existent));
 
         assertThrows(IllegalArgumentException.class, () -> service.criarAdmin("admin", "pwd"));
@@ -60,7 +59,7 @@ class UsuarioAdminServiceTest {
     void autenticar_deveRetornarTrueQuandoSenhaCorreta() {
         String raw = "mypwd";
         String hash = passwordEncoder.encode(raw);
-        UsuarioAdmin existent = new UsuarioAdmin(UUID.randomUUID(), "u", hash, null);
+        UsuarioAdmin existent = new UsuarioAdmin(UUID.randomUUID(), "u", hash, null, true);
         when(repository.findByUsername("u")).thenReturn(Optional.of(existent));
 
         assertTrue(service.autenticar("u", raw));
@@ -75,7 +74,7 @@ class UsuarioAdminServiceTest {
     @Test
     void autenticar_deveRetornarFalseQuandoSenhaIncorreta() {
         String hash = passwordEncoder.encode("right");
-        UsuarioAdmin existent = new UsuarioAdmin(UUID.randomUUID(), "u2", hash, null);
+        UsuarioAdmin existent = new UsuarioAdmin(UUID.randomUUID(), "u2", hash, null, true);
         when(repository.findByUsername("u2")).thenReturn(Optional.of(existent));
 
         assertFalse(service.autenticar("u2", "wrong"));
@@ -96,7 +95,7 @@ class UsuarioAdminServiceTest {
     void atualizarSenha_deveAtualizarHash() {
         UUID id = UUID.randomUUID();
         String oldHash = passwordEncoder.encode("old");
-        UsuarioAdmin existente = new UsuarioAdmin(id, "adm", oldHash, null);
+        UsuarioAdmin existente = new UsuarioAdmin(id, "adm", oldHash, null, true);
         when(repository.findById(id)).thenReturn(Optional.of(existente));
         when(repository.save(any())).thenAnswer(i -> i.getArgument(0));
 
@@ -118,7 +117,7 @@ class UsuarioAdminServiceTest {
     @Test
     void deletar_deveChamarRepository() {
         UUID id = UUID.randomUUID();
-        UsuarioAdmin u = new UsuarioAdmin(id, "toDel", "hash", "img.webp");
+        UsuarioAdmin u = new UsuarioAdmin(id, "toDel", "hash", "img.webp", true);
         when(repository.findById(id)).thenReturn(Optional.of(u));
         doNothing().when(fileUploadService).removerImagem("img.webp");
         doNothing().when(repository).deleteById(id);
