@@ -316,6 +316,28 @@ a {
   background: rgba(197,157,95,0.04);
 }
 
+/* Products compact table (admin) */
+.products-compact-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+.products-compact-table thead th { text-align:left; font-size:0.82rem; padding:6px 8px; color:var(--muted); }
+.products-compact-table td, .products-compact-table th { padding:6px 8px; vertical-align:middle; }
+.product-name { font-weight:600; font-size:0.92rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.products-compact-desc { max-width:220px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:#cfcfcf; font-size:0.82rem; }
+.product-image { width:40px; height:40px; display:flex; align-items:center; justify-content:center; }
+.product-image img { width:32px; height:32px; border-radius:6px; object-fit:cover; display:block; }
+.products-compact-price { text-align:right; font-weight:600; white-space:nowrap; }
+.product-actions { text-align:right; }
+.product-actions .admin-action-btn { margin-left:6px; padding:5px 8px; font-size:0.78rem; }
+
+/* form preview */
+.product-preview-small { display:block; margin-top:6px; max-width:64px; border-radius:6px; }
+
+/* avoid horizontal scroll inside table cells */
+.products-compact-table td { overflow: hidden; word-break: break-word; }
+
 .btn-cta,
 .btn-secondary,
 .btn-wap {

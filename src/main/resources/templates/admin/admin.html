@@ -3,6 +3,17 @@
 
 <head>
   <title>Painel Admin — Sorriso Barber</title>
+  <style>
+    /* Compact product list styles (bem menor) */
+    .products-compact-table td, .products-compact-table th {
+      padding: 4px 6px; font-size: 0.78rem; vertical-align: middle;
+    }
+    .products-compact-table img { width:32px; height:32px; border-radius:6px; object-fit:cover; }
+    .products-compact-desc { max-width:180px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:#666; font-size:0.75rem; }
+    .admin-action-btn { padding:4px 6px; font-size:0.78rem; }
+    .admin-action-btn.danger { padding:4px 6px; }
+    .products-compact-price { text-align:right; font-weight:600; }
+  </style>
 </head>
 
 <body th:replace="~{layout :: layout('Painel Admin — Sorriso Barber', ~{::content})}">
@@ -513,9 +524,6 @@
                   <span class="section-kicker">Produtos</span>
                   <h3 class="section-title">Criar e gerenciar produtos</h3>
                 </div>
-                <div class="admin-actions-row">
-                  <button type="button" class="admin-action-btn primary" id="refresh-products">Atualizar</button>
-                </div>
               </div>
 
               <div class="admin-crud-grid">
@@ -549,7 +557,7 @@
                       <div class="form-group">
                         <label for="product-image">Imagem</label>
                         <input type="file" id="product-image" name="imagem" accept="image/*" />
-                        <img id="product-preview" th:if="${produtoToEdit != null and produtoToEdit.urlImagem != null}" th:src="@{|/uploads/${produtoToEdit.urlImagem}|}" alt="preview" style="display:block;margin-top:8px;max-width:120px;border-radius:8px;" />
+                        <img id="product-preview" th:if="${produtoToEdit != null and produtoToEdit.urlImagem != null}" th:src="@{|/uploads/${produtoToEdit.urlImagem}|}" alt="preview" class="product-preview-small" />
                       </div>
                     </div>
 
@@ -573,38 +581,36 @@
                     </div>
                   </div>
 
-                  <div class="admin-table-card">
+                      <div class="admin-table-card">
                     <div class="admin-table-wrap">
-                      <table class="admin-table users-table" id="products-table">
+                      <table class="admin-table users-table products-compact-table" id="products-table">
                         <thead>
                           <tr>
                             <th>Nome</th>
-                            <th>Descrição</th>
                             <th>Imagem</th>
-                            <th>Preço</th>
                             <th>Estoque</th>
-                            <th>Ações</th>
+                            <th>Preço</th>
                           </tr>
                         </thead>
                         <tbody id="products-tbody">
-                          <tr th:if="${produtos == null or #lists.isEmpty(produtos)}"><td colspan="6" class="muted">Nenhum produto cadastrado</td></tr>
-                          <tr th:each="p : ${produtos}">
-                            <td th:text="${p.nome}">Nome</td>
-                            <td th:text="${p.descricao}">Descrição</td>
-                            <td>
-                              <img th:if="${p.urlImagem}" th:src="@{|/uploads/${p.urlImagem}|}" alt="Imagem" style="width:64px;height:64px;object-fit:cover;border-radius:6px;" />
-                              <span th:if="${p.urlImagem == null}">—</span>
-                            </td>
-                            <td th:text="${p.preco}">0.00</td>
-                            <td th:text="${p.estoque}">0</td>
-                            <td>
-                              <a th:href="@{/admin/produtos/{id}/edit(id=${p.id})}" class="admin-action-btn">Editar</a>
-                              <form th:action="@{/admin/produtos/{id}/delete(id=${p.id})}" method="post" style="display:inline; margin-left:6px;">
-                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                                <button type="submit" class="admin-action-btn danger" onclick="return confirm('Remover produto?')">Remover</button>
-                              </form>
-                            </td>
-                          </tr>
+                          <tr th:if="${produtos == null or #lists.isEmpty(produtos)}"><td colspan="4" class="muted">Nenhum produto cadastrado</td></tr>
+                          <th:block th:each="p : ${produtos}">
+                            <tr>
+                              <td class="product-name"> <span th:text="${p.nome}">Nome</span> </td>
+                              <td class="product-image"> <img th:if="${p.urlImagem}" th:src="@{|/uploads/${p.urlImagem}|}" alt="Imagem" /> <span th:if="${p.urlImagem == null}">—</span> </td>
+                              <td style="text-align:center;"> <span th:text="${p.estoque}">0</span> </td>
+                              <td class="products-compact-price"> <span th:text="'R$ ' + ${p.preco}">0.00</span> </td>
+                            </tr>
+                            <tr>
+                              <td colspan="4" class="product-actions">
+                                <a th:href="@{/admin/produtos/{id}/edit(id=${p.id})}" class="admin-action-btn">Editar</a>
+                                <form th:action="@{/admin/produtos/{id}/delete(id=${p.id})}" method="post" style="display:inline;">
+                                  <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                  <button type="submit" class="admin-action-btn danger" onclick="return confirm('Remover produto?')">Remover</button>
+                                </form>
+                              </td>
+                            </tr>
+                          </th:block>
                         </tbody>
                       </table>
                     </div>
