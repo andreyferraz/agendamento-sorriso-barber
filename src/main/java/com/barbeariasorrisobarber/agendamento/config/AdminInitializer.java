@@ -38,6 +38,25 @@ public class AdminInitializer implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
+        Optional<BootstrapCredentials> credentials = resolveBootstrapCredentials();
+        if (credentials.isEmpty()) {
+            logger.info("No admin credentials provided via environment or properties. Admin not created.");
+            return;
+        }
+
+        BootstrapCredentials bootstrapCredentials = credentials.get();
+        Optional<com.barbeariasorrisobarber.agendamento.model.UsuarioAdmin> existingUser = findExistingUser(bootstrapCredentials.username());
+
+        if (existingUser.isEmpty()) {
+            usuarioAdminService.criarAdmin(bootstrapCredentials.username(), bootstrapCredentials.password());
+            logger.info("Admin user created: {}", bootstrapCredentials.username());
+            return;
+        }
+
+        logger.info("Admin user already exists: {}. Bootstrap password will not be applied again.", bootstrapCredentials.username());
+    }
+
+    private Optional<BootstrapCredentials> resolveBootstrapCredentials() {
         String username = System.getenv("ADMIN_USERNAME");
         String password = System.getenv("ADMIN_PASSWORD");
 
@@ -48,40 +67,32 @@ public class AdminInitializer implements ApplicationRunner {
             logger.info("Using bootstrap admin credentials from application.properties");
         }
 
-        if (username != null && !username.isBlank() && password != null && !password.isBlank()) {
-            var exists = Optional.<com.barbeariasorrisobarber.agendamento.model.UsuarioAdmin>empty();
-            try {
-                exists = usuarioAdminService.buscarPorUsername(username);
-            } catch (Exception ex) {
-                String msg = ex.getMessage() != null ? ex.getMessage() : "";
-                if (msg.contains("no such column") || msg.contains("foto_url")) {
-                    try {
-                        jdbcTemplate.execute("ALTER TABLE usuario_admin ADD COLUMN foto_url TEXT;");
-                        logger.info("Applied migration: added foto_url column to usuario_admin");
-                        exists = usuarioAdminService.buscarPorUsername(username);
-                    } catch (Exception migEx) {
-                        logger.warn("Failed to apply migration for foto_url: {}", migEx.getMessage());
-                    }
-                } else {
-                    throw ex;
-                }
-            }
-
-            if (exists == null || exists.isEmpty()) {
-                usuarioAdminService.criarAdmin(username, password);
-                logger.info("Admin user created: {}", username);
-            } else {
-                // if password provided via env/properties, update the existing user's password
-                try {
-                    var existing = exists.get();
-                    usuarioAdminService.atualizarSenha(existing.getId(), password);
-                    logger.info("Admin user password updated for: {}", username);
-                } catch (Exception e) {
-                    logger.warn("Failed to update admin password for {}: {}", username, e.getMessage());
-                }
-            }
-        } else {
-            logger.info("No admin credentials provided via environment or properties. Admin not created.");
+        if (username == null || username.isBlank() || password == null || password.isBlank()) {
+            return Optional.empty();
         }
+
+        return Optional.of(new BootstrapCredentials(username, password));
+    }
+
+    private Optional<com.barbeariasorrisobarber.agendamento.model.UsuarioAdmin> findExistingUser(String username) {
+        try {
+            return usuarioAdminService.buscarPorUsername(username);
+        } catch (Exception ex) {
+            String msg = ex.getMessage() != null ? ex.getMessage() : "";
+            if (msg.contains("no such column") || msg.contains("foto_url")) {
+                try {
+                    jdbcTemplate.execute("ALTER TABLE usuario_admin ADD COLUMN foto_url TEXT;");
+                    logger.info("Applied migration: added foto_url column to usuario_admin");
+                    return usuarioAdminService.buscarPorUsername(username);
+                } catch (Exception migEx) {
+                    logger.warn("Failed to apply migration for foto_url: {}", migEx.getMessage());
+                    return Optional.empty();
+                }
+            }
+            throw new IllegalStateException("Failed to load admin user: " + username, ex);
+        }
+    }
+
+    private record BootstrapCredentials(String username, String password) {
     }
 }
