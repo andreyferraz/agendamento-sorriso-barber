@@ -28,6 +28,9 @@
               <li th:text="${iterStat.first} ? 'Serviço em destaque' : 'Disponível no catálogo'">Disponível no catálogo</li>
             </ul>
             <div class="price" th:text="|R$ ${servico.preco}|">R$ 0,00</div>
+            <div style="margin-top:18px;">
+              <button type="button" class="btn-cta" aria-label="Agendar serviço" disabled>Agendar</button>
+            </div>
           </article>
         </div>
 
