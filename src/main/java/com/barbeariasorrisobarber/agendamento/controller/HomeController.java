@@ -5,14 +5,17 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import com.barbeariasorrisobarber.agendamento.service.ProdutoService;
+import com.barbeariasorrisobarber.agendamento.service.ServicoService;
 
 @Controller
 public class HomeController {
 
     private final ProdutoService produtoService;
+    private final ServicoService servicoService;
 
-    public HomeController(ProdutoService produtoService) {
+    public HomeController(ProdutoService produtoService, ServicoService servicoService) {
         this.produtoService = produtoService;
+        this.servicoService = servicoService;
     }
 
     @GetMapping({"/", "/index"})
@@ -27,6 +30,7 @@ public class HomeController {
 
     @GetMapping("/servicos")
     public String services(Model model) {
+        model.addAttribute("servicos", servicoService.listarTodos());
         return "servicos";
     }
 

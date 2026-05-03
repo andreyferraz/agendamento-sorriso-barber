@@ -17,79 +17,24 @@
 
     <section class="section">
       <div class="container">
-        <div class="grid grid-3">
-          <div class="card service-card">
-            <div class="icon">✂️</div>
-            <h3>Corte Masculino</h3>
-            <p class="muted">Corte clássico ou atual com acabamento técnico e finalização profissional.</p>
+        <div class="grid grid-3" th:if="${servicos != null and !#lists.isEmpty(servicos)}">
+          <article class="card service-card" th:each="servico, iterStat : ${servicos}" th:classappend="${iterStat.first} ? ' featured-card' : ''">
+            <div class="icon" th:text="${iterStat.first} ? '✂️' : (iterStat.index == 1 ? '🪒' : '💈')">✂️</div>
+            <span class="badge-soft" th:if="${iterStat.first}">Destaque</span>
+            <h3 th:text="${servico.nome}">Corte Masculino</h3>
+            <p class="muted" th:text="${servico.descricao != null and !#strings.isEmpty(servico.descricao) ? servico.descricao : 'Serviço selecionado para valorizar seu visual.'}">Serviço selecionado para valorizar seu visual.</p>
             <ul class="card-list muted">
-              <li>Consultoria de estilo</li>
-              <li>Acabamento preciso</li>
-              <li>Finalização com produto</li>
+              <li th:text="|${servico.duracao} min de atendimento|">45 min de atendimento</li>
+              <li th:text="${iterStat.first} ? 'Serviço em destaque' : 'Disponível no catálogo'">Disponível no catálogo</li>
             </ul>
-            <div class="price">R$ 60,00</div>
-          </div>
+            <div class="price" th:text="|R$ ${servico.preco}|">R$ 0,00</div>
+          </article>
+        </div>
 
-          <div class="card service-card featured-card">
-            <span class="badge-soft">Destaque</span>
-            <div class="icon">🪒</div>
-            <h3>Barba Premium</h3>
-            <p class="muted">Desenho, alinhamento e definição para uma barba mais elegante e bem cuidada.</p>
-            <ul class="card-list muted">
-              <li>Modelagem personalizada</li>
-              <li>Navalha e detalhamento</li>
-              <li>Acabamento com óleo ou balm</li>
-            </ul>
-            <div class="price">R$ 40,00</div>
-          </div>
-
-          <div class="card service-card">
-            <div class="icon">💈</div>
-            <h3>Corte + Barba</h3>
-            <p class="muted">Pacote completo para quem quer sair com um visual renovado e harmônico.</p>
-            <ul class="card-list muted">
-              <li>Visual completo</li>
-              <li>Melhor custo-benefício</li>
-              <li>Resultado mais marcante</li>
-            </ul>
-            <div class="price">R$ 90,00</div>
-          </div>
-
-          <div class="card service-card">
-            <div class="icon">🧴</div>
-            <h3>Hidratação Capilar</h3>
-            <p class="muted">Tratamento para revitalizar os fios, melhorar o toque e reforçar o cuidado diário.</p>
-            <ul class="card-list muted">
-              <li>Aplicação profissional</li>
-              <li>Mais maciez e brilho</li>
-              <li>Ideal para manutenção</li>
-            </ul>
-            <div class="price">R$ 50,00</div>
-          </div>
-
-          <div class="card service-card">
-            <div class="icon">🔥</div>
-            <h3>Acabamento Premium</h3>
-            <p class="muted">Detalhes extras para elevar o visual com ainda mais presença e definição.</p>
-            <ul class="card-list muted">
-              <li>Contornos refinados</li>
-              <li>Reforço na finalização</li>
-              <li>Mais sofisticação no resultado</li>
-            </ul>
-            <div class="price">R$ 30,00</div>
-          </div>
-
-          <div class="card service-card">
-            <div class="icon">⭐</div>
-            <h3>Consultoria de Visual</h3>
-            <p class="muted">Orientação rápida para definir o corte, barba e rotina de produtos ideal para você.</p>
-            <ul class="card-list muted">
-              <li>Indicação de estilo</li>
-              <li>Sugestão de manutenção</li>
-              <li>Experiência mais personalizada</li>
-            </ul>
-            <div class="price">Sob consulta</div>
-          </div>
+        <div class="card" th:if="${servicos == null or #lists.isEmpty(servicos)}">
+          <span class="badge-soft">Catálogo vazio</span>
+          <h3>Os serviços ainda não foram cadastrados.</h3>
+          <p class="muted">Assim que novos serviços forem adicionados no painel administrativo, eles aparecerão aqui automaticamente.</p>
         </div>
       </div>
     </section>
