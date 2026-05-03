@@ -41,20 +41,28 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-  const adminNavLinks = document.querySelectorAll(".admin-nav-link[data-tab-target]");
+  const adminNavLinks = document.querySelectorAll(".admin-nav-link[data-tab-target], .admin-link-btn[data-tab-target]");
   const adminPanels = document.querySelectorAll(".admin-tab[data-tab-panel]");
 
   if (adminNavLinks.length && adminPanels.length) {
     // restore previously active admin tab from localStorage
-    const savedTab = localStorage.getItem('adminActiveTab');
+    const queryTab = new URLSearchParams(window.location.search).get('tab');
+    const savedTab = queryTab || localStorage.getItem('adminActiveTab');
     if (savedTab) {
-      const savedBtn = document.querySelector(`.admin-nav-link[data-tab-target="${savedTab}"]`);
+      const savedBtn = document.querySelector(`.admin-nav-link[data-tab-target="${savedTab}"], .admin-link-btn[data-tab-target="${savedTab}"]`);
       const savedPanel = document.querySelector(`.admin-tab[data-tab-panel="${savedTab}"]`);
       if (savedBtn && savedPanel) {
         adminNavLinks.forEach((item) => item.classList.remove("active"));
         adminPanels.forEach((panel) => panel.classList.remove("active"));
         savedBtn.classList.add("active");
         savedPanel.classList.add("active");
+        if (queryTab) {
+          try {
+            localStorage.setItem('adminActiveTab', queryTab);
+          } catch (e) {
+            console.warn('Could not persist admin tab selection', e);
+          }
+        }
       }
     }
 

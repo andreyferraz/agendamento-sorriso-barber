@@ -32,7 +32,12 @@
           <a th:href="@{/sobre}">Sobre</a>
           <a th:href="@{/servicos}">Serviços</a>
           <a th:href="@{/produtos}">Produtos</a>
-          <a th:href="@{/admin}" sec:authorize="isAuthenticated()" class="nav-admin-link">
+          <a th:href="@{/barbeiro}" sec:authorize="hasRole('BARBEIRO')" class="nav-admin-link">
+            <i class="fas fa-user-tie" aria-hidden="true"></i>
+            <span>Área do Barbeiro</span>
+            <small class="nav-admin-badge">Barbeiro</small>
+          </a>
+          <a th:href="@{/admin}" sec:authorize="hasRole('ADMIN')" class="nav-admin-link">
             <i class="fas fa-tools" aria-hidden="true"></i>
             <span>Painel Admin</span>
             <small class="nav-admin-badge">Admin</small>
@@ -47,6 +52,7 @@
           </button>
         </div>
       </nav>
+
     </div>
   </header>
 

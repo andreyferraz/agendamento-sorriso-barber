@@ -38,6 +38,16 @@
                 <span>Serviços</span>
               </button>
 
+              <button type="button" class="admin-nav-link" data-tab-target="barbeiros">
+                <i class="fas fa-user-tie" aria-hidden="true"></i>
+                <span>Barbeiros</span>
+              </button>
+
+              <button type="button" class="admin-nav-link" data-tab-target="agendamentos">
+                <i class="fas fa-calendar-check" aria-hidden="true"></i>
+                <span>Agendamentos</span>
+              </button>
+
               <button type="button" class="admin-nav-link" data-tab-target="produtos">
                 <i class="fas fa-box" aria-hidden="true"></i>
                 <span>Produtos</span>
@@ -177,7 +187,7 @@
                       <span class="panel-label">Agenda</span>
                       <h4>Próximos horários</h4>
                     </div>
-                    <button type="button" class="admin-link-btn">Ver detalhes</button>
+                    <button type="button" class="admin-link-btn" data-tab-target="agendamentos">Ver detalhes</button>
                   </div>
 
                   <div class="admin-schedule-list">
@@ -490,6 +500,281 @@
                     </div>
                   </div>
                 </article>
+              </div>
+            </section>
+
+            <section class="admin-tab" data-tab-panel="barbeiros">
+              <div class="admin-section-heading">
+                <div>
+                  <span class="section-kicker">Barbeiros</span>
+                  <h3 class="section-title">Cadastro e acesso ao sistema</h3>
+                </div>
+                <div class="admin-actions-row">
+                  <button type="button" class="admin-action-btn primary" onclick="document.getElementById('barbeiro-name').focus();">
+                    <i class="fas fa-plus" aria-hidden="true"></i>
+                    Novo barbeiro
+                  </button>
+                </div>
+              </div>
+
+              <div class="admin-crud-grid">
+                <article class="admin-panel-card">
+                  <div class="admin-panel-head">
+                    <div>
+                      <span class="panel-label">Cadastrar barbeiro</span>
+                      <h4 th:text="${barbeiroToEdit != null ? 'Editar barbeiro' : 'Novo profissional'}">Novo profissional</h4>
+                    </div>
+                  </div>
+
+                  <form class="admin-form" th:action="@{/admin/barbeiros}" method="post" enctype="multipart/form-data">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                    <input type="hidden" name="id" th:value="${barbeiroToEdit != null ? barbeiroToEdit.id : ''}" />
+
+                    <div class="admin-form-grid">
+                      <div class="form-group">
+                        <label for="barbeiro-name">Nome</label>
+                        <input type="text" id="barbeiro-name" name="nome" placeholder="Nome do barbeiro" required th:value="${barbeiroToEdit != null ? barbeiroToEdit.nome : ''}" />
+                      </div>
+
+                      <div class="form-group">
+                        <label for="barbeiro-username">Usuário</label>
+                        <input type="text" id="barbeiro-username" name="username" placeholder="usuario.barbeiro" required th:value="${barbeiroToEdit != null ? barbeiroToEdit.username : ''}" />
+                      </div>
+
+                      <div class="form-group">
+                        <label for="barbeiro-password">Senha</label>
+                        <input type="password" id="barbeiro-password" name="password" th:placeholder="${barbeiroToEdit != null ? 'Deixe em branco para manter a atual' : 'Senha de acesso'}" th:required="${barbeiroToEdit == null}" />
+                      </div>
+
+                      <div class="form-group">
+                        <label for="barbeiro-comissao">Comissão (%)</label>
+                        <input type="text" id="barbeiro-comissao" name="comissaoPercentual" placeholder="30,00" required th:value="${barbeiroToEdit != null ? barbeiroToEdit.comissaoPercentual : ''}" />
+                      </div>
+
+                      <div class="form-group">
+                        <label for="barbeiro-horario-inicio">Início do atendimento</label>
+                        <input type="time" id="barbeiro-horario-inicio" name="horarioInicioAtendimento" th:value="${barbeiroToEdit != null ? barbeiroToEdit.horarioInicioAtendimentoFormatado : ''}" />
+                      </div>
+
+                      <div class="form-group">
+                        <label for="barbeiro-horario-fim">Fim do atendimento</label>
+                        <input type="time" id="barbeiro-horario-fim" name="horarioFimAtendimento" th:value="${barbeiroToEdit != null ? barbeiroToEdit.horarioFimAtendimentoFormatado : ''}" />
+                      </div>
+
+                      <div class="form-group">
+                        <label for="barbeiro-telefone">Telefone</label>
+                        <input type="text" id="barbeiro-telefone" name="telefone" placeholder="(00) 00000-0000" th:value="${barbeiroToEdit != null ? barbeiroToEdit.telefone : ''}" />
+                      </div>
+
+                      <div class="form-group">
+                        <label for="barbeiro-email">E-mail</label>
+                        <input type="email" id="barbeiro-email" name="email" placeholder="barbeiro@exemplo.com" th:value="${barbeiroToEdit != null ? barbeiroToEdit.email : ''}" />
+                      </div>
+
+                      <div class="form-group">
+                        <label for="barbeiro-foto">Foto</label>
+                        <input type="file" id="barbeiro-foto" name="foto" accept="image/*" />
+                        <img th:if="${barbeiroToEdit != null and barbeiroToEdit.fotoUrl != null}" th:src="@{|/uploads/${barbeiroToEdit.fotoUrl}|}" alt="Foto do barbeiro" style="max-width:96px;border-radius:12px;margin-top:8px;" />
+                      </div>
+                    </div>
+
+                    <div class="admin-form-actions">
+                      <button type="submit" class="admin-action-btn primary" th:text="${barbeiroToEdit != null ? 'Atualizar barbeiro' : 'Salvar barbeiro'}">Salvar barbeiro</button>
+                      <button type="button" class="admin-action-btn" onclick="window.location.href='/admin'; return false;">Limpar</button>
+                    </div>
+                  </form>
+                </article>
+
+                <article class="admin-panel-card">
+                  <div class="admin-panel-head">
+                    <div>
+                      <span class="panel-label">Lista atual</span>
+                      <h4>Barbeiros cadastrados</h4>
+                    </div>
+                  </div>
+
+                  <div class="admin-services-list">
+                    <div class="admin-service-item" th:if="${barbeiros == null or #lists.isEmpty(barbeiros)}">
+                      <div>
+                        <strong>Nenhum barbeiro cadastrado</strong>
+                        <span>Cadastre o primeiro profissional usando o formulário ao lado.</span>
+                      </div>
+                    </div>
+
+                    <div class="admin-service-item" th:each="barbeiro : ${barbeiros}">
+                      <div style="display:flex;gap:12px;align-items:flex-start;">
+                        <img th:if="${barbeiro.fotoUrl != null}" th:src="@{|/uploads/${barbeiro.fotoUrl}|}" alt="Foto do barbeiro" style="width:56px;height:56px;object-fit:cover;border-radius:50%;" />
+                        <div>
+                          <strong th:text="${barbeiro.nome}">Nome</strong>
+                          <span th:text="|Usuário: ${barbeiro.username}|">Usuário</span>
+                          <span th:text="|Comissão: ${barbeiro.comissaoPercentual}%|">Comissão</span>
+                          <small class="muted" th:text="${barbeiro.horarioInicioAtendimentoFormatado != null and !#strings.isEmpty(barbeiro.horarioInicioAtendimentoFormatado) and barbeiro.horarioFimAtendimentoFormatado != null and !#strings.isEmpty(barbeiro.horarioFimAtendimentoFormatado) ? 'Atende de ' + barbeiro.horarioInicioAtendimentoFormatado + ' às ' + barbeiro.horarioFimAtendimentoFormatado : 'Horário não informado'}">Horário não informado</small>
+                        </div>
+                      </div>
+                      <div class="admin-item-actions">
+                        <a th:href="@{/admin/barbeiros/{id}/edit(id=${barbeiro.id})}" class="admin-action-btn">Editar</a>
+                        <form th:action="@{/admin/barbeiros/{id}/delete(id=${barbeiro.id})}" method="post" style="display:inline;">
+                          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                          <button type="submit" class="admin-action-btn danger" onclick="return confirm('Remover barbeiro?')">Excluir</button>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </article>
+              </div>
+            </section>
+
+            <section class="admin-tab" data-tab-panel="agendamentos">
+              <div class="admin-section-heading">
+                <div>
+                  <span class="section-kicker">Agendamentos</span>
+                  <h3 class="section-title">Calendário e novos horários</h3>
+                </div>
+                <div class="admin-actions-row">
+                  <button type="button" class="admin-action-btn primary" onclick="document.getElementById('agendamento-nome').focus();">
+                    <i class="fas fa-plus" aria-hidden="true"></i>
+                    Novo agendamento
+                  </button>
+                </div>
+              </div>
+
+              <div class="admin-agendamento-grid">
+                <article class="admin-panel-card admin-calendar-card">
+                  <div class="admin-panel-head">
+                    <div>
+                      <span class="panel-label">Calendário mensal</span>
+                      <h4 th:text="${mesCalendario}">Maio de 2026</h4>
+                    </div>
+                  </div>
+
+                  <div class="admin-calendar-weekdays" aria-hidden="true">
+                    <span>Dom</span>
+                    <span>Seg</span>
+                    <span>Ter</span>
+                    <span>Qua</span>
+                    <span>Qui</span>
+                    <span>Sex</span>
+                    <span>Sáb</span>
+                  </div>
+
+                  <div class="admin-calendar-grid">
+                    <article class="admin-calendar-day" th:each="dia : ${calendarioAgendamentos}" th:classappend="${!dia.currentMonth} ? ' outside-month' : ''">
+                      <div class="admin-calendar-day-head">
+                        <strong th:text="${dia.date.dayOfMonth}">1</strong>
+                        <small th:text="${#temporals.format(dia.date, 'EEE', #locale)}">seg</small>
+                      </div>
+
+                      <div class="calendar-day-empty" th:if="${dia.items == null or #lists.isEmpty(dia.items)}">Livre</div>
+
+                      <div class="calendar-day-slots" th:if="${dia.items != null and !#lists.isEmpty(dia.items)}">
+                        <div class="calendar-slot" th:each="item : ${dia.items}">
+                          <span class="calendar-slot-time" th:text="${item.hora}">14:00</span>
+                          <div class="calendar-slot-copy">
+                            <strong th:text="${item.cliente}">Cliente</strong>
+                            <span th:text="${item.servico}">Serviço</span>
+                            <small th:text="${item.barbeiro}">Barbeiro</small>
+                          </div>
+                        </div>
+                      </div>
+                    </article>
+                  </div>
+                </article>
+
+                <div class="admin-agendamento-side">
+                  <article class="admin-panel-card">
+                    <div class="admin-panel-head">
+                      <div>
+                        <span class="panel-label">Novo horário</span>
+                        <h4 th:text="${agendamentoToEdit != null ? 'Editar agendamento' : 'Criar agendamento'}">Criar agendamento</h4>
+                      </div>
+                    </div>
+
+                    <form class="admin-form" th:action="@{/admin/agendamentos}" method="post">
+                      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                      <input type="hidden" name="id" th:value="${agendamentoToEdit != null ? agendamentoToEdit.id : ''}" />
+
+                      <div class="admin-form-grid">
+                        <div class="form-group">
+                          <label for="agendamento-nome">Cliente</label>
+                          <input type="text" id="agendamento-nome" name="nomeCliente" placeholder="Nome do cliente" required th:value="${agendamentoToEdit != null ? agendamentoToEdit.nomeCliente : ''}" />
+                        </div>
+
+                        <div class="form-group">
+                          <label for="agendamento-telefone">Telefone</label>
+                          <input type="text" id="agendamento-telefone" name="telefoneCliente" placeholder="(00) 00000-0000" required th:value="${agendamentoToEdit != null ? agendamentoToEdit.telefoneCliente : ''}" />
+                        </div>
+
+                        <div class="form-group">
+                          <label for="agendamento-barbeiro">Barbeiro</label>
+                          <select id="agendamento-barbeiro" name="barbeiroId" required>
+                            <option value="">Selecione</option>
+                            <option th:each="barbeiro : ${barbeiros}" th:value="${barbeiro.id}" th:text="${barbeiro.nome}" th:selected="${agendamentoToEdit != null and agendamentoToEdit.barbeiroId == barbeiro.id}">Barbeiro</option>
+                          </select>
+                        </div>
+
+                        <div class="form-group">
+                          <label for="agendamento-servico">Serviço</label>
+                          <select id="agendamento-servico" name="servicoId" required>
+                            <option value="">Selecione</option>
+                            <option th:each="servico : ${servicos}" th:value="${servico.id}" th:text="${servico.nome}" th:selected="${agendamentoToEdit != null and agendamentoToEdit.servicoId == servico.id}">Serviço</option>
+                          </select>
+                        </div>
+
+                        <div class="form-group">
+                          <label for="agendamento-data">Data</label>
+                          <input type="date" id="agendamento-data" name="dataAgendamento" required th:value="${agendamentoToEdit != null and agendamentoToEdit.dataHoraInicio != null ? #temporals.format(agendamentoToEdit.dataHoraInicio, 'yyyy-MM-dd') : ''}" />
+                        </div>
+
+                        <div class="form-group">
+                          <label for="agendamento-hora">Hora</label>
+                          <input type="time" id="agendamento-hora" name="horaAgendamento" required th:value="${agendamentoToEdit != null and agendamentoToEdit.dataHoraInicio != null ? #temporals.format(agendamentoToEdit.dataHoraInicio, 'HH:mm') : ''}" />
+                        </div>
+                      </div>
+
+                      <div class="admin-form-actions">
+                        <button type="submit" class="admin-action-btn primary" th:text="${agendamentoToEdit != null ? 'Atualizar agendamento' : 'Salvar agendamento'}">Salvar agendamento</button>
+                        <button type="button" class="admin-action-btn" onclick="window.location.href='/admin?tab=agendamentos'; return false;">Limpar</button>
+                      </div>
+                    </form>
+                  </article>
+
+                  <article class="admin-panel-card">
+                    <div class="admin-panel-head">
+                      <div>
+                        <span class="panel-label">Horários ocupados</span>
+                        <h4>Próximos agendamentos</h4>
+                      </div>
+                    </div>
+
+                    <div class="admin-schedule-list">
+                      <div class="admin-schedule-item" th:if="${agendamentosResumo == null or #lists.isEmpty(agendamentosResumo)}">
+                        <div>
+                          <strong>Nenhum agendamento cadastrado</strong>
+                          <span>Cadastre o primeiro horário usando o formulário ao lado.</span>
+                        </div>
+                      </div>
+
+                      <div class="admin-schedule-item admin-schedule-item-with-actions" th:each="agendamento : ${agendamentosResumo}">
+                        <div class="admin-schedule-item-datetime">
+                          <span class="time" th:text="${agendamento.data}">16/04/2026</span>
+                          <small th:text="${agendamento.hora}">14:00</small>
+                        </div>
+                        <div class="admin-schedule-item-copy">
+                          <strong th:text="${agendamento.cliente}">Cliente</strong>
+                          <small th:text="|${agendamento.servico} • ${agendamento.barbeiro}|">Serviço • Barbeiro</small>
+                          <small class="muted" th:text="${agendamento.status}">PENDENTE</small>
+                        </div>
+                        <div class="admin-item-actions">
+                          <a th:href="@{/admin/agendamentos/{id}/edit(id=${agendamento.id})}" class="admin-action-btn">Editar</a>
+                          <form th:action="@{/admin/agendamentos/{id}/delete(id=${agendamento.id})}" method="post" style="display:inline;">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                            <button type="submit" class="admin-action-btn danger" onclick="return confirm('Remover agendamento?')">Excluir</button>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+                  </article>
+                </div>
               </div>
             </section>
 

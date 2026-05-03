@@ -38,6 +38,8 @@ public class AdminInitializer implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
+        aplicarMigracoesBanco();
+
         Optional<BootstrapCredentials> credentials = resolveBootstrapCredentials();
         if (credentials.isEmpty()) {
             logger.info("No admin credentials provided via environment or properties. Admin not created.");
@@ -54,6 +56,30 @@ public class AdminInitializer implements ApplicationRunner {
         }
 
         logger.info("Admin user already exists: {}. Bootstrap password will not be applied again.", bootstrapCredentials.username());
+    }
+
+    private void aplicarMigracoesBanco() {
+        aplicarMigracaoColuna("ALTER TABLE usuario_admin ADD COLUMN foto_url TEXT;",
+                "usuario_admin.foto_url");
+        aplicarMigracaoColuna("ALTER TABLE agendamento ADD COLUMN barbeiro_id TEXT;",
+                "agendamento.barbeiro_id");
+        aplicarMigracaoColuna("ALTER TABLE barbeiro ADD COLUMN username TEXT;", "barbeiro.username");
+        aplicarMigracaoColuna("ALTER TABLE barbeiro ADD COLUMN foto_url TEXT;", "barbeiro.foto_url");
+        aplicarMigracaoColuna("ALTER TABLE barbeiro ADD COLUMN horario_inicio_atendimento TEXT;",
+                "barbeiro.horario_inicio_atendimento");
+        aplicarMigracaoColuna("ALTER TABLE barbeiro ADD COLUMN horario_fim_atendimento TEXT;",
+                "barbeiro.horario_fim_atendimento");
+    }
+
+    private void aplicarMigracaoColuna(String sql, String descricao) {
+        try {
+            jdbcTemplate.execute(sql);
+            logger.info("Applied migration: added {}", descricao);
+        } catch (Exception ex) {
+            if (!isDuplicateColumnError(ex)) {
+                logger.warn("Failed to apply migration for {}: {}", descricao, ex.getMessage());
+            }
+        }
     }
 
     private Optional<BootstrapCredentials> resolveBootstrapCredentials() {
@@ -91,6 +117,11 @@ public class AdminInitializer implements ApplicationRunner {
             }
             throw new IllegalStateException("Failed to load admin user: " + username, ex);
         }
+    }
+
+    private boolean isDuplicateColumnError(Exception ex) {
+        String message = ex.getMessage() != null ? ex.getMessage().toLowerCase() : "";
+        return message.contains("duplicate column name") || message.contains("already exists");
     }
 
     private record BootstrapCredentials(String username, String password) {

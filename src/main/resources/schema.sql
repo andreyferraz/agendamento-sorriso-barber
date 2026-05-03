@@ -46,8 +46,12 @@ CREATE TABLE IF NOT EXISTS usuario_admin (
 CREATE TABLE IF NOT EXISTS barbeiro (
     id TEXT PRIMARY KEY,
     nome VARCHAR(255) NOT NULL,
+    username TEXT,
     telefone VARCHAR(20),
     email VARCHAR(255),
+    foto_url TEXT,
     senha_hash TEXT NOT NULL,
-    comissao_percentual DECIMAL(10, 2) NOT NULL
+    comissao_percentual DECIMAL(10, 2) NOT NULL,
+    horario_inicio_atendimento TEXT,
+    horario_fim_atendimento TEXT
 );

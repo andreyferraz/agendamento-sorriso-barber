@@ -79,33 +79,41 @@ public class AgendamentoService {
 	private void checarConflitosHorario(Agendamento agendamento) {
 		List<Agendamento> existentes = listarTodos();
 		for (Agendamento e : existentes) {
-			LocalDateTime s1 = agendamento.getDataHoraInicio();
-			LocalDateTime e1 = agendamento.getDataHoraFim();
-			LocalDateTime s2 = e.getDataHoraInicio();
-			LocalDateTime e2 = e.getDataHoraFim();
-
-			// determina se devemos comparar por barbeiro (preferível) ou por serviço
-			boolean sameResource;
-			if (agendamento.getBarbeiroId() != null && e.getBarbeiroId() != null) {
-				sameResource = e.getBarbeiroId().equals(agendamento.getBarbeiroId());
-			} else {
-				sameResource = e.getServicoId() != null && agendamento.getServicoId() != null
-					&& e.getServicoId().equals(agendamento.getServicoId());
-			}
-
-			boolean deveIgnorar = !sameResource
-					|| e.getStatus() == StatusAgendamento.RECUSADO
-					|| s1 == null || e1 == null || s2 == null || e2 == null;
-
-			if (deveIgnorar) {
-				continue;
-			}
-
-			boolean overlap = s1.isBefore(e2) && s2.isBefore(e1);
-			if (overlap) {
+			if (!isMesmoAgendamento(agendamento, e)
+					&& deveCompararConflito(agendamento, e)
+					&& temSobreposicao(agendamento, e)) {
 				throw new IllegalArgumentException("Conflito de horário com outro agendamento existente.");
 			}
 		}
+	}
+
+	private boolean isMesmoAgendamento(Agendamento agendamento, Agendamento existente) {
+		return agendamento.getId() != null && agendamento.getId().equals(existente.getId());
+	}
+
+	private boolean deveCompararConflito(Agendamento agendamento, Agendamento existente) {
+		boolean sameResource;
+		if (agendamento.getBarbeiroId() != null && existente.getBarbeiroId() != null) {
+			sameResource = existente.getBarbeiroId().equals(agendamento.getBarbeiroId());
+		} else {
+			sameResource = existente.getServicoId() != null && agendamento.getServicoId() != null
+				&& existente.getServicoId().equals(agendamento.getServicoId());
+		}
+
+		return sameResource
+				&& existente.getStatus() != StatusAgendamento.RECUSADO
+				&& agendamento.getDataHoraInicio() != null
+				&& agendamento.getDataHoraFim() != null
+				&& existente.getDataHoraInicio() != null
+				&& existente.getDataHoraFim() != null;
+	}
+
+	private boolean temSobreposicao(Agendamento agendamento, Agendamento existente) {
+		LocalDateTime s1 = agendamento.getDataHoraInicio();
+		LocalDateTime e1 = agendamento.getDataHoraFim();
+		LocalDateTime s2 = existente.getDataHoraInicio();
+		LocalDateTime e2 = existente.getDataHoraFim();
+		return s1.isBefore(e2) && s2.isBefore(e1);
 	}
 
 	@Transactional
