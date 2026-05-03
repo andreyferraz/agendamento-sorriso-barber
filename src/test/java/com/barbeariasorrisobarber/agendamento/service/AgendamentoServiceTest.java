@@ -3,6 +3,7 @@ package com.barbeariasorrisobarber.agendamento.service;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -36,6 +37,16 @@ class AgendamentoServiceTest {
         MockitoAnnotations.openMocks(this);
     }
 
+    private Servico criarServico(UUID id, String nome, String descricao, BigDecimal preco, Integer duracao) {
+        Servico servico = new Servico();
+        servico.setId(id);
+        servico.setNome(nome);
+        servico.setDescricao(descricao);
+        servico.setPreco(preco);
+        servico.setDuracao(duracao);
+        return servico;
+    }
+
     @Test
     void listarTodos_deveRetornarLista() {
         Agendamento a = new Agendamento(UUID.randomUUID(), "Joao", "9999", UUID.randomUUID(), null,
@@ -65,7 +76,7 @@ class AgendamentoServiceTest {
     @Test
     void criarAgendamento_deveCalcularDataHoraFimQuandoAusenteESetarStatusEId() {
         UUID servicoId = UUID.randomUUID();
-        Servico servico = new Servico(servicoId, "Corte", "Corte de cabelo", null, 30);
+        Servico servico = criarServico(servicoId, "Corte", "Corte de cabelo", null, 30);
 
         LocalDateTime inicio = LocalDateTime.of(2026, 4, 13, 10, 0);
         Agendamento ag = new Agendamento(null, "Cliente", "7777", servicoId, null, inicio, null, null, null);
