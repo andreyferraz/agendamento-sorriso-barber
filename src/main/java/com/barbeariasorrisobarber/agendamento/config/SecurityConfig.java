@@ -41,6 +41,7 @@ public class SecurityConfig {
                         "/js/**",
                         "/img/**",
                         "/images/**",
+                        "/uploads/**",
                         "/favicon.ico",
                         LOGIN_PATH
                     ).permitAll()
