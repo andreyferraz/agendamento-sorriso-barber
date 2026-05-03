@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
+import org.springframework.data.domain.Persistable;
 import org.springframework.data.relational.core.mapping.Table;
 
 import lombok.AllArgsConstructor;
@@ -14,7 +16,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table("servico")
-public class Servico {
+public class Servico implements Persistable<UUID> {
 
     @Id
     private UUID id;
@@ -26,5 +28,14 @@ public class Servico {
     private BigDecimal preco;
 
     private Integer duracao;
+
+    @Transient 
+    private boolean isNew = false;
+
+    @Override
+    public UUID getId() { return id; }
+
+    @Override
+    public boolean isNew() { return isNew; }
 
 }

@@ -47,6 +47,8 @@ public class ServicoService {
 			servico.setId(UUID.randomUUID());
 		}
 
+		servico.setNew(true);
+
 		return servicoRepository.save(servico);
 	}
 
