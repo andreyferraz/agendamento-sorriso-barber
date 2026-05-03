@@ -4,8 +4,16 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
+import com.barbeariasorrisobarber.agendamento.service.ProdutoService;
+
 @Controller
 public class HomeController {
+
+    private final ProdutoService produtoService;
+
+    public HomeController(ProdutoService produtoService) {
+        this.produtoService = produtoService;
+    }
 
     @GetMapping({"/", "/index"})
     public String index(Model model) {
@@ -24,6 +32,7 @@ public class HomeController {
 
     @GetMapping("/produtos")
     public String products(Model model) {
+        model.addAttribute("produtos", produtoService.listarTodos());
         return "produtos";
     }
 
