@@ -99,43 +99,24 @@
           <a class="text-link" th:href="@{/servicos}">Ver página completa <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
         </div>
 
-        <div class="grid grid-3">
-          <div class="card service-card">
-            <div class="icon">✂️</div>
-            <h3>Corte Masculino</h3>
-            <p class="muted">Corte clássico ou moderno com acabamento preciso e atenção ao seu estilo.</p>
+        <div class="grid grid-3" th:if="${servicos != null and !#lists.isEmpty(servicos)}">
+          <article class="card service-card" th:each="servico, iterStat : ${servicos}" th:classappend="${iterStat.first} ? ' featured-card' : ''">
+            <span class="badge-soft" th:if="${iterStat.first}">Mais pedido</span>
+            <div class="icon" th:text="${iterStat.first} ? '✂️' : (iterStat.index == 1 ? '🪒' : '💈')">✂️</div>
+            <h3 th:text="${servico.nome}">Corte Masculino</h3>
+            <p class="muted" th:text="${servico.descricao != null and !#strings.isEmpty(servico.descricao) ? servico.descricao : 'Serviço selecionado para valorizar seu visual.'}">Serviço selecionado para valorizar seu visual.</p>
             <ul class="card-list muted">
-              <li>Consultoria rápida de visual</li>
-              <li>Acabamento com máquina e tesoura</li>
-              <li>Finalização profissional</li>
+              <li th:text="|${servico.duracao} min de atendimento|">45 min de atendimento</li>
+              <li th:text="${iterStat.first} ? 'Serviço em destaque' : 'Disponível no catálogo'">Disponível no catálogo</li>
             </ul>
-            <div class="price">R$ 60,00</div>
-          </div>
+            <div class="price" th:text="|R$ ${servico.preco}|">R$ 0,00</div>
+          </article>
+        </div>
 
-          <div class="card service-card featured-card">
-            <span class="badge-soft">Mais pedido</span>
-            <div class="icon">🪒</div>
-            <h3>Barba Premium</h3>
-            <p class="muted">Modelagem completa, alinhamento e acabamento para destacar sua presença.</p>
-            <ul class="card-list muted">
-              <li>Desenho e simetria</li>
-              <li>Navalha e detalhamento</li>
-              <li>Toque final com produto específico</li>
-            </ul>
-            <div class="price">R$ 40,00</div>
-          </div>
-
-          <div class="card service-card">
-            <div class="icon">💈</div>
-            <h3>Corte + Barba</h3>
-            <p class="muted">Pacote ideal para sair com o visual completo, limpo e muito mais marcante.</p>
-            <ul class="card-list muted">
-              <li>Atendimento completo</li>
-              <li>Harmonia entre corte e barba</li>
-              <li>Excelente custo-benefício</li>
-            </ul>
-            <div class="price">R$ 90,00</div>
-          </div>
+        <div class="card" th:if="${servicos == null or #lists.isEmpty(servicos)}">
+          <span class="badge-soft">Catálogo vazio</span>
+          <h3>Os serviços ainda não foram cadastrados.</h3>
+          <p class="muted">Assim que novos serviços forem adicionados no painel administrativo, eles aparecerão aqui automaticamente.</p>
         </div>
       </div>
     </section>

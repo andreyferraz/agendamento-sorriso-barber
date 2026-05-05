@@ -10,6 +10,8 @@ import com.barbeariasorrisobarber.agendamento.service.ServicoService;
 @Controller
 public class HomeController {
 
+    private static final String ATTR_SERVICOS = "servicos";
+
     private final ProdutoService produtoService;
     private final ServicoService servicoService;
 
@@ -20,6 +22,7 @@ public class HomeController {
 
     @GetMapping({"/", "/index"})
     public String index(Model model) {
+        model.addAttribute(ATTR_SERVICOS, servicoService.listarTodos());
         return "index";
     }
 
@@ -30,8 +33,8 @@ public class HomeController {
 
     @GetMapping("/servicos")
     public String services(Model model) {
-        model.addAttribute("servicos", servicoService.listarTodos());
-        return "servicos";
+        model.addAttribute(ATTR_SERVICOS, servicoService.listarTodos());
+        return ATTR_SERVICOS;
     }
 
     @GetMapping("/produtos")
