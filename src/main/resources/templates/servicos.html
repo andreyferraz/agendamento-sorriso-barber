@@ -29,7 +29,7 @@
             </ul>
             <div class="price" th:text="|R$ ${servico.preco}|">R$ 0,00</div>
             <div style="margin-top:18px;">
-              <button type="button" class="btn-cta" aria-label="Agendar serviço" disabled>Agendar</button>
+              <a class="btn-cta" th:href="@{/agendar}" aria-label="Agendar serviço">Agendar</a>
             </div>
           </article>
         </div>

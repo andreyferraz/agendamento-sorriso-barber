@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+
+<head>
+  <title>Agendar Agora — Sorriso Barber</title>
+</head>
+
+<body th:replace="~{layout :: layout('Agendar Agora — Sorriso Barber', ~{::content})}">
+  <div th:fragment="content">
+    <div class="flash-messages">
+      <div th:if="${success}" class="flash flash-success" th:text="${success}"></div>
+      <div th:if="${error}" class="flash flash-error" th:text="${error}"></div>
+    </div>
+
+    <section class="page-hero booking-hero" style="--hero-position: center 20%;">
+      <div class="container narrow-container">
+        <span class="eyebrow">Agendamento online</span>
+        <h1 class="display-title">Escolha o barbeiro, depois o serviço e por fim o melhor horário.</h1>
+        <p class="muted page-intro-text">O fluxo abaixo mostra somente horários livres, considerando a agenda real de cada barbeiro.</p>
+      </div>
+    </section>
+
+    <section class="section section-tabs-wrap">
+      <div class="container">
+        <div class="section-tabs booking-steps" aria-label="Etapas do agendamento">
+          <span class="section-tab booking-step-pill"><span>1</span> Barbeiro</span>
+          <span class="section-tab booking-step-pill" th:classappend="${barbeiroSelecionadoId == null} ? ' booking-step-disabled' : ''"><span>2</span> Serviço</span>
+          <span class="section-tab booking-step-pill" th:classappend="${servicoSelecionadoId == null} ? ' booking-step-disabled' : ''"><span>3</span> Horário</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="barbeiros">
+      <div class="container">
+        <div class="section-heading-row">
+          <div>
+            <span class="section-kicker">1. Barbeiros disponíveis</span>
+            <h2 class="section-title">Comece escolhendo quem vai cuidar do seu visual.</h2>
+          </div>
+        </div>
+
+        <div class="grid grid-3">
+          <a class="card booking-choice-card" th:each="barbeiro : ${barbeiros}"
+            th:href="@{/agendar(barbeiroId=${barbeiro.id})}"
+            >
+            <div class="booking-choice-image" th:if="${barbeiro.fotoUrl != null and !#strings.isEmpty(barbeiro.fotoUrl)}">
+              <img th:src="@{|/uploads/${barbeiro.fotoUrl}|}" th:alt="${barbeiro.nome}" />
+            </div>
+            <div class="booking-choice-avatar" th:if="${barbeiro.fotoUrl == null or #strings.isEmpty(barbeiro.fotoUrl)}">
+              <i class="fas fa-user-tie" aria-hidden="true"></i>
+            </div>
+            <span class="badge-soft">Barbeiro</span>
+            <h3 th:text="${barbeiro.nome}">Nome do barbeiro</h3>
+            <p class="muted">Horário de atendimento</p>
+            <div class="booking-choice-meta">
+              <span class="highlight-pill"><i class="fas fa-clock" aria-hidden="true"></i> <span th:text="${barbeiro.horarioInicioAtendimento + ' - ' + barbeiro.horarioFimAtendimento}">09:00 - 18:00</span></span>
+            </div>
+          </a>
+        </div>
+
+        <div class="card booking-empty-state" th:if="${barbeiros == null or #lists.isEmpty(barbeiros)}">
+          <span class="badge-soft">Sem barbeiros</span>
+          <h3>Nenhum barbeiro disponível no momento.</h3>
+          <p class="muted">Cadastre barbeiros no painel administrativo para liberar o agendamento público.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="servicos" th:if="${barbeiroSelecionado != null}">
+      <div class="container">
+        <div class="section-heading-row">
+          <div>
+            <span class="section-kicker">2. Serviços disponíveis</span>
+            <h2 class="section-title">Agora escolha o serviço que combina com o atendimento.</h2>
+          </div>
+        </div>
+
+        <div class="card booking-summary-bar">
+          <div>
+            <span class="section-kicker">Barbeiro selecionado</span>
+            <h3 th:text="${barbeiroSelecionado.nome}">Barbeiro selecionado</h3>
+          </div>
+          <div class="booking-summary-meta">
+            <span class="highlight-pill"><i class="fas fa-clock" aria-hidden="true"></i> <span th:text="${barbeiroSelecionado.horarioInicioAtendimento + ' - ' + barbeiroSelecionado.horarioFimAtendimento}">09:00 - 18:00</span></span>
+          </div>
+        </div>
+
+        <div class="grid grid-3">
+          <a class="card booking-choice-card booking-service-card" th:each="servico : ${servicos}"
+            th:href="@{/agendar(barbeiroId=${barbeiroSelecionado.id},servicoId=${servico.id})}"
+            >
+            <span class="badge-soft">Serviço</span>
+            <h3 th:text="${servico.nome}">Nome do serviço</h3>
+            <p class="muted" th:text="${servico.descricao != null and !#strings.isEmpty(servico.descricao) ? servico.descricao : 'Serviço selecionado para valorizar seu visual.'}">Descrição do serviço</p>
+            <div class="booking-choice-meta">
+              <span class="highlight-pill"><i class="fas fa-clock" aria-hidden="true"></i> <span th:text="${servico.duracao + ' min'}">45 min</span></span>
+              <span class="highlight-pill"><i class="fas fa-tag" aria-hidden="true"></i> <span th:text="${servico.preco}">0,00</span></span>
+            </div>
+          </a>
+        </div>
+
+        <div class="card booking-empty-state" th:if="${servicos == null or #lists.isEmpty(servicos)}">
+          <span class="badge-soft">Sem serviços</span>
+          <h3>Nenhum serviço disponível no momento.</h3>
+          <p class="muted">Cadastre serviços no painel administrativo para liberar a escolha pública.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="horarios" th:if="${barbeiroSelecionado != null and servicoSelecionado != null}">
+      <div class="container">
+        <div class="section-heading-row">
+          <div>
+            <span class="section-kicker">3. Dias e horários disponíveis</span>
+            <h2 class="section-title">Escolha um horário livre dentro da agenda real.</h2>
+          </div>
+        </div>
+
+        <div class="card booking-summary-bar">
+          <div>
+            <span class="section-kicker">Resumo</span>
+            <h3 th:text="${barbeiroSelecionado.nome + ' • ' + servicoSelecionado.nome}">Resumo do agendamento</h3>
+            <p class="muted">Cada horário abaixo já passa pela disponibilidade do barbeiro e pela duração do serviço.</p>
+          </div>
+          <div class="booking-summary-meta">
+            <span class="highlight-pill"><i class="fas fa-user-tie" aria-hidden="true"></i> <span th:text="${barbeiroSelecionado.nome}">Barbeiro</span></span>
+            <span class="highlight-pill"><i class="fas fa-cut" aria-hidden="true"></i> <span th:text="${servicoSelecionado.nome}">Serviço</span></span>
+          </div>
+        </div>
+
+        <div class="booking-empty-state card" th:if="${diasDisponiveis == null or #lists.isEmpty(diasDisponiveis)}">
+          <span class="badge-soft">Sem horários</span>
+          <h3 th:text="${mensagemDisponibilidade != null ? mensagemDisponibilidade : 'Nenhum horário disponível.'}">Nenhum horário disponível.</h3>
+          <p class="muted">Tente outro barbeiro ou outro serviço para encontrar uma nova janela de atendimento.</p>
+        </div>
+
+        <div class="booking-days-grid" th:if="${diasDisponiveis != null and !#lists.isEmpty(diasDisponiveis)}">
+          <article class="card booking-day-card" th:each="dia : ${diasDisponiveis}">
+            <div class="booking-day-head">
+              <div>
+                <strong th:text="${dia.titulo}">Segunda-feira</strong>
+                <small th:text="${dia.subtitulo}">05/05/2026</small>
+              </div>
+              <span class="badge-soft">Livre</span>
+            </div>
+
+            <div class="booking-slot-grid">
+              <a class="booking-slot-link" th:each="slot : ${dia.slots}"
+                th:href="@{/agendar(barbeiroId=${barbeiroSelecionado.id},servicoId=${servicoSelecionado.id},data=${dia.data},hora=${slot.hora})}"
+                >
+                <span th:text="${slot.hora}">14:00</span>
+              </a>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="confirmar" th:if="${barbeiroSelecionado != null and servicoSelecionado != null and dataSelecionada != null and horaSelecionada != null}">
+      <div class="container section-split booking-confirm-grid">
+        <div class="card booking-confirm-card">
+          <span class="section-kicker">4. Confirmar agendamento</span>
+          <h2 class="section-title">Preencha seus dados para finalizar o horário escolhido.</h2>
+
+          <form class="booking-form" th:action="@{/agendar/reservar}" method="post">
+            <input type="hidden" name="barbeiroId" th:value="${barbeiroSelecionado.id}" />
+            <input type="hidden" name="servicoId" th:value="${servicoSelecionado.id}" />
+            <input type="hidden" name="dataAgendamento" th:value="${dataSelecionada}" />
+            <input type="hidden" name="horaAgendamento" th:value="${horaSelecionada}" />
+
+            <div class="booking-form-grid">
+              <div class="form-group">
+                <label for="nomeCliente">Seu nome</label>
+                <input id="nomeCliente" name="nomeCliente" type="text" placeholder="Nome completo" required />
+              </div>
+              <div class="form-group">
+                <label for="telefoneCliente">Telefone</label>
+                <input id="telefoneCliente" name="telefoneCliente" type="text" placeholder="(00) 00000-0000" required />
+              </div>
+            </div>
+
+            <button type="submit" class="btn-cta booking-submit-btn">
+              <i class="fas fa-calendar-check" aria-hidden="true"></i>
+              Confirmar agendamento
+            </button>
+          </form>
+        </div>
+
+        <aside class="card booking-summary-card">
+          <span class="section-kicker">Seu resumo</span>
+          <h3 th:text="${barbeiroSelecionado.nome}">Barbeiro</h3>
+          <p class="muted" th:text="${servicoSelecionado.nome}">Serviço</p>
+
+          <div class="booking-summary-list">
+            <div>
+              <small class="muted">Data</small>
+              <strong th:text="${dataSelecionada}">05/05/2026</strong>
+            </div>
+            <div>
+              <small class="muted">Horário</small>
+              <strong th:text="${horaSelecionada}">14:00</strong>
+            </div>
+            <div>
+              <small class="muted">Duração</small>
+              <strong th:text="${servicoSelecionado.duracao + ' minutos'}">45 minutos</strong>
+            </div>
+            <div>
+              <small class="muted">Valor</small>
+              <strong th:text="|R$ ${servicoSelecionado.preco}|">R$ 0,00</strong>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+  </div>
+</body>
+
+</html>
