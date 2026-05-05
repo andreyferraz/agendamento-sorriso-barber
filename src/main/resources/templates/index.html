@@ -131,27 +131,23 @@
           <a class="text-link" th:href="@{/produtos}">Ver catálogo <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
         </div>
 
-        <div class="grid grid-3">
-          <article class="card product-preview-card">
-            <span class="product-category">Modelagem</span>
-            <h3>Pomada Modeladora</h3>
-            <p class="muted">Fixação equilibrada, acabamento natural e praticidade no dia a dia.</p>
-            <div class="price">R$ 65,00</div>
-          </article>
+        <div class="grid grid-3" th:if="${produtos != null and !#lists.isEmpty(produtos)}">
+          <article class="card product-preview-card" th:each="produto, iterStat : ${produtos}" th:classappend="${iterStat.first} ? ' featured-card' : ''">
+            <div th:if="${produto.urlImagem != null and !#strings.isEmpty(produto.urlImagem)}" style="margin-bottom:18px;">
+              <img th:src="@{|/uploads/${produto.urlImagem}|}" th:alt="${produto.nome}" style="width:100%;height:220px;object-fit:cover;border-radius:18px;display:block;" />
+            </div>
 
-          <article class="card product-preview-card">
-            <span class="product-category">Cuidados com barba</span>
-            <h3>Óleo para Barba</h3>
-            <p class="muted">Mais brilho, maciez e hidratação para manter a barba alinhada e saudável.</p>
-            <div class="price">R$ 45,00</div>
+            <span class="product-category" th:text="${iterStat.first} ? 'Destaque' : 'Catálogo'">Catálogo</span>
+            <h3 th:text="${produto.nome}">Nome do produto</h3>
+            <p class="muted" th:text="${produto.descricao != null and !#strings.isEmpty(produto.descricao) ? produto.descricao : 'Produto selecionado para complementar sua rotina.'}">Produto selecionado para complementar sua rotina.</p>
+            <div class="price" th:text="|R$ ${produto.preco}|">R$ 0,00</div>
           </article>
+        </div>
 
-          <article class="card product-preview-card">
-            <span class="product-category">Higiene premium</span>
-            <h3>Shampoo Premium</h3>
-            <p class="muted">Limpeza eficiente sem agredir os fios, ideal para uso frequente.</p>
-            <div class="price">R$ 39,00</div>
-          </article>
+        <div class="card" th:if="${produtos == null or #lists.isEmpty(produtos)}">
+          <span class="badge-soft">Catálogo vazio</span>
+          <h3>Os produtos ainda não foram cadastrados.</h3>
+          <p class="muted">Assim que o time cadastrar itens no painel administrativo, eles aparecerão automaticamente aqui.</p>
         </div>
       </div>
     </section>

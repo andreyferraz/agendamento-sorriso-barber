@@ -11,6 +11,7 @@ import com.barbeariasorrisobarber.agendamento.service.ServicoService;
 public class HomeController {
 
     private static final String ATTR_SERVICOS = "servicos";
+    private static final String ATTR_PRODUTOS = "produtos";
 
     private final ProdutoService produtoService;
     private final ServicoService servicoService;
@@ -23,6 +24,7 @@ public class HomeController {
     @GetMapping({"/", "/index"})
     public String index(Model model) {
         model.addAttribute(ATTR_SERVICOS, servicoService.listarTodos());
+        model.addAttribute(ATTR_PRODUTOS, produtoService.listarTodos());
         return "index";
     }
 
@@ -39,8 +41,8 @@ public class HomeController {
 
     @GetMapping("/produtos")
     public String products(Model model) {
-        model.addAttribute("produtos", produtoService.listarTodos());
-        return "produtos";
+        model.addAttribute(ATTR_PRODUTOS, produtoService.listarTodos());
+        return ATTR_PRODUTOS;
     }
 
     @GetMapping("/login")
