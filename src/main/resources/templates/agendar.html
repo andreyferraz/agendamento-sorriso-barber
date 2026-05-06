@@ -30,7 +30,7 @@
       </div>
     </section>
 
-    <section class="section" id="barbeiros">
+    <section class="section" id="barbeiros" th:if="${barbeiroSelecionado == null}">
       <div class="container">
         <div class="section-heading-row">
           <div>
@@ -66,7 +66,7 @@
       </div>
     </section>
 
-    <section class="section" id="servicos" th:if="${barbeiroSelecionado != null}">
+    <section class="section" id="servicos" th:if="${barbeiroSelecionado != null and servicoSelecionado == null}">
       <div class="container">
         <div class="section-heading-row">
           <div>
@@ -107,7 +107,7 @@
       </div>
     </section>
 
-    <section class="section" id="horarios" th:if="${barbeiroSelecionado != null and servicoSelecionado != null}">
+    <section class="section" id="horarios" th:if="${barbeiroSelecionado != null and servicoSelecionado != null and dataSelecionada == null and horaSelecionada == null}">
       <div class="container">
         <div class="section-heading-row">
           <div>
