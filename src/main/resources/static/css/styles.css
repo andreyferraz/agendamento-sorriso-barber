@@ -1989,6 +1989,10 @@ main {
   .admin-item-actions form {
     display: block !important;
   }
+
+  .admin-date-calendar {
+    width: min(100%, 320px);
+  }
 }
 
 @media (max-width: 540px) {
@@ -2073,6 +2077,129 @@ main {
 .admin-password-form .form-group input,
 .admin-form .form-group select {
   height: 54px;
+}
+
+.admin-date-picker {
+  display: grid;
+  gap: 10px;
+  position: relative;
+}
+
+.admin-date-input-wrap {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: stretch;
+  gap: 10px;
+}
+
+.admin-date-toggle {
+  width: 54px;
+  min-width: 54px;
+  height: 54px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.admin-date-toggle:hover {
+  border-color: rgba(197, 157, 95, 0.24);
+  color: var(--accent);
+}
+
+.admin-date-calendar {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 20;
+  width: min(100%, 340px);
+  padding: 14px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(15, 15, 18, 0.98);
+  box-shadow: 0 24px 52px rgba(0, 0, 0, 0.32);
+}
+
+.admin-date-calendar-head {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.admin-date-calendar-head strong {
+  text-align: center;
+  font-size: 0.95rem;
+}
+
+.admin-date-nav {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.admin-date-nav:hover {
+  border-color: rgba(197, 157, 95, 0.24);
+  color: var(--accent);
+}
+
+.admin-date-calendar-weekdays,
+.admin-date-calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.admin-date-calendar-weekdays {
+  margin-bottom: 8px;
+}
+
+.admin-date-calendar-weekdays span {
+  text-align: center;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+}
+
+.admin-date-cell {
+  aspect-ratio: 1;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.admin-date-cell:hover {
+  border-color: rgba(197, 157, 95, 0.32);
+  color: var(--accent);
+}
+
+.admin-date-cell.outside-month {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.admin-date-cell.today {
+  border-color: rgba(197, 157, 95, 0.5);
+}
+
+.admin-date-cell.selected {
+  background: rgba(197, 157, 95, 0.22);
+  border-color: rgba(197, 157, 95, 0.74);
+  color: var(--accent);
+}
+
+.admin-date-cell:disabled {
+  cursor: default;
 }
 
 .admin-item-actions button,

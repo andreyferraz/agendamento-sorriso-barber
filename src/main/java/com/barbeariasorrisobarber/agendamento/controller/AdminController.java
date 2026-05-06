@@ -290,7 +290,7 @@ public class AdminController {
             agendamento.setTelefoneCliente(telefoneCliente);
             agendamento.setBarbeiroId(barbeiroId);
             agendamento.setServicoId(servicoId);
-            agendamento.setDataHoraInicio(LocalDateTime.of(LocalDate.parse(dataAgendamento), LocalTime.parse(horaAgendamento)));
+            agendamento.setDataHoraInicio(LocalDateTime.of(LocalDate.parse(dataAgendamento, DATE_FORMAT), LocalTime.parse(horaAgendamento, TIME_FORMAT)));
 
             if (id != null && !id.isBlank()) {
                 agendamentoService.atualizarAgendamento(UUID.fromString(id), agendamento);

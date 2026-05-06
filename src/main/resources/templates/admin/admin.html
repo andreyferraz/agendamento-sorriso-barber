@@ -793,7 +793,17 @@
                           <label for="agendamento-barbeiro">Barbeiro</label>
                           <select id="agendamento-barbeiro" name="barbeiroId" required>
                             <option value="">Selecione</option>
-                            <option th:each="barbeiro : ${barbeiros}" th:value="${barbeiro.id}" th:text="${barbeiro.nome}" th:selected="${agendamentoToEdit != null and agendamentoToEdit.barbeiroId == barbeiro.id}">Barbeiro</option>
+                            <option th:each="barbeiro : ${barbeiros}" th:value="${barbeiro.id}" th:text="${barbeiro.nome}"
+                              th:selected="${agendamentoToEdit != null and agendamentoToEdit.barbeiroId == barbeiro.id}"
+                              th:attr="data-horario-inicio-atendimento=${barbeiro.horarioInicioAtendimento},
+                              data-horario-fim-atendimento=${barbeiro.horarioFimAtendimento},
+                              data-horarios-segunda=${barbeiro.horariosSegunda},
+                              data-horarios-terca=${barbeiro.horariosTerca},
+                              data-horarios-quarta=${barbeiro.horariosQuarta},
+                              data-horarios-quinta=${barbeiro.horariosQuinta},
+                              data-horarios-sexta=${barbeiro.horariosSexta},
+                              data-horarios-sabado=${barbeiro.horariosSabado},
+                              data-horarios-domingo=${barbeiro.horariosDomingo}">Barbeiro</option>
                           </select>
                         </div>
 
@@ -807,12 +817,22 @@
 
                         <div class="form-group">
                           <label for="agendamento-data">Data</label>
-                          <input type="date" id="agendamento-data" name="dataAgendamento" required th:value="${agendamentoToEdit != null and agendamentoToEdit.dataHoraInicio != null ? #temporals.format(agendamentoToEdit.dataHoraInicio, 'yyyy-MM-dd') : ''}" />
+                          <div class="admin-date-picker">
+                            <div class="admin-date-input-wrap">
+                              <input type="text" id="agendamento-data" name="dataAgendamento" placeholder="dd/mm/aaaa" inputmode="numeric" autocomplete="off" pattern="\d{2}/\d{2}/\d{4}" required th:value="${agendamentoToEdit != null and agendamentoToEdit.dataHoraInicio != null ? #temporals.format(agendamentoToEdit.dataHoraInicio, 'dd/MM/yyyy') : ''}" />
+                              <button type="button" id="agendamento-date-toggle" class="admin-date-toggle" aria-label="Abrir calendário">
+                                <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+                              </button>
+                            </div>
+                            <div id="agendamento-calendar" class="admin-date-calendar" hidden></div>
+                          </div>
                         </div>
 
                         <div class="form-group">
                           <label for="agendamento-hora">Hora</label>
-                          <input type="time" id="agendamento-hora" name="horaAgendamento" required th:value="${agendamentoToEdit != null and agendamentoToEdit.dataHoraInicio != null ? #temporals.format(agendamentoToEdit.dataHoraInicio, 'HH:mm') : ''}" />
+                          <select id="agendamento-hora" name="horaAgendamento" required th:attr="data-selected-hora=${agendamentoToEdit != null and agendamentoToEdit.dataHoraInicio != null ? #temporals.format(agendamentoToEdit.dataHoraInicio, 'HH:mm') : ''}">
+                            <option value="">Selecione um horário</option>
+                          </select>
                         </div>
                       </div>
 
@@ -829,6 +849,348 @@
             <section class="admin-tab" data-tab-panel="produtos">
               <div class="admin-section-heading">
                 <div>
+
+                <script th:inline="javascript">
+                  (() => {
+                    const dateInput = document.getElementById('agendamento-data');
+                    const barberSelect = document.getElementById('agendamento-barbeiro');
+                    const timeSelect = document.getElementById('agendamento-hora');
+                    const dateToggle = document.getElementById('agendamento-date-toggle');
+                    const calendarPanel = document.getElementById('agendamento-calendar');
+
+                    if (!dateInput || !barberSelect || !timeSelect || !dateToggle || !calendarPanel) {
+                      return;
+                    }
+
+                    const dayToField = {
+                      0: 'horariosDomingo',
+                      1: 'horariosSegunda',
+                      2: 'horariosTerca',
+                      3: 'horariosQuarta',
+                      4: 'horariosQuinta',
+                      5: 'horariosSexta',
+                      6: 'horariosSabado'
+                    };
+
+                    const monthLabels = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+                    const weekdayLabels = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
+                    const weekdayFullNames = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+                    const today = new Date();
+                    let calendarView = new Date(today.getFullYear(), today.getMonth(), 1);
+                    let calendarVisible = false;
+
+                    const formatTime = (hours, minutes) => `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+
+                    const formatDateBr = (date) => `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}/${date.getFullYear()}`;
+
+                    const parseDateBr = (value) => {
+                      const cleaned = (value || '').trim();
+                      const parts = cleaned.split('/');
+                      if (parts.length !== 3) {
+                        return null;
+                      }
+
+                      const [day, month, year] = parts.map(Number);
+                      if (!day || !month || !year) {
+                        return null;
+                      }
+
+                      const date = new Date(year, month - 1, day);
+                      if (date.getFullYear() !== year || date.getMonth() !== month - 1 || date.getDate() !== day) {
+                        return null;
+                      }
+
+                      return date;
+                    };
+
+                    const isSameDay = (left, right) => left && right
+                      && left.getFullYear() === right.getFullYear()
+                      && left.getMonth() === right.getMonth()
+                      && left.getDate() === right.getDate();
+
+                    const getSelectedDate = () => {
+                      const parsed = parseDateBr(dateInput.value);
+                      return parsed || new Date(calendarView.getFullYear(), calendarView.getMonth(), 1);
+                    };
+
+                    const openCalendar = () => {
+                      calendarVisible = true;
+                      calendarPanel.hidden = false;
+                      renderCalendar();
+                    };
+
+                    const closeCalendar = () => {
+                      calendarVisible = false;
+                      calendarPanel.hidden = true;
+                    };
+
+                    const toggleCalendar = () => {
+                      if (calendarVisible) {
+                        closeCalendar();
+                      } else {
+                        openCalendar();
+                      }
+                    };
+
+                    const setDateFromCalendar = (date) => {
+                      dateInput.value = formatDateBr(date);
+                      calendarView = new Date(date.getFullYear(), date.getMonth(), 1);
+                      populateHours();
+                      renderCalendar();
+                    };
+
+                    const renderCalendar = () => {
+                      const selectedDate = getSelectedDate();
+                      const year = calendarView.getFullYear();
+                      const month = calendarView.getMonth();
+                      const firstDay = new Date(year, month, 1);
+                      const lastDay = new Date(year, month + 1, 0);
+                      const startOffset = firstDay.getDay();
+                      const totalCells = Math.ceil((startOffset + lastDay.getDate()) / 7) * 7;
+                      const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+
+                      const header = `
+                        <div class="admin-date-calendar-head">
+                          <button type="button" class="admin-date-nav" data-calendar-action="prev" aria-label="Mês anterior">
+                            <i class="fas fa-chevron-left" aria-hidden="true"></i>
+                          </button>
+                          <strong>${monthLabels[month]} ${year}</strong>
+                          <button type="button" class="admin-date-nav" data-calendar-action="next" aria-label="Próximo mês">
+                            <i class="fas fa-chevron-right" aria-hidden="true"></i>
+                          </button>
+                        </div>
+                        <div class="admin-date-calendar-weekdays">
+                          ${weekdayLabels.map((label) => `<span>${label}</span>`).join('')}
+                        </div>
+                      `;
+
+                      const cells = [];
+                      for (let index = 0; index < totalCells; index++) {
+                        const dayNumber = index - startOffset + 1;
+                        const inMonth = dayNumber > 0 && dayNumber <= lastDay.getDate();
+                        const date = new Date(year, month, dayNumber);
+                        const disabled = !inMonth;
+                        const classes = ['admin-date-cell'];
+                        if (disabled) {
+                          classes.push('outside-month');
+                        }
+                        if (isSameDay(date, selectedDate)) {
+                          classes.push('selected');
+                        }
+                        if (isSameDay(date, todayDate)) {
+                          classes.push('today');
+                        }
+
+                        cells.push(`
+                          <button type="button" class="${classes.join(' ')}" data-calendar-day="${inMonth ? formatDateBr(date) : ''}" ${disabled ? 'disabled' : ''}>
+                            ${inMonth ? dayNumber : ''}
+                          </button>
+                        `);
+                      }
+
+                      calendarPanel.innerHTML = `${header}<div class="admin-date-calendar-grid">${cells.join('')}</div>`;
+
+                      calendarPanel.querySelectorAll('[data-calendar-action]').forEach((button) => {
+                        button.addEventListener('click', () => {
+                          const action = button.getAttribute('data-calendar-action');
+                          if (action === 'prev') {
+                            calendarView = new Date(year, month - 1, 1);
+                          }
+                          if (action === 'next') {
+                            calendarView = new Date(year, month + 1, 1);
+                          }
+                          renderCalendar();
+                        });
+                      });
+
+                      calendarPanel.querySelectorAll('[data-calendar-day]').forEach((button) => {
+                        button.addEventListener('click', () => {
+                          const value = button.getAttribute('data-calendar-day');
+                          const selected = parseDateBr(value);
+                          if (selected) {
+                            setDateFromCalendar(selected);
+                          }
+                          openCalendar();
+                        });
+                      });
+                    };
+
+                    const normalizeSlots = (value) => (value || '')
+                      .split(/[\n,;]+/)
+                      .map((item) => item.trim())
+                      .filter(Boolean);
+
+                    const buildLegacySlots = (start, end) => {
+                      if (!start || !end) {
+                        return [];
+                      }
+
+                      const [startHour, startMinute] = start.split(':').map(Number);
+                      const [endHour, endMinute] = end.split(':').map(Number);
+                      if ([startHour, startMinute, endHour, endMinute].some((part) => Number.isNaN(part))) {
+                        return [];
+                      }
+
+                      const slots = [];
+                      let currentHour = startHour;
+                      let currentMinute = startMinute;
+
+                      while (currentHour < endHour || (currentHour === endHour && currentMinute < endMinute)) {
+                        slots.push(formatTime(currentHour, currentMinute));
+                        currentMinute += 30;
+                        if (currentMinute >= 60) {
+                          currentHour += 1;
+                          currentMinute -= 60;
+                        }
+                        if (currentHour > endHour || (currentHour === endHour && currentMinute >= endMinute)) {
+                          break;
+                        }
+                      }
+
+                      return slots;
+                    };
+
+                    const getSelectedBarberData = () => {
+                      const option = barberSelect.selectedOptions[0];
+                      if (!option || !option.value) {
+                        return null;
+                      }
+
+                      return option.dataset;
+                    };
+
+                    const populateHours = () => {
+                      const barberData = getSelectedBarberData();
+                      const date = parseDateBr(dateInput.value);
+                      const previouslySelected = timeSelect.value || timeSelect.dataset.selectedHora || '';
+
+                      timeSelect.innerHTML = '';
+
+                      if (!barberData || !date) {
+                        const placeholder = document.createElement('option');
+                        placeholder.value = '';
+                        placeholder.textContent = 'Selecione uma data e um barbeiro';
+                        timeSelect.appendChild(placeholder);
+                        timeSelect.disabled = true;
+                        return;
+                      }
+
+                      const weeklyField = dayToField[date.getDay()];
+                      const weeklySlots = normalizeSlots(barberData[weeklyField]);
+                      const legacySlots = weeklySlots.length > 0
+                        ? weeklySlots
+                        : buildLegacySlots(barberData.horarioInicioAtendimento, barberData.horarioFimAtendimento);
+
+                      const slots = [...new Set(legacySlots)].sort();
+                      const placeholder = document.createElement('option');
+                      placeholder.value = '';
+                      placeholder.textContent = slots.length > 0 ? 'Selecione um horário' : 'Nenhum horário disponível';
+                      timeSelect.appendChild(placeholder);
+
+                      slots.forEach((slot) => {
+                        const option = document.createElement('option');
+                        option.value = slot;
+                        option.textContent = slot;
+                        if (slot === previouslySelected) {
+                          option.selected = true;
+                        }
+                        timeSelect.appendChild(option);
+                      });
+
+                      timeSelect.disabled = slots.length === 0;
+
+                      if (slots.length > 0 && !timeSelect.value && slots.includes(timeSelect.dataset.selectedHora || '')) {
+                        timeSelect.value = timeSelect.dataset.selectedHora;
+                      }
+                    };
+
+                    const applyDateMask = (value) => {
+                      const digits = value.replace(/\D/g, '').slice(0, 8);
+                      const parts = [];
+
+                      if (digits.length <= 2) {
+                        return digits;
+                      }
+
+                      parts.push(digits.slice(0, 2));
+                      if (digits.length <= 4) {
+                        parts.push(digits.slice(2));
+                        return parts.join('/');
+                      }
+
+                      parts.push(digits.slice(2, 4));
+                      parts.push(digits.slice(4));
+                      return parts.join('/');
+                    };
+
+                    const syncCalendarFromInput = () => {
+                      const parsed = parseDateBr(dateInput.value);
+                      if (parsed) {
+                        calendarView = new Date(parsed.getFullYear(), parsed.getMonth(), 1);
+                      }
+                      renderCalendar();
+                    };
+
+                    dateInput.addEventListener('input', () => {
+                      const cursorAtEnd = dateInput.selectionStart === dateInput.value.length;
+                      const masked = applyDateMask(dateInput.value);
+                      dateInput.value = masked;
+                      if (cursorAtEnd) {
+                        dateInput.setSelectionRange(masked.length, masked.length);
+                      }
+                      populateHours();
+                      syncCalendarFromInput();
+                    });
+
+                    dateInput.addEventListener('blur', () => {
+                      dateInput.value = applyDateMask(dateInput.value);
+                      populateHours();
+                      syncCalendarFromInput();
+                    });
+
+                    dateInput.addEventListener('focus', () => {
+                      openCalendar();
+                    });
+
+                    dateInput.addEventListener('click', () => {
+                      openCalendar();
+                    });
+
+                    barberSelect.addEventListener('change', () => {
+                      populateHours();
+                      if (calendarVisible) {
+                        renderCalendar();
+                      }
+                    });
+
+                    dateToggle.addEventListener('click', (event) => {
+                      event.preventDefault();
+                      toggleCalendar();
+                    });
+
+                    calendarPanel.addEventListener('keydown', (event) => {
+                      if (event.key === 'Escape') {
+                        closeCalendar();
+                      }
+                    });
+
+                    document.addEventListener('click', (event) => {
+                      if (!calendarVisible) {
+                        return;
+                      }
+
+                      const clickedInside = calendarPanel.contains(event.target)
+                        || dateInput.contains(event.target)
+                        || dateToggle.contains(event.target);
+                      if (!clickedInside) {
+                        closeCalendar();
+                      }
+                    });
+
+                    populateHours();
+                    syncCalendarFromInput();
+                  })();
+                </script>
                   <span class="section-kicker">Produtos</span>
                   <h3 class="section-title">Criar e gerenciar produtos</h3>
                 </div>
