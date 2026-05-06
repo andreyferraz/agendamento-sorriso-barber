@@ -330,6 +330,18 @@ public class AdminController {
         return REDIRECT_ADMIN + TAB_QUERY + TAB_AGENDAMENTOS;
     }
 
+    @PostMapping("/admin/agendamentos/{id}/pagar")
+    public String pagarAgendamento(@PathVariable String id, RedirectAttributes redirectAttrs) {
+        try {
+            UUID uuid = UUID.fromString(id);
+            agendamentoService.atualizarStatus(uuid, StatusAgendamento.PAGO);
+            redirectAttrs.addFlashAttribute(FLASH_SUCCESS, "Agendamento marcado como pago e comissão registrada.");
+        } catch (Exception e) {
+            redirectAttrs.addFlashAttribute(FLASH_ERROR, e.getMessage());
+        }
+        return REDIRECT_ADMIN + TAB_QUERY + TAB_AGENDAMENTOS;
+    }
+
     @PostMapping("/admin/agendamentos/{id}/delete")
     public String deletarAgendamento(@PathVariable String id, RedirectAttributes redirectAttrs) {
         try {

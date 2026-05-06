@@ -10,7 +10,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 import com.barbeariasorrisobarber.agendamento.enuns.StatusAgendamento;
+import com.barbeariasorrisobarber.agendamento.enuns.TipoEntrada;
 import com.barbeariasorrisobarber.agendamento.model.Agendamento;
+import com.barbeariasorrisobarber.agendamento.model.Barbeiro;
 import com.barbeariasorrisobarber.agendamento.model.Servico;
 import com.barbeariasorrisobarber.agendamento.repository.AgendamentoRepository;
 import com.barbeariasorrisobarber.agendamento.repository.ServicoRepository;
@@ -28,6 +30,12 @@ class AgendamentoServiceTest {
 
     @Mock
     private ServicoRepository servicoRepository;
+
+    @Mock
+    private BarbeiroService barbeiroService;
+
+    @Mock
+    private TransacaoFinanceiraService transacaoFinanceiraService;
 
     @InjectMocks
     private AgendamentoService agendamentoService;
@@ -193,6 +201,46 @@ class AgendamentoServiceTest {
         Agendamento atualizado = agendamentoService.atualizarStatus(id, StatusAgendamento.ACEITO);
 
         assertEquals(StatusAgendamento.ACEITO, atualizado.getStatus());
+        verify(agendamentoRepository).save(any(Agendamento.class));
+    }
+
+    @Test
+    void atualizarStatus_paraPago_deveRegistrarComissao() {
+        UUID agendamentoId = UUID.randomUUID();
+        UUID servicoId = UUID.randomUUID();
+        UUID barbeiroId = UUID.randomUUID();
+
+        Servico servico = criarServico(servicoId, "Corte", "Corte de cabelo", BigDecimal.valueOf(100), 30);
+        Barbeiro barbeiro = new Barbeiro();
+        barbeiro.setId(barbeiroId);
+        barbeiro.setNome("Barbeiro");
+        barbeiro.setComissaoPercentual(BigDecimal.valueOf(30));
+
+        Agendamento agendamento = new Agendamento();
+        agendamento.setId(agendamentoId);
+        agendamento.setNomeCliente("Nome");
+        agendamento.setTelefoneCliente("3333");
+        agendamento.setServicoId(servicoId);
+        agendamento.setBarbeiroId(barbeiroId);
+        agendamento.setDataHoraInicio(LocalDateTime.now());
+        agendamento.setDataHoraFim(LocalDateTime.now().plusMinutes(20));
+        agendamento.setStatus(StatusAgendamento.ACEITO);
+
+        when(agendamentoRepository.findById(agendamentoId)).thenReturn(Optional.of(agendamento));
+        when(servicoRepository.findById(servicoId)).thenReturn(Optional.of(servico));
+        when(barbeiroService.buscarPorId(barbeiroId)).thenReturn(Optional.of(barbeiro));
+        when(agendamentoRepository.save(any())).thenAnswer(i -> i.getArgument(0));
+        when(transacaoFinanceiraService.criarTransacao(any())).thenAnswer(i -> i.getArgument(0));
+
+        Agendamento atualizado = agendamentoService.atualizarStatus(agendamentoId, StatusAgendamento.PAGO);
+
+        assertEquals(StatusAgendamento.PAGO, atualizado.getStatus());
+        verify(transacaoFinanceiraService).criarTransacao(argThat(transacao ->
+                transacao != null
+                        && TipoEntrada.COMISSAO_PAGA.equals(transacao.getTipo())
+                        && BigDecimal.valueOf(30).compareTo(transacao.getValor()) == 0
+                        && agendamentoId.equals(transacao.getAgendamentoId())
+                        && barbeiroId.equals(transacao.getBarbeiroId())));
         verify(agendamentoRepository).save(any(Agendamento.class));
     }
 

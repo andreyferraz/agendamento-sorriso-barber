@@ -708,13 +708,17 @@
                         <strong th:text="${agendamento.cliente}">Cliente</strong>
                         <small th:text="|${agendamento.servico} • ${agendamento.barbeiro}|">Serviço • Barbeiro</small>
                         <span class="admin-status-flag"
-                              th:classappend="${agendamento.status == 'PENDENTE'} ? ' flag-pendente' : (${agendamento.status == 'ACEITO'} ? ' flag-aceito' : ' flag-outro')"
-                              th:text="${agendamento.status == 'PENDENTE' ? 'Pendente' : (agendamento.status == 'ACEITO' ? 'Aceito' : agendamento.status)}">
+                              th:classappend="${agendamento.status == 'PENDENTE'} ? ' flag-pendente' : (${agendamento.status == 'ACEITO'} ? ' flag-aceito' : (${agendamento.status == 'PAGO'} ? ' flag-pago' : ' flag-outro'))"
+                              th:text="${agendamento.status == 'PENDENTE' ? 'Pendente' : (agendamento.status == 'ACEITO' ? 'Aceito' : (agendamento.status == 'PAGO' ? 'Pago' : agendamento.status))}">
                           Pendente
                         </span>
                       </div>
 
                       <div class="admin-item-actions">
+                        <form th:if="${agendamento.status == 'ACEITO'}" th:action="@{/admin/agendamentos/{id}/pagar(id=${agendamento.id})}" method="post" style="display:inline;">
+                          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                          <button type="submit" class="admin-action-btn primary" onclick="return confirm('Marcar este agendamento como pago? A comissão será registrada para o barbeiro.')">Marcar como pago</button>
+                        </form>
                         <form th:action="@{/admin/agendamentos/{id}/delete(id=${agendamento.id})}" method="post" style="display:inline;">
                           <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                           <button type="submit" class="admin-action-btn danger" onclick="return confirm('Remover agendamento?')">Excluir</button>

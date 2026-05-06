@@ -1,5 +1,7 @@
 package com.barbeariasorrisobarber.agendamento.service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -11,8 +13,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.barbeariasorrisobarber.agendamento.enuns.StatusAgendamento;
+import com.barbeariasorrisobarber.agendamento.enuns.TipoEntrada;
 import com.barbeariasorrisobarber.agendamento.model.Agendamento;
+import com.barbeariasorrisobarber.agendamento.model.Barbeiro;
 import com.barbeariasorrisobarber.agendamento.model.Servico;
+import com.barbeariasorrisobarber.agendamento.model.TransacaoFinanceira;
 import com.barbeariasorrisobarber.agendamento.repository.AgendamentoRepository;
 import com.barbeariasorrisobarber.agendamento.repository.ServicoRepository;
 import com.barbeariasorrisobarber.agendamento.utils.ValidationUtils;
@@ -20,12 +25,19 @@ import com.barbeariasorrisobarber.agendamento.utils.ValidationUtils;
 @Service
 public class AgendamentoService {
 
+	private static final String AGENDAMENTO_NAO_ENCONTRADO = "Agendamento não encontrado.";
+
 	private final AgendamentoRepository agendamentoRepository;
 	private final ServicoRepository servicoRepository;
+	private final BarbeiroService barbeiroService;
+	private final TransacaoFinanceiraService transacaoFinanceiraService;
 
-	public AgendamentoService(AgendamentoRepository agendamentoRepository, ServicoRepository servicoRepository) {
+	public AgendamentoService(AgendamentoRepository agendamentoRepository, ServicoRepository servicoRepository,
+			BarbeiroService barbeiroService, TransacaoFinanceiraService transacaoFinanceiraService) {
 		this.agendamentoRepository = agendamentoRepository;
 		this.servicoRepository = servicoRepository;
+		this.barbeiroService = barbeiroService;
+		this.transacaoFinanceiraService = transacaoFinanceiraService;
 	}
 
 	public List<Agendamento> listarTodos() {
@@ -64,7 +76,7 @@ public class AgendamentoService {
 		calcularDataHoraFimSeAusente(dados);
 
 		Agendamento existente = agendamentoRepository.findById(id)
-				.orElseThrow(() -> new IllegalArgumentException("Agendamento não encontrado."));
+				.orElseThrow(() -> new IllegalArgumentException(AGENDAMENTO_NAO_ENCONTRADO));
 
 		existente.setNomeCliente(dados.getNomeCliente());
 		existente.setTelefoneCliente(dados.getTelefoneCliente());
@@ -149,10 +161,54 @@ public class AgendamentoService {
 		ValidationUtils.validarCampoObrigatorio(id, "id");
 		ValidationUtils.validarCampoObrigatorio(novoStatus, "status");
 
+		if (novoStatus == StatusAgendamento.PAGO) {
+			return marcarComoPago(id);
+		}
+
 		Agendamento ag = agendamentoRepository.findById(id)
-				.orElseThrow(() -> new IllegalArgumentException("Agendamento não encontrado."));
+				.orElseThrow(() -> new IllegalArgumentException(AGENDAMENTO_NAO_ENCONTRADO));
 		ag.setStatus(novoStatus);
 		return agendamentoRepository.save(ag);
+	}
+
+	public Agendamento marcarComoPago(UUID id) {
+		ValidationUtils.validarCampoObrigatorio(id, "id");
+
+		Agendamento agendamento = agendamentoRepository.findById(id)
+				.orElseThrow(() -> new IllegalArgumentException(AGENDAMENTO_NAO_ENCONTRADO));
+
+		if (agendamento.getStatus() == StatusAgendamento.PAGO) {
+			return agendamento;
+		}
+
+		if (agendamento.getStatus() != StatusAgendamento.ACEITO) {
+			throw new IllegalArgumentException("Somente agendamentos aceitos podem ser marcados como pagos.");
+		}
+
+		Servico servico = servicoRepository.findById(agendamento.getServicoId())
+				.orElseThrow(() -> new IllegalArgumentException("Serviço não encontrado para o agendamento."));
+		Barbeiro barbeiro = barbeiroService.buscarPorId(agendamento.getBarbeiroId())
+				.orElseThrow(() -> new IllegalArgumentException("Barbeiro não encontrado para o agendamento."));
+
+		BigDecimal precoServico = servico.getPreco();
+		BigDecimal comissaoPercentual = barbeiro.getComissaoPercentual();
+		if (precoServico == null || comissaoPercentual == null) {
+			throw new IllegalArgumentException("Não foi possível calcular a comissão do barbeiro.");
+		}
+
+		BigDecimal valorComissao = precoServico.multiply(comissaoPercentual)
+				.divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+
+		TransacaoFinanceira transacao = new TransacaoFinanceira();
+		transacao.setTipo(TipoEntrada.COMISSAO_PAGA);
+		transacao.setValor(valorComissao);
+		transacao.setDescricao("Comissão do agendamento " + agendamento.getId());
+		transacao.setAgendamentoId(agendamento.getId());
+		transacao.setBarbeiroId(barbeiro.getId());
+		transacaoFinanceiraService.criarTransacao(transacao);
+
+		agendamento.setStatus(StatusAgendamento.PAGO);
+		return agendamentoRepository.save(agendamento);
 	}
 
 	@Transactional

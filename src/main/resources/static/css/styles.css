@@ -2063,6 +2063,12 @@ main {
   border-color: rgba(96, 211, 148, 0.72);
 }
 
+.admin-status-flag.flag-pago {
+  color: #1b3b66;
+  background: rgba(136, 185, 255, 0.92);
+  border-color: rgba(136, 185, 255, 0.72);
+}
+
 .admin-status-flag.flag-outro {
   color: var(--muted);
   background: rgba(255, 255, 255, 0.05);
