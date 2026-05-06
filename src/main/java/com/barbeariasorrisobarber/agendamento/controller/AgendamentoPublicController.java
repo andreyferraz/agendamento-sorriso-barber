@@ -5,8 +5,8 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.UUID;
 
 import org.springframework.stereotype.Controller;
@@ -38,14 +38,12 @@ public class AgendamentoPublicController {
     private static final String ATTR_DATA_SELECIONADA = "dataSelecionada";
     private static final String ATTR_HORA_SELECIONADA = "horaSelecionada";
     private static final String ATTR_MENSAGEM = "mensagemDisponibilidade";
-    private static final Locale PT_BR = new Locale("pt", "BR");
+    private static final java.util.Locale PT_BR = java.util.Locale.forLanguageTag("pt-BR");
     private static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("HH:mm");
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     private static final DateTimeFormatter DAY_TITLE_FORMAT = DateTimeFormatter.ofPattern("EEEE, dd 'de' MMMM", PT_BR);
-    private static final int HORIZONTE_DIAS = 14;
+    private static final int HORIZONTE_DIAS = 5;
     private static final int INTERVALO_MINUTOS = 30;
-    private static final LocalTime HORARIO_PADRAO_INICIO = LocalTime.of(9, 0);
-    private static final LocalTime HORARIO_PADRAO_FIM = LocalTime.of(18, 0);
 
     private final BarbeiroService barbeiroService;
     private final ServicoService servicoService;
@@ -160,9 +158,8 @@ public class AgendamentoPublicController {
     }
 
     private List<DayAvailabilityView> montarDisponibilidade(Barbeiro barbeiro, Servico servico) {
-        LocalTime horarioInicio = parseHorario(barbeiro.getHorarioInicioAtendimento(), HORARIO_PADRAO_INICIO);
-        LocalTime horarioFim = parseHorario(barbeiro.getHorarioFimAtendimento(), HORARIO_PADRAO_FIM);
         int duracaoServico = servico.getDuracao() != null && servico.getDuracao() > 0 ? servico.getDuracao() : 30;
+        boolean usaHorarioSemanal = barbeiro.possuiHorarioSemanalConfigurado();
 
         List<Agendamento> agendamentosDoBarbeiro = agendamentoService.listarTodos().stream()
                 .filter(agendamento -> barbeiro.getId() != null && barbeiro.getId().equals(agendamento.getBarbeiroId()))
@@ -176,17 +173,9 @@ public class AgendamentoPublicController {
 
         for (int offset = 0; offset < HORIZONTE_DIAS; offset++) {
             LocalDate data = hoje.plusDays(offset);
-            LocalDateTime janelaInicio = data.atTime(horarioInicio);
-            LocalDateTime janelaFim = data.atTime(horarioFim);
-            List<TimeSlotView> slots = new java.util.ArrayList<>();
-
-            LocalDateTime cursor = janelaInicio;
-            while (!cursor.plusMinutes(duracaoServico).isAfter(janelaFim)) {
-                if ((cursor.isAfter(agora) || cursor.equals(agora)) && slotLivre(cursor, duracaoServico, agendamentosDoBarbeiro)) {
-                    slots.add(new TimeSlotView(cursor.toLocalTime().format(TIME_FORMAT)));
-                }
-                cursor = cursor.plusMinutes(INTERVALO_MINUTOS);
-            }
+            List<TimeSlotView> slots = usaHorarioSemanal
+                    ? montarSlotsEspecificosDoDia(barbeiro, data, duracaoServico, agendamentosDoBarbeiro, agora)
+                    : montarSlotsLegadosDoDia(barbeiro, data, duracaoServico, agendamentosDoBarbeiro, agora);
 
             if (!slots.isEmpty()) {
                 dias.add(new DayAvailabilityView(
@@ -198,6 +187,52 @@ public class AgendamentoPublicController {
         }
 
         return dias;
+    }
+
+    private List<TimeSlotView> montarSlotsEspecificosDoDia(Barbeiro barbeiro, LocalDate data, int duracaoServico,
+            List<Agendamento> agendamentosDoBarbeiro, LocalDateTime agora) {
+        List<LocalTime> horarios = barbeiro.getHorariosDoDia(data.getDayOfWeek());
+        List<TimeSlotView> slots = new ArrayList<>();
+
+        for (LocalTime horario : horarios) {
+            LocalDateTime inicio = data.atTime(horario);
+            if (inicio.isBefore(agora)) {
+                continue;
+            }
+
+            if (slotLivre(inicio, duracaoServico, agendamentosDoBarbeiro)) {
+                slots.add(new TimeSlotView(horario.format(TIME_FORMAT)));
+            }
+        }
+
+        return slots;
+    }
+
+    private List<TimeSlotView> montarSlotsLegadosDoDia(Barbeiro barbeiro, LocalDate data, int duracaoServico,
+            List<Agendamento> agendamentosDoBarbeiro, LocalDateTime agora) {
+        String inicioConfigurado = barbeiro.getHorarioInicioAtendimento();
+        String fimConfigurado = barbeiro.getHorarioFimAtendimento();
+        if (inicioConfigurado == null || fimConfigurado == null) {
+            return List.of();
+        }
+
+        LocalTime horarioInicio = parseHorario(inicioConfigurado, null);
+        LocalTime horarioFim = parseHorario(fimConfigurado, null);
+        if (horarioInicio == null || horarioFim == null) {
+            return List.of();
+        }
+
+        List<TimeSlotView> slots = new ArrayList<>();
+        LocalDateTime janelaInicio = data.atTime(horarioInicio);
+        LocalDateTime janelaFim = data.atTime(horarioFim);
+
+        for (LocalDateTime cursor = janelaInicio; !cursor.plusMinutes(duracaoServico).isAfter(janelaFim); cursor = cursor.plusMinutes(INTERVALO_MINUTOS)) {
+            if ((cursor.isAfter(agora) || cursor.equals(agora)) && slotLivre(cursor, duracaoServico, agendamentosDoBarbeiro)) {
+                slots.add(new TimeSlotView(cursor.toLocalTime().format(TIME_FORMAT)));
+            }
+        }
+
+        return slots;
     }
 
     private boolean slotLivre(LocalDateTime inicio, int duracaoServico, List<Agendamento> agendamentos) {

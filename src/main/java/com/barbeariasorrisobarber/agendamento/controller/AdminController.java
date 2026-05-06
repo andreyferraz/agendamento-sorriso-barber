@@ -12,7 +12,6 @@ import java.util.UUID;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -59,7 +58,7 @@ public class AdminController {
     private static final String ATTR_CALENDARIO = "calendarioAgendamentos";
     private static final String ATTR_MES_CALENDARIO = "mesCalendario";
     private static final String TAB_AGENDAMENTOS = "agendamentos";
-    private static final Locale PT_BR = new Locale("pt", "BR");
+    private static final java.util.Locale PT_BR = java.util.Locale.forLanguageTag("pt-BR");
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     private static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("HH:mm");
     private static final String PRICE_CLEANUP_REGEX = "[^0-9,\\.]";
@@ -216,6 +215,13 @@ public class AdminController {
             @RequestParam("comissaoPercentual") String comissaoPercentual,
             @RequestParam(name = "horarioInicioAtendimento", required = false) String horarioInicioAtendimento,
             @RequestParam(name = "horarioFimAtendimento", required = false) String horarioFimAtendimento,
+            @RequestParam(name = "horariosSegunda", required = false) String horariosSegunda,
+            @RequestParam(name = "horariosTerca", required = false) String horariosTerca,
+            @RequestParam(name = "horariosQuarta", required = false) String horariosQuarta,
+            @RequestParam(name = "horariosQuinta", required = false) String horariosQuinta,
+            @RequestParam(name = "horariosSexta", required = false) String horariosSexta,
+            @RequestParam(name = "horariosSabado", required = false) String horariosSabado,
+            @RequestParam(name = "horariosDomingo", required = false) String horariosDomingo,
             @RequestParam(name = "telefone", required = false) String telefone,
             @RequestParam(name = "email", required = false) String email,
             @RequestParam(name = "foto", required = false) MultipartFile foto,
@@ -229,6 +235,27 @@ public class AdminController {
             dados.setComissaoPercentual(parseComissao(comissaoPercentual));
             dados.setHorarioInicioAtendimento(parseHora(horarioInicioAtendimento));
             dados.setHorarioFimAtendimento(parseHora(horarioFimAtendimento));
+            dados.setHorariosSegunda(normalizarHorarios(horariosSegunda));
+            dados.setHorariosTerca(normalizarHorarios(horariosTerca));
+            dados.setHorariosQuarta(normalizarHorarios(horariosQuarta));
+            dados.setHorariosQuinta(normalizarHorarios(horariosQuinta));
+            dados.setHorariosSexta(normalizarHorarios(horariosSexta));
+            dados.setHorariosSabado(normalizarHorarios(horariosSabado));
+            dados.setHorariosDomingo(normalizarHorarios(horariosDomingo));
+            dados.setHorarioSegundaInicio(null);
+            dados.setHorarioSegundaFim(null);
+            dados.setHorarioTercaInicio(null);
+            dados.setHorarioTercaFim(null);
+            dados.setHorarioQuartaInicio(null);
+            dados.setHorarioQuartaFim(null);
+            dados.setHorarioQuintaInicio(null);
+            dados.setHorarioQuintaFim(null);
+            dados.setHorarioSextaInicio(null);
+            dados.setHorarioSextaFim(null);
+            dados.setHorarioSabadoInicio(null);
+            dados.setHorarioSabadoFim(null);
+            dados.setHorarioDomingoInicio(null);
+            dados.setHorarioDomingoFim(null);
 
             if (id != null && !id.isBlank()) {
                 UUID uuid = UUID.fromString(id);
@@ -423,6 +450,28 @@ public class AdminController {
 
     private String parseHora(String valor) {
         return valor == null || valor.isBlank() ? null : valor;
+    }
+
+    private String normalizarHorarios(String valor) {
+        if (valor == null || valor.isBlank()) {
+            return null;
+        }
+
+        java.util.List<String> horarios = new java.util.ArrayList<>();
+        for (String item : valor.split("[\\n,;]+")) {
+            String token = item == null ? "" : item.trim();
+            if (token.isBlank()) {
+                continue;
+            }
+
+            horarios.add(token);
+        }
+
+        if (horarios.isEmpty()) {
+            return null;
+        }
+
+        return String.join("\n", horarios.stream().distinct().toList());
     }
 
     private Map<UUID, String> montarMapaNomesBarbeiros(List<Barbeiro> barbeiros) {

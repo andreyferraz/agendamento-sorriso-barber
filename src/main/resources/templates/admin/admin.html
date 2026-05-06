@@ -551,14 +551,46 @@
                         <input type="text" id="barbeiro-comissao" name="comissaoPercentual" placeholder="30,00" required th:value="${barbeiroToEdit != null ? barbeiroToEdit.comissaoPercentual : ''}" />
                       </div>
 
-                      <div class="form-group">
-                        <label for="barbeiro-horario-inicio">Início do atendimento</label>
-                        <input type="time" id="barbeiro-horario-inicio" name="horarioInicioAtendimento" th:value="${barbeiroToEdit != null ? barbeiroToEdit.horarioInicioAtendimentoFormatado : ''}" />
-                      </div>
+                      <div class="form-group" style="grid-column: 1 / -1;">
+                        <strong>Horários de atendimento por dia</strong>
+                        <p class="muted">Informe um horário por linha ou separado por vírgula. Exemplo: 09:00, 11:00, 14:00.</p>
 
-                      <div class="form-group">
-                        <label for="barbeiro-horario-fim">Fim do atendimento</label>
-                        <input type="time" id="barbeiro-horario-fim" name="horarioFimAtendimento" th:value="${barbeiroToEdit != null ? barbeiroToEdit.horarioFimAtendimentoFormatado : ''}" />
+                        <div style="display:grid;gap:14px;">
+                          <div class="form-group">
+                            <label for="barbeiro-segunda">Segunda-feira</label>
+                            <textarea id="barbeiro-segunda" name="horariosSegunda" rows="3" placeholder="09:00&#10;11:00&#10;14:00" th:text="${barbeiroToEdit != null ? barbeiroToEdit.horariosSegunda : ''}"></textarea>
+                          </div>
+
+                          <div class="form-group">
+                            <label for="barbeiro-terca">Terça-feira</label>
+                            <textarea id="barbeiro-terca" name="horariosTerca" rows="3" placeholder="09:00&#10;11:00&#10;14:00" th:text="${barbeiroToEdit != null ? barbeiroToEdit.horariosTerca : ''}"></textarea>
+                          </div>
+
+                          <div class="form-group">
+                            <label for="barbeiro-quarta">Quarta-feira</label>
+                            <textarea id="barbeiro-quarta" name="horariosQuarta" rows="3" placeholder="09:00&#10;11:00&#10;14:00" th:text="${barbeiroToEdit != null ? barbeiroToEdit.horariosQuarta : ''}"></textarea>
+                          </div>
+
+                          <div class="form-group">
+                            <label for="barbeiro-quinta">Quinta-feira</label>
+                            <textarea id="barbeiro-quinta" name="horariosQuinta" rows="3" placeholder="09:00&#10;11:00&#10;14:00" th:text="${barbeiroToEdit != null ? barbeiroToEdit.horariosQuinta : ''}"></textarea>
+                          </div>
+
+                          <div class="form-group">
+                            <label for="barbeiro-sexta">Sexta-feira</label>
+                            <textarea id="barbeiro-sexta" name="horariosSexta" rows="3" placeholder="09:00&#10;11:00&#10;14:00" th:text="${barbeiroToEdit != null ? barbeiroToEdit.horariosSexta : ''}"></textarea>
+                          </div>
+
+                          <div class="form-group">
+                            <label for="barbeiro-sabado">Sábado</label>
+                            <textarea id="barbeiro-sabado" name="horariosSabado" rows="3" placeholder="09:00&#10;11:00&#10;14:00" th:text="${barbeiroToEdit != null ? barbeiroToEdit.horariosSabado : ''}"></textarea>
+                          </div>
+
+                          <div class="form-group">
+                            <label for="barbeiro-domingo">Domingo</label>
+                            <textarea id="barbeiro-domingo" name="horariosDomingo" rows="3" placeholder="09:00&#10;11:00&#10;14:00" th:text="${barbeiroToEdit != null ? barbeiroToEdit.horariosDomingo : ''}"></textarea>
+                          </div>
+                        </div>
                       </div>
 
                       <div class="form-group">
@@ -608,7 +640,7 @@
                           <strong th:text="${barbeiro.nome}">Nome</strong>
                           <span th:text="|Usuário: ${barbeiro.username}|">Usuário</span>
                           <span th:text="|Comissão: ${barbeiro.comissaoPercentual}%|">Comissão</span>
-                          <small class="muted" th:text="${barbeiro.horarioInicioAtendimentoFormatado != null and !#strings.isEmpty(barbeiro.horarioInicioAtendimentoFormatado) and barbeiro.horarioFimAtendimentoFormatado != null and !#strings.isEmpty(barbeiro.horarioFimAtendimentoFormatado) ? 'Atende de ' + barbeiro.horarioInicioAtendimentoFormatado + ' às ' + barbeiro.horarioFimAtendimentoFormatado : 'Horário não informado'}">Horário não informado</small>
+                          <small class="muted" th:text="${barbeiro.horarioResumo}">Horário não informado</small>
                         </div>
                       </div>
                       <div class="admin-item-actions">

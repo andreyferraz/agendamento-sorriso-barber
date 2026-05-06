@@ -155,5 +155,26 @@ public class BarbeiroService {
         destino.setComissaoPercentual(origem.getComissaoPercentual());
         destino.setHorarioInicioAtendimento(origem.getHorarioInicioAtendimento());
         destino.setHorarioFimAtendimento(origem.getHorarioFimAtendimento());
+        destino.setHorariosSegunda(origem.getHorariosSegunda());
+        destino.setHorariosTerca(origem.getHorariosTerca());
+        destino.setHorariosQuarta(origem.getHorariosQuarta());
+        destino.setHorariosQuinta(origem.getHorariosQuinta());
+        destino.setHorariosSexta(origem.getHorariosSexta());
+        destino.setHorariosSabado(origem.getHorariosSabado());
+        destino.setHorariosDomingo(origem.getHorariosDomingo());
+        destino.setHorarioSegundaInicio(origem.getHorarioSegundaInicio());
+        destino.setHorarioSegundaFim(origem.getHorarioSegundaFim());
+        destino.setHorarioTercaInicio(origem.getHorarioTercaInicio());
+        destino.setHorarioTercaFim(origem.getHorarioTercaFim());
+        destino.setHorarioQuartaInicio(origem.getHorarioQuartaInicio());
+        destino.setHorarioQuartaFim(origem.getHorarioQuartaFim());
+        destino.setHorarioQuintaInicio(origem.getHorarioQuintaInicio());
+        destino.setHorarioQuintaFim(origem.getHorarioQuintaFim());
+        destino.setHorarioSextaInicio(origem.getHorarioSextaInicio());
+        destino.setHorarioSextaFim(origem.getHorarioSextaFim());
+        destino.setHorarioSabadoInicio(origem.getHorarioSabadoInicio());
+        destino.setHorarioSabadoFim(origem.getHorarioSabadoFim());
+        destino.setHorarioDomingoInicio(origem.getHorarioDomingoInicio());
+        destino.setHorarioDomingoFim(origem.getHorarioDomingoFim());
     }
 }

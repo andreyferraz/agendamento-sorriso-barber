@@ -69,6 +69,48 @@ public class AdminInitializer implements ApplicationRunner {
                 "barbeiro.horario_inicio_atendimento");
         aplicarMigracaoColuna("ALTER TABLE barbeiro ADD COLUMN horario_fim_atendimento TEXT;",
                 "barbeiro.horario_fim_atendimento");
+        aplicarMigracaoColuna("ALTER TABLE barbeiro ADD COLUMN horarios_segunda TEXT;",
+            "barbeiro.horarios_segunda");
+        aplicarMigracaoColuna("ALTER TABLE barbeiro ADD COLUMN horarios_terca TEXT;",
+            "barbeiro.horarios_terca");
+        aplicarMigracaoColuna("ALTER TABLE barbeiro ADD COLUMN horarios_quarta TEXT;",
+            "barbeiro.horarios_quarta");
+        aplicarMigracaoColuna("ALTER TABLE barbeiro ADD COLUMN horarios_quinta TEXT;",
+            "barbeiro.horarios_quinta");
+        aplicarMigracaoColuna("ALTER TABLE barbeiro ADD COLUMN horarios_sexta TEXT;",
+            "barbeiro.horarios_sexta");
+        aplicarMigracaoColuna("ALTER TABLE barbeiro ADD COLUMN horarios_sabado TEXT;",
+            "barbeiro.horarios_sabado");
+        aplicarMigracaoColuna("ALTER TABLE barbeiro ADD COLUMN horarios_domingo TEXT;",
+            "barbeiro.horarios_domingo");
+        aplicarMigracaoColuna("ALTER TABLE barbeiro ADD COLUMN horario_segunda_inicio TEXT;",
+            "barbeiro.horario_segunda_inicio");
+        aplicarMigracaoColuna("ALTER TABLE barbeiro ADD COLUMN horario_segunda_fim TEXT;",
+            "barbeiro.horario_segunda_fim");
+        aplicarMigracaoColuna("ALTER TABLE barbeiro ADD COLUMN horario_terca_inicio TEXT;",
+            "barbeiro.horario_terca_inicio");
+        aplicarMigracaoColuna("ALTER TABLE barbeiro ADD COLUMN horario_terca_fim TEXT;",
+            "barbeiro.horario_terca_fim");
+        aplicarMigracaoColuna("ALTER TABLE barbeiro ADD COLUMN horario_quarta_inicio TEXT;",
+            "barbeiro.horario_quarta_inicio");
+        aplicarMigracaoColuna("ALTER TABLE barbeiro ADD COLUMN horario_quarta_fim TEXT;",
+            "barbeiro.horario_quarta_fim");
+        aplicarMigracaoColuna("ALTER TABLE barbeiro ADD COLUMN horario_quinta_inicio TEXT;",
+            "barbeiro.horario_quinta_inicio");
+        aplicarMigracaoColuna("ALTER TABLE barbeiro ADD COLUMN horario_quinta_fim TEXT;",
+            "barbeiro.horario_quinta_fim");
+        aplicarMigracaoColuna("ALTER TABLE barbeiro ADD COLUMN horario_sexta_inicio TEXT;",
+            "barbeiro.horario_sexta_inicio");
+        aplicarMigracaoColuna("ALTER TABLE barbeiro ADD COLUMN horario_sexta_fim TEXT;",
+            "barbeiro.horario_sexta_fim");
+        aplicarMigracaoColuna("ALTER TABLE barbeiro ADD COLUMN horario_sabado_inicio TEXT;",
+            "barbeiro.horario_sabado_inicio");
+        aplicarMigracaoColuna("ALTER TABLE barbeiro ADD COLUMN horario_sabado_fim TEXT;",
+            "barbeiro.horario_sabado_fim");
+        aplicarMigracaoColuna("ALTER TABLE barbeiro ADD COLUMN horario_domingo_inicio TEXT;",
+            "barbeiro.horario_domingo_inicio");
+        aplicarMigracaoColuna("ALTER TABLE barbeiro ADD COLUMN horario_domingo_fim TEXT;",
+            "barbeiro.horario_domingo_fim");
     }
 
     private void aplicarMigracaoColuna(String sql, String descricao) {
