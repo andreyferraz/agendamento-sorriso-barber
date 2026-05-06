@@ -291,14 +291,15 @@ public class AdminController {
             agendamento.setBarbeiroId(barbeiroId);
             agendamento.setServicoId(servicoId);
             agendamento.setDataHoraInicio(LocalDateTime.of(LocalDate.parse(dataAgendamento), LocalTime.parse(horaAgendamento)));
-            agendamento.setStatus(StatusAgendamento.PENDENTE);
 
             if (id != null && !id.isBlank()) {
-                agendamento.setId(UUID.fromString(id));
+                agendamentoService.atualizarAgendamento(UUID.fromString(id), agendamento);
+                redirectAttrs.addFlashAttribute(FLASH_SUCCESS, "Agendamento atualizado com sucesso.");
+            } else {
+                agendamento.setStatus(StatusAgendamento.PENDENTE);
+                agendamentoService.criarAgendamento(agendamento);
+                redirectAttrs.addFlashAttribute(FLASH_SUCCESS, "Agendamento criado com sucesso.");
             }
-
-            agendamentoService.criarAgendamento(agendamento);
-            redirectAttrs.addFlashAttribute(FLASH_SUCCESS, "Agendamento criado com sucesso.");
         } catch (Exception e) {
             redirectAttrs.addFlashAttribute(FLASH_ERROR, e.getMessage());
         }

@@ -3,6 +3,7 @@ package com.barbeariasorrisobarber.agendamento.service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.StreamSupport;
 
@@ -51,8 +52,35 @@ public class AgendamentoService {
 		if (agendamento.getId() == null) {
 			agendamento.setId(UUID.randomUUID());
 		}
+		agendamento.setNew(true);
 
 		return agendamentoRepository.save(agendamento);
+	}
+
+	@Transactional
+	public Agendamento atualizarAgendamento(UUID id, Agendamento dados) {
+		ValidationUtils.validarCampoObrigatorio(id, "id");
+		validarCamposBasicos(dados);
+		calcularDataHoraFimSeAusente(dados);
+
+		Agendamento existente = agendamentoRepository.findById(id)
+				.orElseThrow(() -> new IllegalArgumentException("Agendamento não encontrado."));
+
+		existente.setNomeCliente(dados.getNomeCliente());
+		existente.setTelefoneCliente(dados.getTelefoneCliente());
+		existente.setBarbeiroId(dados.getBarbeiroId());
+		existente.setServicoId(dados.getServicoId());
+		existente.setDataHoraInicio(dados.getDataHoraInicio());
+		existente.setDataHoraFim(dados.getDataHoraFim());
+		if (dados.getStatus() != null) {
+			existente.setStatus(dados.getStatus());
+		}
+		existente.setGoogleEventId(dados.getGoogleEventId());
+		existente.setNew(false);
+
+		checarConflitosHorario(existente);
+
+		return agendamentoRepository.save(existente);
 	}
 
 	private void validarCamposBasicos(Agendamento agendamento) {
@@ -88,7 +116,7 @@ public class AgendamentoService {
 	}
 
 	private boolean isMesmoAgendamento(Agendamento agendamento, Agendamento existente) {
-		return agendamento.getId() != null && agendamento.getId().equals(existente.getId());
+		return Objects.equals(agendamento.getId(), existente.getId()) && agendamento.getId() != null;
 	}
 
 	private boolean deveCompararConflito(Agendamento agendamento, Agendamento existente) {
