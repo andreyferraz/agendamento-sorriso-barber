@@ -671,12 +671,12 @@
               </div>
 
               <div class="admin-agendamento-grid">
-                <article class="admin-panel-card admin-calendar-card">
+                <article class="admin-panel-card admin-agendamentos-card">
                   <div class="admin-panel-head">
                     <div>
-                      <span class="panel-label">Calendário mensal</span>
-                      <h4 th:text="${mesCalendario}">Maio de 2026</h4>
-                      <p class="muted admin-calendar-lead">Visualize os agendamentos do mês em cartões por dia, com leitura rápida no desktop e no celular.</p>
+                      <span class="panel-label">Lista cronológica</span>
+                      <h4>Agendamentos por data</h4>
+                      <p class="muted admin-calendar-lead">Os agendamentos aparecem do mais recente ao mais antigo, o que fica mais claro no celular.</p>
                     </div>
                     <div class="admin-calendar-badges">
                       <span class="admin-calendar-badge">
@@ -690,36 +690,37 @@
                     </div>
                   </div>
 
-                  <div class="admin-calendar-weekdays" aria-hidden="true">
-                    <span>Dom</span>
-                    <span>Seg</span>
-                    <span>Ter</span>
-                    <span>Qua</span>
-                    <span>Qui</span>
-                    <span>Sex</span>
-                    <span>Sáb</span>
-                  </div>
+                  <div class="admin-schedule-list admin-agendamentos-list">
+                    <div class="admin-schedule-item" th:if="${agendamentosResumo == null or #lists.isEmpty(agendamentosResumo)}">
+                      <div>
+                        <strong>Nenhum agendamento cadastrado</strong>
+                        <span>Os agendamentos criados aparecerão aqui em ordem de data.</span>
+                      </div>
+                    </div>
 
-                  <div class="admin-calendar-grid">
-                    <article class="admin-calendar-day" th:each="dia : ${calendarioAgendamentos}" th:classappend="${!dia.currentMonth} ? ' outside-month' : ''">
-                      <div class="admin-calendar-day-head">
-                        <strong th:text="${dia.date.dayOfMonth}">1</strong>
-                        <small th:text="${#temporals.format(dia.date, 'EEE', #locale)}">seg</small>
+                    <div class="admin-schedule-item admin-schedule-item-with-actions" th:each="agendamento : ${agendamentosResumo}">
+                      <div class="admin-schedule-item-datetime">
+                        <span class="time" th:text="${agendamento.data}">16/04/2026</span>
+                        <small th:text="${agendamento.hora}">14:00</small>
                       </div>
 
-                      <div class="calendar-day-empty" th:if="${dia.items == null or #lists.isEmpty(dia.items)}">Livre</div>
-
-                      <div class="calendar-day-slots" th:if="${dia.items != null and !#lists.isEmpty(dia.items)}">
-                        <div class="calendar-slot" th:each="item : ${dia.items}">
-                          <span class="calendar-slot-time" th:text="${item.hora}">14:00</span>
-                          <div class="calendar-slot-copy">
-                            <strong th:text="${item.cliente}">Cliente</strong>
-                            <span th:text="${item.servico}">Serviço</span>
-                            <small th:text="${item.barbeiro}">Barbeiro</small>
-                          </div>
-                        </div>
+                      <div class="admin-schedule-item-copy">
+                        <strong th:text="${agendamento.cliente}">Cliente</strong>
+                        <small th:text="|${agendamento.servico} • ${agendamento.barbeiro}|">Serviço • Barbeiro</small>
+                        <span class="admin-status-flag"
+                              th:classappend="${agendamento.status == 'PENDENTE'} ? ' flag-pendente' : (${agendamento.status == 'ACEITO'} ? ' flag-aceito' : ' flag-outro')"
+                              th:text="${agendamento.status == 'PENDENTE' ? 'Pendente' : (agendamento.status == 'ACEITO' ? 'Aceito' : agendamento.status)}">
+                          Pendente
+                        </span>
                       </div>
-                    </article>
+
+                      <div class="admin-item-actions">
+                        <form th:action="@{/admin/agendamentos/{id}/delete(id=${agendamento.id})}" method="post" style="display:inline;">
+                          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                          <button type="submit" class="admin-action-btn danger" onclick="return confirm('Remover agendamento?')">Excluir</button>
+                        </form>
+                      </div>
+                    </div>
                   </div>
                 </article>
 
@@ -820,52 +821,6 @@
                         <button type="button" class="admin-action-btn" onclick="window.location.href='/admin?tab=agendamentos'; return false;">Limpar</button>
                       </div>
                     </form>
-                  </article>
-
-                  <article class="admin-panel-card">
-                    <div class="admin-panel-head">
-                      <div>
-                        <span class="panel-label">Histórico</span>
-                        <h4>Agendamentos já realizados</h4>
-                      </div>
-                    </div>
-
-                    <div class="admin-schedule-list">
-                      <div class="admin-schedule-item" th:if="${agendamentosResumo == null or #lists.isEmpty(agendamentosResumo)}">
-                        <div>
-                          <strong>Nenhum agendamento cadastrado</strong>
-                          <span>Cadastre o primeiro horário usando o formulário ao lado.</span>
-                        </div>
-                      </div>
-
-                      <div class="admin-schedule-item admin-schedule-item-with-actions" th:each="agendamento : ${agendamentosResumo}">
-                        <div class="admin-schedule-item-datetime">
-                          <span class="time" th:text="${agendamento.data}">16/04/2026</span>
-                          <small th:text="${agendamento.hora}">14:00</small>
-                        </div>
-                        <div class="admin-schedule-item-copy">
-                          <strong th:text="${agendamento.cliente}">Cliente</strong>
-                          <small th:text="|${agendamento.servico} • ${agendamento.barbeiro}|">Serviço • Barbeiro</small>
-                          <small class="muted" th:text="${agendamento.status}">PENDENTE</small>
-                        </div>
-                        <div class="admin-item-actions">
-                          <a th:href="@{/admin/agendamentos/{id}/edit(id=${agendamento.id})}" class="admin-action-btn">Editar</a>
-                          <form th:action="@{/admin/agendamentos/{id}/delete(id=${agendamento.id})}" method="post" style="display:inline;">
-                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                            <button type="submit" class="admin-action-btn danger" onclick="return confirm('Remover agendamento?')">Excluir</button>
-                          </form>
-                          <a th:if="${agendamento.status == 'RECUSADO' and agendamento.whatsappUrl != null}" th:href="${agendamento.whatsappUrl}" target="_blank" rel="noopener" class="admin-action-btn primary">WhatsApp</a>
-                          <form th:if="${agendamento.status == 'PENDENTE'}" th:action="@{/admin/agendamentos/{id}/aceitar(id=${agendamento.id})}" method="post" style="display:inline;">
-                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                            <button type="submit" class="admin-action-btn">Aceitar</button>
-                          </form>
-                          <form th:if="${agendamento.status == 'PENDENTE'}" th:action="@{/admin/agendamentos/{id}/recusar(id=${agendamento.id})}" method="post" style="display:inline;">
-                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                            <button type="submit" class="admin-action-btn danger" onclick="return confirm('Recusar este agendamento?')">Recusar</button>
-                          </form>
-                        </div>
-                      </div>
-                    </div>
                   </article>
                 </div>
               </div>
