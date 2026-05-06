@@ -676,6 +676,17 @@
                     <div>
                       <span class="panel-label">Calendário mensal</span>
                       <h4 th:text="${mesCalendario}">Maio de 2026</h4>
+                      <p class="muted admin-calendar-lead">Visualize os agendamentos do mês em cartões por dia, com leitura rápida no desktop e no celular.</p>
+                    </div>
+                    <div class="admin-calendar-badges">
+                      <span class="admin-calendar-badge">
+                        <strong th:text="${agendamentos != null ? #lists.size(agendamentos) : 0}">0</strong>
+                        <small>agendamentos</small>
+                      </span>
+                      <span class="admin-calendar-badge">
+                        <strong th:text="${agendamentosPendentes != null ? #lists.size(agendamentosPendentes) : 0}">0</strong>
+                        <small>pendentes</small>
+                      </span>
                     </div>
                   </div>
 
@@ -713,6 +724,47 @@
                 </article>
 
                 <div class="admin-agendamento-side">
+                  <article class="admin-panel-card">
+                    <div class="admin-panel-head">
+                      <div>
+                        <span class="panel-label">Notificações</span>
+                        <h4 th:text="${agendamentosPendentes != null ? 'Pendências de agendamento' : 'Pendências de agendamento'}">Pendências de agendamento</h4>
+                      </div>
+                      <span class="badge-soft" th:text="${agendamentosPendentes != null ? agendamentosPendentes.size() + ' pendente(s)' : '0 pendentes'}">0 pendentes</span>
+                    </div>
+
+                    <div class="admin-schedule-list">
+                      <div class="admin-schedule-item" th:if="${agendamentosPendentes == null or #lists.isEmpty(agendamentosPendentes)}">
+                        <div>
+                          <strong>Sem notificações no momento</strong>
+                          <span>Quando um agendamento entrar como pendente, ele aparecerá aqui para aceite ou recusa.</span>
+                        </div>
+                      </div>
+
+                      <div class="admin-schedule-item admin-schedule-item-with-actions" th:each="agendamento : ${agendamentosPendentes}">
+                        <div class="admin-schedule-item-datetime">
+                          <span class="time" th:text="${agendamento.data}">16/04/2026</span>
+                          <small th:text="${agendamento.hora}">14:00</small>
+                        </div>
+                        <div class="admin-schedule-item-copy">
+                          <strong th:text="${agendamento.cliente}">Cliente</strong>
+                          <small th:text="|${agendamento.servico} • ${agendamento.barbeiro}|">Serviço • Barbeiro</small>
+                          <small class="muted" th:text="${agendamento.status}">PENDENTE</small>
+                        </div>
+                        <div class="admin-item-actions">
+                          <form th:action="@{/admin/agendamentos/{id}/aceitar(id=${agendamento.id})}" method="post" style="display:inline;">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                            <button type="submit" class="admin-action-btn primary">Aceitar</button>
+                          </form>
+                          <form th:action="@{/admin/agendamentos/{id}/recusar(id=${agendamento.id})}" method="post" style="display:inline;">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                            <button type="submit" class="admin-action-btn danger" onclick="return confirm('Recusar este agendamento?')">Recusar</button>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+                  </article>
+
                   <article class="admin-panel-card">
                     <div class="admin-panel-head">
                       <div>
@@ -773,8 +825,8 @@
                   <article class="admin-panel-card">
                     <div class="admin-panel-head">
                       <div>
-                        <span class="panel-label">Horários ocupados</span>
-                        <h4>Próximos agendamentos</h4>
+                        <span class="panel-label">Histórico</span>
+                        <h4>Agendamentos já realizados</h4>
                       </div>
                     </div>
 
@@ -801,6 +853,15 @@
                           <form th:action="@{/admin/agendamentos/{id}/delete(id=${agendamento.id})}" method="post" style="display:inline;">
                             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                             <button type="submit" class="admin-action-btn danger" onclick="return confirm('Remover agendamento?')">Excluir</button>
+                          </form>
+                          <a th:if="${agendamento.status == 'RECUSADO' and agendamento.whatsappUrl != null}" th:href="${agendamento.whatsappUrl}" target="_blank" rel="noopener" class="admin-action-btn primary">WhatsApp</a>
+                          <form th:if="${agendamento.status == 'PENDENTE'}" th:action="@{/admin/agendamentos/{id}/aceitar(id=${agendamento.id})}" method="post" style="display:inline;">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                            <button type="submit" class="admin-action-btn">Aceitar</button>
+                          </form>
+                          <form th:if="${agendamento.status == 'PENDENTE'}" th:action="@{/admin/agendamentos/{id}/recusar(id=${agendamento.id})}" method="post" style="display:inline;">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                            <button type="submit" class="admin-action-btn danger" onclick="return confirm('Recusar este agendamento?')">Recusar</button>
                           </form>
                         </div>
                       </div>
