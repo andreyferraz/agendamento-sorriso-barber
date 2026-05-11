@@ -110,8 +110,8 @@
                 <article class="admin-stat-card highlight">
                   <div class="admin-stat-icon"><i class="fas fa-coins" aria-hidden="true"></i></div>
                   <div>
-                    <span>Total de entradas</span>
-                    <strong th:text="${financeiroResumo != null ? financeiroResumo.entradas : 'R$ 0,00'}">R$ 0,00</strong>
+                    <span>Entradas hoje</span>
+                    <strong th:text="${dashboardResumo != null ? dashboardResumo.entradasHoje : 'R$ 0,00'}">R$ 0,00</strong>
                     <small>inclui agendamentos e vendas</small>
                   </div>
                 </article>
@@ -120,8 +120,8 @@
                   <div class="admin-stat-icon"><i class="fas fa-calendar-check" aria-hidden="true"></i></div>
                   <div>
                     <span>Agendamentos</span>
-                    <strong>18</strong>
-                    <small>06 confirmados para a tarde</small>
+                    <strong th:text="${dashboardResumo != null ? dashboardResumo.agendamentosHoje : '0'}">0</strong>
+                    <small th:text="${dashboardResumo != null ? dashboardResumo.pendentesHoje + ' pendentes hoje' : '0 pendentes hoje'}">0 pendentes hoje</small>
                   </div>
                 </article>
 
@@ -129,8 +129,8 @@
                   <div class="admin-stat-icon"><i class="fas fa-cut" aria-hidden="true"></i></div>
                   <div>
                     <span>Serviços Ativos</span>
-                    <strong>09</strong>
-                    <small>catálogo atualizado</small>
+                    <strong th:text="${dashboardResumo != null ? dashboardResumo.servicosAtivos : '0'}">0</strong>
+                    <small th:text="${dashboardResumo != null ? dashboardResumo.barbeirosAtivos + ' barbeiros ativos' : '0 barbeiros ativos'}">0 barbeiros ativos</small>
                   </div>
                 </article>
 
@@ -138,7 +138,7 @@
                   <div class="admin-stat-icon"><i class="fas fa-cash-register" aria-hidden="true"></i></div>
                   <div>
                     <span>Saldo atual</span>
-                    <strong th:text="${financeiroResumo != null ? financeiroResumo.saldo : 'R$ 0,00'}">R$ 0,00</strong>
+                    <strong th:text="${dashboardResumo != null ? dashboardResumo.saldoAtual : 'R$ 0,00'}">R$ 0,00</strong>
                     <small>entradas menos saídas</small>
                   </div>
                 </article>
@@ -151,32 +151,23 @@
                       <span class="panel-label">Resumo financeiro</span>
                       <h4>Movimentação recente</h4>
                     </div>
-                    <button type="button" class="admin-link-btn">Ver aba Financeiro</button>
+                    <button type="button" class="admin-link-btn" data-tab-target="financeiro">Ver aba Financeiro</button>
                   </div>
 
                   <div class="admin-mini-list">
-                    <div class="admin-mini-item income">
+                    <div class="admin-mini-item" th:if="${dashboardFinanceiroRecente == null or #lists.isEmpty(dashboardFinanceiroRecente)}">
                       <div>
-                        <strong>Cortes e barbas</strong>
-                        <span>Entradas do turno da manhã</span>
+                        <strong>Nenhuma movimentação registrada</strong>
+                        <span>Os lançamentos aparecerão aqui assim que forem salvos no financeiro.</span>
                       </div>
-                      <b>+ R$ 980,00</b>
                     </div>
 
-                    <div class="admin-mini-item outcome">
+                    <div class="admin-mini-item" th:each="item : ${dashboardFinanceiroRecente}" th:classappend="${item.entrada} ? ' income' : ' outcome'">
                       <div>
-                        <strong>Reposição de produtos</strong>
-                        <span>Compra de pomadas e loções</span>
+                        <strong th:text="${item.descricao}">Movimentação</strong>
+                        <span th:text="${item.categoria}">Categoria</span>
                       </div>
-                      <b>- R$ 210,00</b>
-                    </div>
-
-                    <div class="admin-mini-item income">
-                      <div>
-                        <strong>Pacotes premium</strong>
-                        <span>Serviços combinados</span>
-                      </div>
-                      <b>+ R$ 640,00</b>
+                      <b th:text="${(item.entrada ? '+' : '-') + ' ' + item.valor}">+ R$ 0,00</b>
                     </div>
                   </div>
                 </article>
@@ -191,27 +182,18 @@
                   </div>
 
                   <div class="admin-schedule-list">
-                    <div class="admin-schedule-item">
-                      <span class="time">14:00</span>
+                    <div class="admin-schedule-item" th:if="${dashboardAgendaProxima == null or #lists.isEmpty(dashboardAgendaProxima)}">
                       <div>
-                        <strong>João Pedro</strong>
-                        <small>Corte masculino + barba</small>
+                        <strong>Nenhum horário próximo</strong>
+                        <span>Quando houver agendamentos futuros eles vão aparecer aqui.</span>
                       </div>
                     </div>
 
-                    <div class="admin-schedule-item">
-                      <span class="time">15:30</span>
+                    <div class="admin-schedule-item" th:each="agendamento : ${dashboardAgendaProxima}">
+                      <span class="time" th:text="${agendamento.hora}">14:00</span>
                       <div>
-                        <strong>Matheus Lima</strong>
-                        <small>Barba premium</small>
-                      </div>
-                    </div>
-
-                    <div class="admin-schedule-item">
-                      <span class="time">17:00</span>
-                      <div>
-                        <strong>Carlos Henrique</strong>
-                        <small>Corte degradê</small>
+                        <strong th:text="${agendamento.cliente}">Cliente</strong>
+                        <small th:text="|${agendamento.servico} • ${agendamento.barbeiro}|">Serviço</small>
                       </div>
                     </div>
                   </div>

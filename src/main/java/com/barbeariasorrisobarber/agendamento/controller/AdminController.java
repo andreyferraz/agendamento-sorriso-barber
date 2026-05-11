@@ -65,6 +65,9 @@ public class AdminController {
     private static final String ATTR_AGENDAMENTOS_PENDENTES = "agendamentosPendentes";
     private static final String ATTR_CALENDARIO = "calendarioAgendamentos";
     private static final String ATTR_MES_CALENDARIO = "mesCalendario";
+    private static final String ATTR_DASHBOARD_RESUMO = "dashboardResumo";
+    private static final String ATTR_DASHBOARD_FINANCEIRO_RECENTE = "dashboardFinanceiroRecente";
+    private static final String ATTR_DASHBOARD_AGENDA_PROXIMA = "dashboardAgendaProxima";
     private static final String ATTR_FINANCEIRO_RESUMO = "financeiroResumo";
     private static final String ATTR_FINANCEIRO_LANCAMENTOS = "financeiroLancamentos";
     private static final String ATTR_FINANCEIRO_COMISSOES = "financeiroComissoes";
@@ -551,6 +554,11 @@ public class AdminController {
         List<TransacaoFinanceira> transacoesFinanceiras = transacaoFinanceiraService.listarTodos().stream()
             .sorted(Comparator.comparing(TransacaoFinanceira::getData, Comparator.nullsLast(Comparator.reverseOrder())))
             .toList();
+        LocalDate hoje = LocalDate.now();
+        List<Agendamento> agendamentosHoje = agendamentos.stream()
+            .filter(agendamento -> agendamento.getDataHoraInicio() != null
+                    && agendamento.getDataHoraInicio().toLocalDate().equals(hoje))
+            .toList();
 
         Map<UUID, String> barbeiroNomes = montarMapaNomesBarbeiros(barbeiros);
         Map<UUID, String> servicoNomes = montarMapaNomesServicos(servicos);
@@ -560,6 +568,10 @@ public class AdminController {
         Map<UUID, Servico> servicoPorId = servicos.stream()
             .filter(servico -> servico != null && servico.getId() != null)
             .collect(Collectors.toMap(Servico::getId, servico -> servico, (a, b) -> a, LinkedHashMap::new));
+        List<AgendamentoResumoView> agendaProxima = montarAgendaProxima(agendamentos, barbeiroNomes, servicoNomes);
+        List<LancamentoFinanceiroView> financeiroRecente = montarLancamentosFinanceiros(transacoesFinanceiras, barbeiroNomes).stream()
+            .limit(3)
+            .toList();
 
         model.addAttribute(ATTR_USUARIOS, usuarioAdminRepository.findByUsernameNot(ADMIN_USERNAME));
         model.addAttribute(ATTR_PRODUTOS, produtoService.listarTodos());
@@ -570,6 +582,9 @@ public class AdminController {
         model.addAttribute(ATTR_AGENDAMENTOS_RESUMO, montarResumoAgendamentos(agendamentos, barbeiroNomes, servicoNomes));
         model.addAttribute(ATTR_CALENDARIO, montarCalendarioMensal(agendamentos, barbeiroNomes, servicoNomes));
         model.addAttribute(ATTR_MES_CALENDARIO, formatarMesAtual());
+        model.addAttribute(ATTR_DASHBOARD_RESUMO, montarResumoDashboard(agendamentosHoje, servicos, barbeiros, transacoesFinanceiras, hoje));
+        model.addAttribute(ATTR_DASHBOARD_FINANCEIRO_RECENTE, financeiroRecente);
+        model.addAttribute(ATTR_DASHBOARD_AGENDA_PROXIMA, agendaProxima);
         model.addAttribute(ATTR_FINANCEIRO_RESUMO, montarResumoFinanceiro(transacoesFinanceiras));
         model.addAttribute(ATTR_FINANCEIRO_LANCAMENTOS, montarLancamentosFinanceiros(transacoesFinanceiras, barbeiroNomes));
         model.addAttribute(ATTR_FINANCEIRO_COMISSOES, montarComissoesBarbeiros(barbeiros, agendamentos, transacoesFinanceiras, barbeiroPorId, servicoPorId));
@@ -711,6 +726,43 @@ public class AdminController {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         return new FinanceiroResumoView(formatarMoeda(entradas), formatarMoeda(saidas), formatarMoeda(entradas.subtract(saidas)));
     }
+
+        private DashboardResumoView montarResumoDashboard(List<Agendamento> agendamentosHoje, List<Servico> servicos,
+            List<Barbeiro> barbeiros, List<TransacaoFinanceira> transacoes, LocalDate hoje) {
+        BigDecimal entradasHoje = transacoes.stream()
+            .filter(transacao -> transacao.getTipo() == TipoEntrada.ENTRADA)
+            .filter(transacao -> transacao.getData() != null && transacao.getData().toLocalDate().equals(hoje))
+            .map(TransacaoFinanceira::getValor)
+            .filter(java.util.Objects::nonNull)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal saldoAtual = transacoes.stream()
+            .map(transacao -> {
+                if (transacao == null || transacao.getValor() == null) {
+                return BigDecimal.ZERO;
+                }
+                return transacao.getTipo() == TipoEntrada.ENTRADA ? transacao.getValor() : transacao.getValor().negate();
+            })
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        long agendamentosHojePendentes = agendamentosHoje.stream()
+            .filter(agendamento -> agendamento.getStatus() == StatusAgendamento.PENDENTE)
+            .count();
+
+        return new DashboardResumoView(formatarMoeda(entradasHoje), formatarMoeda(saldoAtual),
+            String.valueOf(agendamentosHoje.size()), String.valueOf(agendamentosHojePendentes),
+            String.valueOf(servicos.size()), String.valueOf(barbeiros.size()));
+        }
+
+        private List<AgendamentoResumoView> montarAgendaProxima(List<Agendamento> agendamentos,
+            Map<UUID, String> barbeiroNomes, Map<UUID, String> servicoNomes) {
+        return agendamentos.stream()
+            .filter(agendamento -> agendamento.getDataHoraInicio() != null
+                && agendamento.getDataHoraInicio().isAfter(LocalDateTime.now().minusMinutes(1)))
+            .limit(3)
+            .map(agendamento -> toResumoView(agendamento, barbeiroNomes, servicoNomes))
+            .toList();
+        }
 
     private List<LancamentoFinanceiroView> montarLancamentosFinanceiros(List<TransacaoFinanceira> transacoes,
             Map<UUID, String> barbeiroNomes) {
@@ -876,6 +928,10 @@ public class AdminController {
 
     private record FinanceiroResumoView(String entradas, String saidas, String saldo) {
     }
+
+        private record DashboardResumoView(String entradasHoje, String saldoAtual, String agendamentosHoje,
+            String pendentesHoje, String servicosAtivos, String barbeirosAtivos) {
+        }
 
     private record LancamentoFinanceiroView(UUID id, String data, String descricao, String categoria,
             String tipo, String valor, String status, boolean entrada, String barbeiro) {
