@@ -147,7 +147,6 @@ public class BarbeiroService {
     }
 
     private void copiarDados(Barbeiro origem, Barbeiro destino) {
-        destino.setId(origem.getId());
         destino.setNome(origem.getNome());
         destino.setUsername(origem.getUsername());
         destino.setTelefone(origem.getTelefone());
