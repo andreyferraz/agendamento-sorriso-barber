@@ -121,7 +121,7 @@
                   <div>
                     <span>Agendamentos</span>
                     <strong th:text="${dashboardResumo != null ? dashboardResumo.agendamentosHoje : '0'}">0</strong>
-                    <small th:text="${dashboardResumo != null ? dashboardResumo.pendentesHoje + ' pendentes hoje' : '0 pendentes hoje'}">0 pendentes hoje</small>
+                    <small th:text="${agendamentosPendentes != null ? #lists.size(agendamentosPendentes) + ' pendentes' : '0 pendentes'}">0 pendentes</small>
                   </div>
                 </article>
 
@@ -175,21 +175,21 @@
                 <article class="admin-panel-card">
                   <div class="admin-panel-head">
                     <div>
-                      <span class="panel-label">Agenda</span>
-                      <h4>Próximos horários</h4>
+                      <span class="panel-label">Pendências</span>
+                      <h4>Agendamentos pendentes</h4>
                     </div>
                     <button type="button" class="admin-link-btn" data-tab-target="agendamentos">Ver detalhes</button>
                   </div>
 
                   <div class="admin-schedule-list">
-                    <div class="admin-schedule-item" th:if="${dashboardAgendaProxima == null or #lists.isEmpty(dashboardAgendaProxima)}">
+                    <div class="admin-schedule-item" th:if="${dashboardPendencias == null or #lists.isEmpty(dashboardPendencias)}">
                       <div>
-                        <strong>Nenhum horário próximo</strong>
-                        <span>Quando houver agendamentos futuros eles vão aparecer aqui.</span>
+                        <strong>Nenhuma pendência</strong>
+                        <span>Os agendamentos pendentes vão aparecer aqui assim que forem cadastrados.</span>
                       </div>
                     </div>
 
-                    <div class="admin-schedule-item" th:each="agendamento : ${dashboardAgendaProxima}">
+                    <div class="admin-schedule-item" th:each="agendamento : ${dashboardPendencias}">
                       <span class="time" th:text="${agendamento.hora}">14:00</span>
                       <div>
                         <strong th:text="${agendamento.cliente}">Cliente</strong>

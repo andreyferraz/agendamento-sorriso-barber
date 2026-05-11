@@ -67,7 +67,7 @@ public class AdminController {
     private static final String ATTR_MES_CALENDARIO = "mesCalendario";
     private static final String ATTR_DASHBOARD_RESUMO = "dashboardResumo";
     private static final String ATTR_DASHBOARD_FINANCEIRO_RECENTE = "dashboardFinanceiroRecente";
-    private static final String ATTR_DASHBOARD_AGENDA_PROXIMA = "dashboardAgendaProxima";
+    private static final String ATTR_DASHBOARD_PENDENCIAS = "dashboardPendencias";
     private static final String ATTR_FINANCEIRO_RESUMO = "financeiroResumo";
     private static final String ATTR_FINANCEIRO_LANCAMENTOS = "financeiroLancamentos";
     private static final String ATTR_FINANCEIRO_COMISSOES = "financeiroComissoes";
@@ -568,7 +568,7 @@ public class AdminController {
         Map<UUID, Servico> servicoPorId = servicos.stream()
             .filter(servico -> servico != null && servico.getId() != null)
             .collect(Collectors.toMap(Servico::getId, servico -> servico, (a, b) -> a, LinkedHashMap::new));
-        List<AgendamentoResumoView> agendaProxima = montarAgendaProxima(agendamentos, barbeiroNomes, servicoNomes);
+        List<AgendamentoResumoView> pendenciasResumo = montarResumoAgendamentos(agendamentosPendentes, barbeiroNomes, servicoNomes);
         List<LancamentoFinanceiroView> financeiroRecente = montarLancamentosFinanceiros(transacoesFinanceiras, barbeiroNomes).stream()
             .limit(3)
             .toList();
@@ -579,12 +579,12 @@ public class AdminController {
         model.addAttribute(ATTR_BARBEIROS, barbeiros);
         model.addAttribute(ATTR_AGENDAMENTOS, agendamentos);
         model.addAttribute(ATTR_AGENDAMENTOS_PENDENTES, montarResumoAgendamentos(agendamentosPendentes, barbeiroNomes, servicoNomes));
+        model.addAttribute(ATTR_DASHBOARD_PENDENCIAS, pendenciasResumo);
         model.addAttribute(ATTR_AGENDAMENTOS_RESUMO, montarResumoAgendamentos(agendamentos, barbeiroNomes, servicoNomes));
         model.addAttribute(ATTR_CALENDARIO, montarCalendarioMensal(agendamentos, barbeiroNomes, servicoNomes));
         model.addAttribute(ATTR_MES_CALENDARIO, formatarMesAtual());
         model.addAttribute(ATTR_DASHBOARD_RESUMO, montarResumoDashboard(agendamentosHoje, servicos, barbeiros, transacoesFinanceiras, hoje));
         model.addAttribute(ATTR_DASHBOARD_FINANCEIRO_RECENTE, financeiroRecente);
-        model.addAttribute(ATTR_DASHBOARD_AGENDA_PROXIMA, agendaProxima);
         model.addAttribute(ATTR_FINANCEIRO_RESUMO, montarResumoFinanceiro(transacoesFinanceiras));
         model.addAttribute(ATTR_FINANCEIRO_LANCAMENTOS, montarLancamentosFinanceiros(transacoesFinanceiras, barbeiroNomes));
         model.addAttribute(ATTR_FINANCEIRO_COMISSOES, montarComissoesBarbeiros(barbeiros, agendamentos, transacoesFinanceiras, barbeiroPorId, servicoPorId));
@@ -752,16 +752,6 @@ public class AdminController {
         return new DashboardResumoView(formatarMoeda(entradasHoje), formatarMoeda(saldoAtual),
             String.valueOf(agendamentosHoje.size()), String.valueOf(agendamentosHojePendentes),
             String.valueOf(servicos.size()), String.valueOf(barbeiros.size()));
-        }
-
-        private List<AgendamentoResumoView> montarAgendaProxima(List<Agendamento> agendamentos,
-            Map<UUID, String> barbeiroNomes, Map<UUID, String> servicoNomes) {
-        return agendamentos.stream()
-            .filter(agendamento -> agendamento.getDataHoraInicio() != null
-                && agendamento.getDataHoraInicio().isAfter(LocalDateTime.now().minusMinutes(1)))
-            .limit(3)
-            .map(agendamento -> toResumoView(agendamento, barbeiroNomes, servicoNomes))
-            .toList();
         }
 
     private List<LancamentoFinanceiroView> montarLancamentosFinanceiros(List<TransacaoFinanceira> transacoes,
