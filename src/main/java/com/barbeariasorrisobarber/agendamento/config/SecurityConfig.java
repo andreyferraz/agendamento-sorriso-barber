@@ -2,6 +2,7 @@ package com.barbeariasorrisobarber.agendamento.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -25,6 +26,7 @@ public class SecurityConfig {
     private static final String ROLE_BARBEIRO = "BARBEIRO";
 
     @Bean
+    @Order(2)
     public SecurityFilterChain securityFilterChain(HttpSecurity http) {
         try {
             http
