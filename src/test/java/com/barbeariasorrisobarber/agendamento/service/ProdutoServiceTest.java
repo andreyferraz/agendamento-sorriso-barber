@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.barbeariasorrisobarber.agendamento.enuns.TipoEntrada;
 import com.barbeariasorrisobarber.agendamento.model.Produto;
 import com.barbeariasorrisobarber.agendamento.repository.ProdutoRepository;
 
@@ -26,6 +27,9 @@ class ProdutoServiceTest {
 
     @Mock
     private FileUploadService fileUploadService;
+
+    @Mock
+    private TransacaoFinanceiraService transacaoFinanceiraService;
 
     @InjectMocks
     private ProdutoService produtoService;
@@ -138,5 +142,24 @@ class ProdutoServiceTest {
 
         verify(produtoRepository).deleteById(id);
         verify(fileUploadService).removerImagem("file.webp");
+    }
+
+    @Test
+    void venderProduto_deveBaixarEstoqueERegistrarEntrada() {
+        UUID id = UUID.randomUUID();
+        Produto existente = new Produto(id, "Pomada", "D", BigDecimal.valueOf(25), null, 10, false);
+        when(produtoRepository.findById(id)).thenReturn(Optional.of(existente));
+        when(produtoRepository.save(any())).thenAnswer(i -> i.getArgument(0));
+        when(transacaoFinanceiraService.criarTransacao(any())).thenAnswer(i -> i.getArgument(0));
+
+        Produto vendido = produtoService.venderProduto(id, 2);
+
+        assertEquals(8, vendido.getEstoque());
+        verify(transacaoFinanceiraService).criarTransacao(argThat(transacao ->
+                transacao != null
+                        && TipoEntrada.ENTRADA.equals(transacao.getTipo())
+                        && BigDecimal.valueOf(50).compareTo(transacao.getValor()) == 0
+                        && transacao.getDescricao() != null
+                        && transacao.getDescricao().contains("Pomada")));
     }
 }

@@ -111,6 +111,46 @@ public class AdminInitializer implements ApplicationRunner {
             "barbeiro.horario_domingo_inicio");
         aplicarMigracaoColuna("ALTER TABLE barbeiro ADD COLUMN horario_domingo_fim TEXT;",
             "barbeiro.horario_domingo_fim");
+        aplicarMigracaoTransacaoFinanceira();
+    }
+
+    private void aplicarMigracaoTransacaoFinanceira() {
+        try {
+            var colunas = jdbcTemplate.queryForList("PRAGMA table_info(transacao_financeira)");
+            if (colunas == null || colunas.isEmpty()) {
+                return;
+            }
+
+            boolean precisaRebuild = colunas.stream().anyMatch(coluna -> {
+                Object nome = coluna.get("name");
+                Object notnull = coluna.get("notnull");
+                return ("agendamento_id".equals(nome) || "barbeiro_id".equals(nome))
+                        && notnull instanceof Number && ((Number) notnull).intValue() == 1;
+            });
+
+            if (!precisaRebuild) {
+                return;
+            }
+
+            jdbcTemplate.execute("ALTER TABLE transacao_financeira RENAME TO transacao_financeira_old;");
+            jdbcTemplate.execute(
+                    "CREATE TABLE transacao_financeira ("
+                            + "id TEXT PRIMARY KEY,"
+                            + "tipo TEXT NOT NULL,"
+                            + "agendamento_id TEXT,"
+                            + "barbeiro_id TEXT,"
+                            + "valor NUMERIC NOT NULL,"
+                            + "data TEXT NOT NULL,"
+                            + "descricao TEXT"
+                            + ");");
+            jdbcTemplate.execute(
+                    "INSERT INTO transacao_financeira (id, tipo, agendamento_id, barbeiro_id, valor, data, descricao) "
+                            + "SELECT id, tipo, agendamento_id, barbeiro_id, valor, data, descricao FROM transacao_financeira_old;");
+            jdbcTemplate.execute("DROP TABLE transacao_financeira_old;");
+            logger.info("Applied migration: rebuilt transacao_financeira with nullable relations");
+        } catch (Exception ex) {
+            logger.warn("Failed to apply migration for transacao_financeira: {}", ex.getMessage());
+        }
     }
 
     private void aplicarMigracaoColuna(String sql, String descricao) {

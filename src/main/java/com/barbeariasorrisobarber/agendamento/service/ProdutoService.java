@@ -1,6 +1,8 @@
 package com.barbeariasorrisobarber.agendamento.service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -12,20 +14,27 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.barbeariasorrisobarber.agendamento.enuns.TipoEntrada;
 import com.barbeariasorrisobarber.agendamento.model.Produto;
+import com.barbeariasorrisobarber.agendamento.model.TransacaoFinanceira;
 import com.barbeariasorrisobarber.agendamento.repository.ProdutoRepository;
 import com.barbeariasorrisobarber.agendamento.utils.ValidationUtils;
 
 @Service
 public class ProdutoService {
 
+	private static final String PRODUTO_NAO_ENCONTRADO = "Produto nao encontrado.";
+
 	private final ProdutoRepository produtoRepository;
 	private final FileUploadService fileUploadService;
+	private final TransacaoFinanceiraService transacaoFinanceiraService;
 	private static final Logger logger = LoggerFactory.getLogger(ProdutoService.class);
 
-	public ProdutoService(ProdutoRepository produtoRepository, FileUploadService fileUploadService) {
+	public ProdutoService(ProdutoRepository produtoRepository, FileUploadService fileUploadService,
+			TransacaoFinanceiraService transacaoFinanceiraService) {
 		this.produtoRepository = produtoRepository;
 		this.fileUploadService = fileUploadService;
+		this.transacaoFinanceiraService = transacaoFinanceiraService;
 	}
 
 	public List<Produto> listarTodos() {
@@ -77,7 +86,7 @@ public class ProdutoService {
 		ValidationUtils.validarCampoObrigatorio(dados, "dados");
 
 		Produto existente = produtoRepository.findById(id)
-				.orElseThrow(() -> new IllegalArgumentException("Produto nao encontrado."));
+				.orElseThrow(() -> new IllegalArgumentException(PRODUTO_NAO_ENCONTRADO));
 
 		if (dados.getNome() != null) {
 			ValidationUtils.validarCampoStringObrigatorio(dados.getNome(), "nome");
@@ -108,7 +117,7 @@ public class ProdutoService {
 		ValidationUtils.validarCampoObrigatorio(dados, "dados");
 
 		Produto existente = produtoRepository.findById(id)
-				.orElseThrow(() -> new IllegalArgumentException("Produto nao encontrado."));
+				.orElseThrow(() -> new IllegalArgumentException(PRODUTO_NAO_ENCONTRADO));
 
 		if (dados.getNome() != null) {
 			ValidationUtils.validarCampoStringObrigatorio(dados.getNome(), "nome");
@@ -137,6 +146,53 @@ public class ProdutoService {
 		}
 
 		return produtoRepository.save(existente);
+	}
+
+	@Transactional
+	public Produto venderProduto(UUID id, Integer quantidade) {
+		return venderProdutoInterno(id, quantidade, null);
+	}
+
+	@Transactional
+	public Produto venderProduto(UUID id, Integer quantidade, String descricao) {
+		return venderProdutoInterno(id, quantidade, descricao);
+	}
+
+	private Produto venderProdutoInterno(UUID id, Integer quantidade, String descricao) {
+		ValidationUtils.validarCampoObrigatorio(id, "id");
+
+		int quantidadeVenda = quantidade == null ? 0 : quantidade;
+		if (quantidadeVenda <= 0) {
+			throw new IllegalArgumentException("Quantidade vendida deve ser maior que zero.");
+		}
+
+		Produto existente = produtoRepository.findById(id)
+				.orElseThrow(() -> new IllegalArgumentException(PRODUTO_NAO_ENCONTRADO));
+
+		Integer estoqueAtual = existente.getEstoque() == null ? 0 : existente.getEstoque();
+		if (estoqueAtual < quantidadeVenda) {
+			throw new IllegalArgumentException("Estoque insuficiente para concluir a venda.");
+		}
+
+		BigDecimal precoUnitario = existente.getPreco();
+		if (precoUnitario == null) {
+			throw new IllegalArgumentException("Produto sem preço definido.");
+		}
+
+		existente.setEstoque(estoqueAtual - quantidadeVenda);
+		Produto salvo = produtoRepository.save(existente);
+
+		BigDecimal totalVenda = precoUnitario.multiply(BigDecimal.valueOf(quantidadeVenda))
+				.setScale(2, RoundingMode.HALF_UP);
+		TransacaoFinanceira transacao = new TransacaoFinanceira();
+		transacao.setTipo(TipoEntrada.ENTRADA);
+		transacao.setValor(totalVenda);
+		transacao.setData(LocalDateTime.now());
+		transacao.setDescricao(descricao != null && !descricao.isBlank() ? descricao
+				: "Venda do produto " + existente.getNome() + " x" + quantidadeVenda);
+		transacaoFinanceiraService.criarTransacao(transacao);
+
+		return salvo;
 	}
 
 	@Transactional

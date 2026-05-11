@@ -32,10 +32,24 @@ class TransacaoFinanceiraServiceTest {
         MockitoAnnotations.openMocks(this);
     }
 
+    private TransacaoFinanceira criarTransacao(UUID id, TipoEntrada tipo, BigDecimal valor, LocalDateTime data,
+            String descricao, UUID agendamentoId, UUID barbeiroId, boolean isNew) {
+        TransacaoFinanceira transacao = new TransacaoFinanceira();
+        transacao.setId(id);
+        transacao.setTipo(tipo);
+        transacao.setValor(valor);
+        transacao.setData(data);
+        transacao.setDescricao(descricao);
+        transacao.setAgendamentoId(agendamentoId);
+        transacao.setBarbeiroId(barbeiroId);
+        transacao.setNew(isNew);
+        return transacao;
+    }
+
     @Test
     void listarTodos_deveRetornarLista() {
-        TransacaoFinanceira t = new TransacaoFinanceira(UUID.randomUUID(), TipoEntrada.ENTRADA,
-            BigDecimal.valueOf(100), LocalDateTime.now(), "desc", null, null);
+        TransacaoFinanceira t = criarTransacao(UUID.randomUUID(), TipoEntrada.ENTRADA,
+                BigDecimal.valueOf(100), LocalDateTime.now(), "desc", null, null, false);
         when(repository.findAll()).thenReturn(List.of(t));
 
         var lista = service.listarTodos();
@@ -48,8 +62,8 @@ class TransacaoFinanceiraServiceTest {
     @Test
     void buscarPorId_deveRetornarOptionalQuandoExistir() {
         UUID id = UUID.randomUUID();
-        TransacaoFinanceira t = new TransacaoFinanceira(id, TipoEntrada.SAIDA, BigDecimal.valueOf(50),
-            LocalDateTime.now(), "x", null, null);
+        TransacaoFinanceira t = criarTransacao(id, TipoEntrada.SAIDA, BigDecimal.valueOf(50),
+                LocalDateTime.now(), "x", null, null, false);
         when(repository.findById(id)).thenReturn(Optional.of(t));
 
         var opt = service.buscarPorId(id);
@@ -65,15 +79,22 @@ class TransacaoFinanceiraServiceTest {
 
     @Test
     void criarTransacao_devePreencherDataEIdQuandoAusente() {
-        TransacaoFinanceira t = new TransacaoFinanceira(null, TipoEntrada.ENTRADA, BigDecimal.valueOf(20), null,
-            "d", null, null);
-        when(repository.save(any())).thenAnswer(i -> i.getArgument(0));
+        TransacaoFinanceira t = criarTransacao(null, TipoEntrada.ENTRADA, BigDecimal.valueOf(20), null,
+                "d", null, null, false);
+        final boolean[] isNewNoSave = new boolean[1];
+        when(repository.save(any())).thenAnswer(i -> {
+            TransacaoFinanceira transacaoNoSave = i.getArgument(0);
+            isNewNoSave[0] = transacaoNoSave.isNew();
+            return transacaoNoSave;
+        });
 
         TransacaoFinanceira salvo = service.criarTransacao(t);
 
         assertNotNull(salvo.getId());
         assertNotNull(salvo.getData());
         assertEquals(BigDecimal.valueOf(20), salvo.getValor());
+        assertFalse(salvo.isNew());
+        assertTrue(isNewNoSave[0]);
         verify(repository).save(any(TransacaoFinanceira.class));
     }
 
@@ -84,10 +105,10 @@ class TransacaoFinanceiraServiceTest {
 
     @Test
     void criarTransacao_valorZeroOuNegativo_deveLancar() {
-        TransacaoFinanceira zero = new TransacaoFinanceira(null, TipoEntrada.ENTRADA, BigDecimal.ZERO, null, null,
-            null, null);
-        TransacaoFinanceira neg = new TransacaoFinanceira(null, TipoEntrada.ENTRADA, BigDecimal.valueOf(-1), null,
-            null, null, null);
+        TransacaoFinanceira zero = criarTransacao(null, TipoEntrada.ENTRADA, BigDecimal.ZERO, null,
+                null, null, null, false);
+        TransacaoFinanceira neg = criarTransacao(null, TipoEntrada.ENTRADA, BigDecimal.valueOf(-1), null,
+                null, null, null, false);
 
         assertThrows(IllegalArgumentException.class, () -> service.criarTransacao(zero));
         assertThrows(IllegalArgumentException.class, () -> service.criarTransacao(neg));
@@ -96,10 +117,10 @@ class TransacaoFinanceiraServiceTest {
     @Test
     void atualizarTransacao_deveAtualizarCampos() {
         UUID id = UUID.randomUUID();
-        TransacaoFinanceira existente = new TransacaoFinanceira(id, TipoEntrada.ENTRADA, BigDecimal.valueOf(10),
-            LocalDateTime.now(), "old", null, null);
-        TransacaoFinanceira dados = new TransacaoFinanceira(null, TipoEntrada.SAIDA, BigDecimal.valueOf(30),
-            LocalDateTime.of(2026, 4, 13, 12, 0), "new", UUID.randomUUID(), null);
+        TransacaoFinanceira existente = criarTransacao(id, TipoEntrada.ENTRADA, BigDecimal.valueOf(10),
+                LocalDateTime.now(), "old", null, null, false);
+        TransacaoFinanceira dados = criarTransacao(null, TipoEntrada.SAIDA, BigDecimal.valueOf(30),
+                LocalDateTime.of(2026, 4, 13, 12, 0), "new", UUID.randomUUID(), null, false);
 
         when(repository.findById(id)).thenReturn(Optional.of(existente));
         when(repository.save(any())).thenAnswer(i -> i.getArgument(0));
@@ -111,14 +132,15 @@ class TransacaoFinanceiraServiceTest {
         assertEquals("new", atualizado.getDescricao());
         assertEquals(dados.getData(), atualizado.getData());
         assertEquals(dados.getAgendamentoId(), atualizado.getAgendamentoId());
+        assertFalse(atualizado.isNew());
     }
 
     @Test
     void atualizarTransacao_valorInvalido_deveLancar() {
         UUID id = UUID.randomUUID();
-        TransacaoFinanceira existente = new TransacaoFinanceira(id, TipoEntrada.ENTRADA, BigDecimal.valueOf(10),
-            LocalDateTime.now(), null, null, null);
-        TransacaoFinanceira dados = new TransacaoFinanceira(null, null, BigDecimal.ZERO, null, null, null, null);
+        TransacaoFinanceira existente = criarTransacao(id, TipoEntrada.ENTRADA, BigDecimal.valueOf(10),
+                LocalDateTime.now(), null, null, null, false);
+        TransacaoFinanceira dados = criarTransacao(null, null, BigDecimal.ZERO, null, null, null, null, false);
 
         when(repository.findById(id)).thenReturn(Optional.of(existente));
 

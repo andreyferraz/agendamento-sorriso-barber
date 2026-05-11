@@ -51,8 +51,10 @@ public class TransacaoFinanceiraService {
 		if (transacao.getId() == null) {
 			transacao.setId(UUID.randomUUID());
 		}
-
-		return repository.save(transacao);
+		transacao.setNew(true);
+		TransacaoFinanceira salva = repository.save(transacao);
+		salva.setNew(false);
+		return salva;
 	}
 
 	@Transactional
@@ -84,8 +86,10 @@ public class TransacaoFinanceiraService {
 		if (dados.getBarbeiroId() != null) {
 			existente.setBarbeiroId(dados.getBarbeiroId());
 		}
-
-		return repository.save(existente);
+		existente.setNew(false);
+		TransacaoFinanceira salva = repository.save(existente);
+		salva.setNew(false);
+		return salva;
 	}
 
 	@Transactional

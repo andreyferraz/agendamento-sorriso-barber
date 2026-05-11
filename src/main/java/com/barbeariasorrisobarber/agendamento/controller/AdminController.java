@@ -8,8 +8,10 @@ import java.time.Month;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
+import java.text.NumberFormat;
 import java.util.UUID;
 import java.util.Comparator;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,9 +36,12 @@ import com.barbeariasorrisobarber.agendamento.service.AgendamentoService;
 import com.barbeariasorrisobarber.agendamento.service.BarbeiroService;
 import com.barbeariasorrisobarber.agendamento.service.ServicoService;
 import com.barbeariasorrisobarber.agendamento.service.UsuarioAdminService;
+import com.barbeariasorrisobarber.agendamento.service.TransacaoFinanceiraService;
 import com.barbeariasorrisobarber.agendamento.service.ProdutoService;
 import com.barbeariasorrisobarber.agendamento.model.Servico;
 import com.barbeariasorrisobarber.agendamento.model.Produto;
+import com.barbeariasorrisobarber.agendamento.model.TransacaoFinanceira;
+import com.barbeariasorrisobarber.agendamento.enuns.TipoEntrada;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -60,10 +65,16 @@ public class AdminController {
     private static final String ATTR_AGENDAMENTOS_PENDENTES = "agendamentosPendentes";
     private static final String ATTR_CALENDARIO = "calendarioAgendamentos";
     private static final String ATTR_MES_CALENDARIO = "mesCalendario";
+    private static final String ATTR_FINANCEIRO_RESUMO = "financeiroResumo";
+    private static final String ATTR_FINANCEIRO_LANCAMENTOS = "financeiroLancamentos";
+    private static final String ATTR_FINANCEIRO_COMISSOES = "financeiroComissoes";
     private static final String TAB_AGENDAMENTOS = "agendamentos";
+    private static final String TAB_FINANCEIRO = "?tab=financeiro";
     private static final String TAB_QUERY = "?tab=";
     private static final java.util.Locale PT_BR = java.util.Locale.forLanguageTag("pt-BR");
+    private static final String LABEL_BARBEIRO_PADRAO = "Barbeiro";
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
     private static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("HH:mm");
     private static final String PRICE_CLEANUP_REGEX = "[^0-9,\\.]";
 
@@ -73,17 +84,19 @@ public class AdminController {
     private final ServicoService servicoService;
     private final AgendamentoService agendamentoService;
     private final BarbeiroService barbeiroService;
+    private final TransacaoFinanceiraService transacaoFinanceiraService;
 
     public AdminController(UsuarioAdminService usuarioAdminService,
             UsuarioAdminRepository usuarioAdminRepository, ProdutoService produtoService,
             ServicoService servicoService, AgendamentoService agendamentoService,
-            BarbeiroService barbeiroService) {
+            BarbeiroService barbeiroService, TransacaoFinanceiraService transacaoFinanceiraService) {
         this.usuarioAdminService = usuarioAdminService;
         this.usuarioAdminRepository = usuarioAdminRepository;
         this.produtoService = produtoService;
         this.servicoService = servicoService;
         this.agendamentoService = agendamentoService;
         this.barbeiroService = barbeiroService;
+        this.transacaoFinanceiraService = transacaoFinanceiraService;
     }
 
     @GetMapping("/admin")
@@ -178,6 +191,19 @@ public class AdminController {
             redirectAttrs.addFlashAttribute(FLASH_ERROR, e.getMessage());
         }
         return REDIRECT_ADMIN;
+    }
+
+    @PostMapping("/admin/produtos/{id}/vender")
+    public String venderProduto(@PathVariable String id,
+            @RequestParam(name = "quantidade", required = false) Integer quantidade,
+            RedirectAttributes redirectAttrs) {
+        try {
+            produtoService.venderProduto(UUID.fromString(id), quantidade);
+            redirectAttrs.addFlashAttribute(FLASH_SUCCESS, "Venda registrada e entrada lançada no financeiro.");
+        } catch (Exception e) {
+            redirectAttrs.addFlashAttribute(FLASH_ERROR, e.getMessage());
+        }
+        return REDIRECT_ADMIN + "?tab=produtos";
     }
 
     @PostMapping("/admin/servicos")
@@ -342,6 +368,55 @@ public class AdminController {
         return REDIRECT_ADMIN + TAB_QUERY + TAB_AGENDAMENTOS;
     }
 
+    @PostMapping("/admin/financeiro/lancamentos")
+    public String criarLancamentoFinanceiro(@RequestParam("tipo") TipoEntrada tipo,
+            @RequestParam("valor") String valor,
+            @RequestParam(name = "descricao", required = false) String descricao,
+            RedirectAttributes redirectAttrs) {
+        try {
+            if (tipo == TipoEntrada.COMISSAO_PAGA) {
+                throw new IllegalArgumentException("Use saída para registrar pagamento de comissão.");
+            }
+
+            TransacaoFinanceira transacao = new TransacaoFinanceira();
+            transacao.setTipo(tipo);
+            transacao.setValor(new BigDecimal(valor.replaceAll(PRICE_CLEANUP_REGEX, "").replace(',', '.'))
+                    .setScale(2, RoundingMode.HALF_UP));
+            transacao.setDescricao(descricao != null && !descricao.isBlank() ? descricao : "Lançamento manual");
+            transacaoFinanceiraService.criarTransacao(transacao);
+            redirectAttrs.addFlashAttribute(FLASH_SUCCESS, "Lançamento financeiro registrado.");
+        } catch (Exception e) {
+            redirectAttrs.addFlashAttribute(FLASH_ERROR, e.getMessage());
+        }
+        return REDIRECT_ADMIN + TAB_FINANCEIRO;
+    }
+
+    @PostMapping("/admin/barbeiros/{id}/pagar-comissao")
+    public String pagarComissaoBarbeiro(@PathVariable String id, RedirectAttributes redirectAttrs) {
+        try {
+            UUID barbeiroId = UUID.fromString(id);
+            BigDecimal comissaoPendente = calcularComissaoPendente(barbeiroId);
+            if (comissaoPendente.compareTo(BigDecimal.ZERO) <= 0) {
+                redirectAttrs.addFlashAttribute(FLASH_ERROR, "Este barbeiro não possui comissão pendente.");
+                return REDIRECT_ADMIN + TAB_FINANCEIRO;
+            }
+
+            Barbeiro barbeiro = barbeiroService.buscarPorId(barbeiroId)
+                    .orElseThrow(() -> new IllegalArgumentException("Barbeiro não encontrado."));
+
+            TransacaoFinanceira transacao = new TransacaoFinanceira();
+            transacao.setTipo(TipoEntrada.SAIDA);
+            transacao.setValor(comissaoPendente);
+            transacao.setBarbeiroId(barbeiroId);
+            transacao.setDescricao("Pagamento de comissão para " + barbeiro.getNome());
+            transacaoFinanceiraService.criarTransacao(transacao);
+            redirectAttrs.addFlashAttribute(FLASH_SUCCESS, "Comissão paga e registrada como saída.");
+        } catch (Exception e) {
+            redirectAttrs.addFlashAttribute(FLASH_ERROR, e.getMessage());
+        }
+        return REDIRECT_ADMIN + TAB_FINANCEIRO;
+    }
+
     @PostMapping("/admin/agendamentos/{id}/delete")
     public String deletarAgendamento(@PathVariable String id, RedirectAttributes redirectAttrs) {
         try {
@@ -473,9 +548,18 @@ public class AdminController {
         List<Agendamento> agendamentosPendentes = agendamentos.stream()
             .filter(agendamento -> agendamento.getStatus() == StatusAgendamento.PENDENTE)
             .toList();
+        List<TransacaoFinanceira> transacoesFinanceiras = transacaoFinanceiraService.listarTodos().stream()
+            .sorted(Comparator.comparing(TransacaoFinanceira::getData, Comparator.nullsLast(Comparator.reverseOrder())))
+            .toList();
 
         Map<UUID, String> barbeiroNomes = montarMapaNomesBarbeiros(barbeiros);
         Map<UUID, String> servicoNomes = montarMapaNomesServicos(servicos);
+        Map<UUID, Barbeiro> barbeiroPorId = barbeiros.stream()
+            .filter(barbeiro -> barbeiro != null && barbeiro.getId() != null)
+            .collect(Collectors.toMap(Barbeiro::getId, barbeiro -> barbeiro, (a, b) -> a, LinkedHashMap::new));
+        Map<UUID, Servico> servicoPorId = servicos.stream()
+            .filter(servico -> servico != null && servico.getId() != null)
+            .collect(Collectors.toMap(Servico::getId, servico -> servico, (a, b) -> a, LinkedHashMap::new));
 
         model.addAttribute(ATTR_USUARIOS, usuarioAdminRepository.findByUsernameNot(ADMIN_USERNAME));
         model.addAttribute(ATTR_PRODUTOS, produtoService.listarTodos());
@@ -486,6 +570,9 @@ public class AdminController {
         model.addAttribute(ATTR_AGENDAMENTOS_RESUMO, montarResumoAgendamentos(agendamentos, barbeiroNomes, servicoNomes));
         model.addAttribute(ATTR_CALENDARIO, montarCalendarioMensal(agendamentos, barbeiroNomes, servicoNomes));
         model.addAttribute(ATTR_MES_CALENDARIO, formatarMesAtual());
+        model.addAttribute(ATTR_FINANCEIRO_RESUMO, montarResumoFinanceiro(transacoesFinanceiras));
+        model.addAttribute(ATTR_FINANCEIRO_LANCAMENTOS, montarLancamentosFinanceiros(transacoesFinanceiras, barbeiroNomes));
+        model.addAttribute(ATTR_FINANCEIRO_COMISSOES, montarComissoesBarbeiros(barbeiros, agendamentos, transacoesFinanceiras, barbeiroPorId, servicoPorId));
     }
 
     private BigDecimal parseComissao(String valor) {
@@ -523,7 +610,7 @@ public class AdminController {
         Map<UUID, String> nomes = new LinkedHashMap<>();
         for (Barbeiro barbeiro : barbeiros) {
             if (barbeiro != null && barbeiro.getId() != null) {
-                nomes.put(barbeiro.getId(), barbeiro.getNome() != null ? barbeiro.getNome() : "Barbeiro");
+                nomes.put(barbeiro.getId(), barbeiro.getNome() != null ? barbeiro.getNome() : LABEL_BARBEIRO_PADRAO);
             }
         }
         return nomes;
@@ -578,7 +665,7 @@ public class AdminController {
         String cliente = safeText(agendamento.getNomeCliente(), "Cliente");
         String telefoneCliente = safeText(agendamento.getTelefoneCliente(), "");
         String servico = safeText(servicoNomes.get(agendamento.getServicoId()), "Serviço");
-        String barbeiro = safeText(barbeiroNomes.get(agendamento.getBarbeiroId()), "Barbeiro");
+        String barbeiro = safeText(barbeiroNomes.get(agendamento.getBarbeiroId()), LABEL_BARBEIRO_PADRAO);
         String status = agendamento.getStatus() != null ? agendamento.getStatus().name() : StatusAgendamento.PENDENTE.name();
         String whatsappUrl = montarWhatsAppUrl(telefoneCliente, agendamento);
         return new AgendamentoResumoView(agendamento.getId(), data, hora, cliente, servico, barbeiro, status, telefoneCliente, whatsappUrl);
@@ -609,6 +696,193 @@ public class AdminController {
 
     private String safeText(String value, String fallback) {
         return value == null || value.isBlank() ? fallback : value;
+    }
+
+    private FinanceiroResumoView montarResumoFinanceiro(List<TransacaoFinanceira> transacoes) {
+        BigDecimal entradas = transacoes.stream()
+                .filter(transacao -> transacao.getTipo() == TipoEntrada.ENTRADA)
+                .map(TransacaoFinanceira::getValor)
+                .filter(java.util.Objects::nonNull)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal saidas = transacoes.stream()
+                .filter(transacao -> transacao.getTipo() != TipoEntrada.ENTRADA)
+                .map(TransacaoFinanceira::getValor)
+                .filter(java.util.Objects::nonNull)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        return new FinanceiroResumoView(formatarMoeda(entradas), formatarMoeda(saidas), formatarMoeda(entradas.subtract(saidas)));
+    }
+
+    private List<LancamentoFinanceiroView> montarLancamentosFinanceiros(List<TransacaoFinanceira> transacoes,
+            Map<UUID, String> barbeiroNomes) {
+        List<LancamentoFinanceiroView> lancamentos = new ArrayList<>();
+        for (TransacaoFinanceira transacao : transacoes) {
+            if (transacao == null) {
+                continue;
+            }
+
+            boolean entrada = transacao.getTipo() == TipoEntrada.ENTRADA;
+            String tipo = tipoLabel(transacao.getTipo());
+            String categoria = categorizarTransacao(transacao);
+            String status = entrada ? "Recebido" : "Baixado";
+            String data = transacao.getData() != null ? transacao.getData().format(DATE_TIME_FORMAT) : "-";
+            String valor = formatarMoeda(transacao.getValor());
+                String barbeiro = transacao.getBarbeiroId() != null ? barbeiroNomes.get(transacao.getBarbeiroId()) : null;
+
+            lancamentos.add(new LancamentoFinanceiroView(transacao.getId(), data,
+                    safeText(transacao.getDescricao(), "Lançamento financeiro"), categoria, tipo, valor, status,
+                    entrada, barbeiro != null ? barbeiro : LABEL_BARBEIRO_PADRAO));
+        }
+        return lancamentos;
+    }
+
+    private List<ComissaoBarbeiroView> montarComissoesBarbeiros(List<Barbeiro> barbeiros, List<Agendamento> agendamentos,
+            List<TransacaoFinanceira> transacoes, Map<UUID, Barbeiro> barbeiroPorId, Map<UUID, Servico> servicoPorId) {
+        Map<UUID, BigDecimal> totalGeradoPorBarbeiro = acumularComissoesGeradas(agendamentos, barbeiroPorId, servicoPorId);
+        Map<UUID, BigDecimal> totalPagoPorBarbeiro = acumularComissoesPagas(transacoes);
+
+        List<ComissaoBarbeiroView> comissoes = new ArrayList<>();
+        for (Barbeiro barbeiro : barbeiros) {
+            if (barbeiro != null && barbeiro.getId() != null) {
+                comissoes.add(criarComissaoView(barbeiro, totalGeradoPorBarbeiro, totalPagoPorBarbeiro));
+            }
+        }
+
+        return comissoes;
+    }
+
+    private Map<UUID, BigDecimal> acumularComissoesGeradas(List<Agendamento> agendamentos,
+            Map<UUID, Barbeiro> barbeiroPorId, Map<UUID, Servico> servicoPorId) {
+        Map<UUID, BigDecimal> totalGeradoPorBarbeiro = new LinkedHashMap<>();
+        for (Agendamento agendamento : agendamentos) {
+            if (agendamento == null || agendamento.getStatus() != StatusAgendamento.PAGO || agendamento.getBarbeiroId() == null) {
+                continue;
+            }
+
+            Barbeiro barbeiro = barbeiroPorId.get(agendamento.getBarbeiroId());
+            Servico servico = servicoPorId.get(agendamento.getServicoId());
+            if (barbeiro != null && servico != null && barbeiro.getComissaoPercentual() != null && servico.getPreco() != null) {
+                BigDecimal comissao = servico.getPreco()
+                        .multiply(barbeiro.getComissaoPercentual())
+                        .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+                totalGeradoPorBarbeiro.merge(barbeiro.getId(), comissao, BigDecimal::add);
+            }
+        }
+
+        return totalGeradoPorBarbeiro;
+    }
+
+    private Map<UUID, BigDecimal> acumularComissoesPagas(List<TransacaoFinanceira> transacoes) {
+        Map<UUID, BigDecimal> totalPagoPorBarbeiro = new LinkedHashMap<>();
+        for (TransacaoFinanceira transacao : transacoes) {
+            if (transacao == null || transacao.getBarbeiroId() == null || transacao.getTipo() == TipoEntrada.ENTRADA) {
+                continue;
+            }
+
+            totalPagoPorBarbeiro.merge(transacao.getBarbeiroId(), safeValor(transacao.getValor()), BigDecimal::add);
+        }
+        return totalPagoPorBarbeiro;
+    }
+
+    private ComissaoBarbeiroView criarComissaoView(Barbeiro barbeiro, Map<UUID, BigDecimal> totalGeradoPorBarbeiro,
+            Map<UUID, BigDecimal> totalPagoPorBarbeiro) {
+        BigDecimal gerado = totalGeradoPorBarbeiro.getOrDefault(barbeiro.getId(), BigDecimal.ZERO);
+        BigDecimal pago = totalPagoPorBarbeiro.getOrDefault(barbeiro.getId(), BigDecimal.ZERO);
+        BigDecimal pendente = gerado.subtract(pago);
+        if (pendente.signum() < 0) {
+            pendente = BigDecimal.ZERO;
+        }
+
+        return new ComissaoBarbeiroView(barbeiro.getId(), safeText(barbeiro.getNome(), LABEL_BARBEIRO_PADRAO),
+                formatarPercentual(barbeiro.getComissaoPercentual()), formatarMoeda(gerado), formatarMoeda(pago), formatarMoeda(pendente));
+    }
+
+    private BigDecimal calcularComissaoPendente(UUID barbeiroId) {
+        List<Barbeiro> barbeiros = barbeiroService.listarTodos();
+        List<Servico> servicos = servicoService.listarTodos();
+        List<Agendamento> agendamentos = agendamentoService.listarTodos();
+        List<TransacaoFinanceira> transacoes = transacaoFinanceiraService.listarTodos();
+
+        Map<UUID, Barbeiro> barbeiroPorId = barbeiros.stream()
+                .filter(barbeiro -> barbeiro != null && barbeiro.getId() != null)
+                .collect(Collectors.toMap(Barbeiro::getId, barbeiro -> barbeiro, (a, b) -> a, LinkedHashMap::new));
+        Map<UUID, Servico> servicoPorId = servicos.stream()
+                .filter(servico -> servico != null && servico.getId() != null)
+                .collect(Collectors.toMap(Servico::getId, servico -> servico, (a, b) -> a, LinkedHashMap::new));
+
+        List<ComissaoBarbeiroView> comissoes = montarComissoesBarbeiros(barbeiros, agendamentos, transacoes, barbeiroPorId, servicoPorId);
+        return comissoes.stream()
+                .filter(comissao -> barbeiroId.equals(comissao.id()))
+                .map(comissao -> parseMoeda(comissao.pendente()))
+                .findFirst()
+                .orElse(BigDecimal.ZERO);
+    }
+
+    private String categorizarTransacao(TransacaoFinanceira transacao) {
+        if (transacao.getAgendamentoId() != null && transacao.getTipo() == TipoEntrada.ENTRADA) {
+            return "Atendimento";
+        }
+
+        String descricao = transacao.getDescricao() == null ? "" : transacao.getDescricao().toLowerCase();
+        if (descricao.contains("produto") || descricao.contains("venda")) {
+            return "Produto";
+        }
+
+        if (transacao.getBarbeiroId() != null && transacao.getTipo() != TipoEntrada.ENTRADA) {
+            return "Comissão";
+        }
+
+        if (transacao.getTipo() == TipoEntrada.SAIDA) {
+            return "Despesa";
+        }
+
+        return "Operacional";
+    }
+
+    private String tipoLabel(TipoEntrada tipo) {
+        if (tipo == null) {
+            return "Não informado";
+        }
+
+        return switch (tipo) {
+            case ENTRADA -> "Entrada";
+            case SAIDA -> "Saída";
+            case COMISSAO_PAGA -> "Comissão paga";
+        };
+    }
+
+    private String formatarMoeda(BigDecimal valor) {
+        NumberFormat formato = NumberFormat.getCurrencyInstance(PT_BR);
+        return formato.format(valor == null ? BigDecimal.ZERO : valor);
+    }
+
+    private String formatarPercentual(BigDecimal percentual) {
+        if (percentual == null) {
+            return "0%";
+        }
+        return percentual.stripTrailingZeros().toPlainString() + "%";
+    }
+
+    private BigDecimal safeValor(BigDecimal valor) {
+        return valor == null ? BigDecimal.ZERO : valor;
+    }
+
+    private BigDecimal parseMoeda(String valor) {
+        String cleaned = valor == null ? "" : valor.replaceAll(PRICE_CLEANUP_REGEX, "").replace(',', '.');
+        if (cleaned.isBlank()) {
+            return BigDecimal.ZERO;
+        }
+        return new BigDecimal(cleaned);
+    }
+
+    private record FinanceiroResumoView(String entradas, String saidas, String saldo) {
+    }
+
+    private record LancamentoFinanceiroView(UUID id, String data, String descricao, String categoria,
+            String tipo, String valor, String status, boolean entrada, String barbeiro) {
+    }
+
+    private record ComissaoBarbeiroView(UUID id, String nome, String percentual, String gerado, String pago,
+            String pendente) {
     }
 
     private record CalendarDayView(LocalDate date, boolean currentMonth, List<AgendamentoResumoView> items) {

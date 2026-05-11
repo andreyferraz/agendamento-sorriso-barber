@@ -205,7 +205,7 @@ class AgendamentoServiceTest {
     }
 
     @Test
-    void atualizarStatus_paraPago_deveRegistrarComissao() {
+    void atualizarStatus_paraPago_deveRegistrarEntradaDoAgendamento() {
         UUID agendamentoId = UUID.randomUUID();
         UUID servicoId = UUID.randomUUID();
         UUID barbeiroId = UUID.randomUUID();
@@ -237,8 +237,8 @@ class AgendamentoServiceTest {
         assertEquals(StatusAgendamento.PAGO, atualizado.getStatus());
         verify(transacaoFinanceiraService).criarTransacao(argThat(transacao ->
                 transacao != null
-                        && TipoEntrada.COMISSAO_PAGA.equals(transacao.getTipo())
-                        && BigDecimal.valueOf(30).compareTo(transacao.getValor()) == 0
+                        && TipoEntrada.ENTRADA.equals(transacao.getTipo())
+                        && BigDecimal.valueOf(100).compareTo(transacao.getValor()) == 0
                         && agendamentoId.equals(transacao.getAgendamentoId())
                         && barbeiroId.equals(transacao.getBarbeiroId())));
         verify(agendamentoRepository).save(any(Agendamento.class));

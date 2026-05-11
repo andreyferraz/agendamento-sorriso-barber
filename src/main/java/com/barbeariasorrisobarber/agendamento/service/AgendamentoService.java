@@ -191,18 +191,14 @@ public class AgendamentoService {
 				.orElseThrow(() -> new IllegalArgumentException("Barbeiro não encontrado para o agendamento."));
 
 		BigDecimal precoServico = servico.getPreco();
-		BigDecimal comissaoPercentual = barbeiro.getComissaoPercentual();
-		if (precoServico == null || comissaoPercentual == null) {
-			throw new IllegalArgumentException("Não foi possível calcular a comissão do barbeiro.");
+		if (precoServico == null) {
+			throw new IllegalArgumentException("Não foi possível registrar a entrada do agendamento.");
 		}
 
-		BigDecimal valorComissao = precoServico.multiply(comissaoPercentual)
-				.divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
-
 		TransacaoFinanceira transacao = new TransacaoFinanceira();
-		transacao.setTipo(TipoEntrada.COMISSAO_PAGA);
-		transacao.setValor(valorComissao);
-		transacao.setDescricao("Comissão do agendamento " + agendamento.getId());
+		transacao.setTipo(TipoEntrada.ENTRADA);
+		transacao.setValor(precoServico.setScale(2, RoundingMode.HALF_UP));
+		transacao.setDescricao("Pagamento do agendamento " + agendamento.getId());
 		transacao.setAgendamentoId(agendamento.getId());
 		transacao.setBarbeiroId(barbeiro.getId());
 		transacaoFinanceiraService.criarTransacao(transacao);

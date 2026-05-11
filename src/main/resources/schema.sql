@@ -21,8 +21,8 @@ CREATE TABLE IF NOT EXISTS agendamento (
 CREATE TABLE IF NOT EXISTS transacao_financeira (
     id TEXT PRIMARY KEY,
     tipo TEXT NOT NULL,
-    agendamento_id TEXT NOT NULL,
-    barbeiro_id TEXT NOT NULL,
+    agendamento_id TEXT,
+    barbeiro_id TEXT,
     valor NUMERIC NOT NULL,
     data TEXT NOT NULL,
     descricao TEXT,
