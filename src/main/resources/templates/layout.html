@@ -85,7 +85,9 @@
     </div>
 
     <div class="container footer-bottom footer-bottom-row">
-      <span>© Sorriso Barber - Todos os direitos reservados</span>
+      <span>&copy; <span id="year"></span>  Sorriso Barber - Todos os direitos reservados</span>
+
+      <span class="developer-credit">Desenvolvido por <a href="https://www.andreyferraz.com.br" target="_blank" rel="noopener noreferrer"><strong>Andrêy Ferraz</strong></a></span>
 
       <a th:href="@{/login}" class="footer-login-btn">
         <i class="fas fa-user-lock" aria-hidden="true"></i>
@@ -95,6 +97,9 @@
   </footer>
 
   <script th:src="@{/js/app.js}"></script>
+    <script>
+        document.getElementById('year').textContent = new Date().getFullYear();
+    </script>
 </body>
 
 </html>
